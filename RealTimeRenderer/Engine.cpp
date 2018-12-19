@@ -4,7 +4,7 @@
 
 Engine::Engine()
 {
-	Log::Print("Engine Created!");
+	LOG("Engine Created!");
 }
 
 
@@ -12,7 +12,11 @@ Engine::~Engine()
 {
 }
 
-void Engine::Initialize(HWND hwnd)
+void Engine::Initialize(HWND hwnd, int width, int height)
 {
 	m_hwnd = hwnd;
+	m_width = width;
+	m_height = height;
+
+	LOG("Engine Initialized with " << width << " " << height);
 }

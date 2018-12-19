@@ -1,9 +1,11 @@
 #include "Log.h"
 
 int Log::LogLineNumber = 0;
+std::ostringstream* Log::Stream = nullptr;
 
 void Log::Init()
 {
+	Stream = new std::ostringstream();
 }
 
 void Log::Print(const std::ostringstream& stream)

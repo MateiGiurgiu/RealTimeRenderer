@@ -7,6 +7,10 @@
 
 namespace Log
 {
+	#define LOG(x)			Log::Stream->str("");(*Log::Stream)<<x;Log::Print(*Log::Stream);
+	#define LOG_WARNING(x)	Log::Stream->str("");(*Log::Stream)<<x;Log::PrintWarning(*Log::Stream);
+	#define LOG_ERROR(x)	Log::Stream->str("");(*Log::Stream)<<x;Log::PrintError(*Log::Stream);
+
 	enum LogType : uint8_t
 	{
 		L_INFO = 0,
@@ -15,6 +19,7 @@ namespace Log
 	};
 
 	extern int LogLineNumber;
+	extern std::ostringstream* Stream;
 
 	void Init();
 
