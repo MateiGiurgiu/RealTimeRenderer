@@ -49,6 +49,8 @@
 
 #include <stdio.h>
 
+#include "Log.h";
+
 #ifdef _DEBUG
 #include <dxgidebug.h>
 #endif

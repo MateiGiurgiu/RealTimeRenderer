@@ -1,7 +1,3 @@
-//
-// Main.cpp
-//
-
 #include "pch.h"
 #include "Game.h"
 
@@ -24,6 +20,15 @@ extern "C"
 // Entry point
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
 {
+	// let's attach the console and redirect the output stream to it
+	AllocConsole();
+	AttachConsole(GetCurrentProcessId());
+	freopen("CON", "w", stdout);
+
+	// initialize log system
+	Log::Init();
+	Log::Print("Entry Point!");
+
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
