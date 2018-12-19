@@ -23,6 +23,7 @@
     <ClInclude Include="pch.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="Engine.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
@@ -36,6 +37,7 @@
     <ClCompile Include="pch.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="Engine.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
