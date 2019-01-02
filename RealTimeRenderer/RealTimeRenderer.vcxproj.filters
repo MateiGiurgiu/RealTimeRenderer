@@ -8,13 +8,13 @@
       <UniqueIdentifier>d07ca6f3-cbc4-47a2-89a4-91ebda54c89e</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dds;dlg;fbx;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tga;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Objects">
+      <UniqueIdentifier>{551091ef-62b7-4ff2-856c-aa5936bacc78}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h" />
     <ClInclude Include="StepTimer.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="DeviceResources.h">
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="Log.h">
@@ -23,21 +23,36 @@
     <ClInclude Include="pch.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="Engine.h" />
+    <ClInclude Include="Direct3D.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="IShader.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleShader.h" />
+    <ClInclude Include="ReadData.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="DeviceResources.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
     <ClCompile Include="Log.cpp">
       <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="Direct3D.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="SimpleShader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -54,5 +69,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Models\Sphere.cmo" />
+    <None Include="Models\Sphere.sdkmesh" />
+    <None Include="SimpleShader2.fx" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="SimpleShader.fx" />
+    <FxCompile Include="Test.hlsl">
+      <Filter>Objects</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

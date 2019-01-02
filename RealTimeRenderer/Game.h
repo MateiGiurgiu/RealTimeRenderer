@@ -4,9 +4,11 @@
 
 #pragma once
 
-#include "DeviceResources.h"
+#include "Direct3D.h"
 #include "StepTimer.h"
-
+#include <Model.h>
+#include "SimpleShader.h"
+#include <d3dx11effect.h>
 
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
@@ -44,12 +46,24 @@ private:
 
     void Clear();
 
+	void CreateGameObjects();
+
     void CreateDeviceDependentResources();
     void CreateWindowSizeDependentResources();
 
     // Device resources.
-    std::unique_ptr<DX::DeviceResources>    m_deviceResources;
+    std::unique_ptr<DX::Direct3D> m_Direct3D;
 
     // Rendering loop timer.
-    DX::StepTimer                           m_timer;
+    DX::StepTimer m_timer;
+
+	std::unique_ptr<SimpleShader> m_shader;
+	std::unique_ptr<Mesh> m_mesh;
+
+	DirectX::SimpleMath::Matrix m_world;
+	DirectX::SimpleMath::Matrix m_view;
+	DirectX::SimpleMath::Matrix m_proj;
+
+	ID3DX11Effect* m_pEffect = nullptr;
+	ID3DX11EffectTechnique* m_pTechnique = nullptr;
 };

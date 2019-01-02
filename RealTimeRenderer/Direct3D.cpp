@@ -1,10 +1,10 @@
 ﻿//
-// DeviceResources.cpp - A wrapper for the Direct3D 11 device and swapchain
+// Direct3D.cpp - A wrapper for the Direct3D 11 device and swapchain
 //                       (requires DirectX 11.1 Runtime)
 //
 
 #include "pch.h"
-#include "DeviceResources.h"
+#include "Direct3D.h"
 
 using namespace DirectX;
 using namespace DX;
@@ -38,21 +38,17 @@ namespace
     {
         switch (fmt)
         {
-        case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:   return DXGI_FORMAT_R8G8B8A8_UNORM;
-        case DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:   return DXGI_FORMAT_B8G8R8A8_UNORM;
-        case DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:   return DXGI_FORMAT_B8G8R8X8_UNORM;
-        default:                                return fmt;
+	        case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:   return DXGI_FORMAT_R8G8B8A8_UNORM;
+	        case DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:   return DXGI_FORMAT_B8G8R8A8_UNORM;
+	        case DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:   return DXGI_FORMAT_B8G8R8X8_UNORM;
+	        default:                                return fmt;
         }
     }
 };
 
-// Constructor for DeviceResources.
-DeviceResources::DeviceResources(
-    DXGI_FORMAT backBufferFormat,
-    DXGI_FORMAT depthBufferFormat,
-    UINT backBufferCount,
-    D3D_FEATURE_LEVEL minFeatureLevel,
-    unsigned int flags) noexcept :
+// Constructor for Direct3D.
+Direct3D::Direct3D(DXGI_FORMAT backBufferFormat, DXGI_FORMAT depthBufferFormat, UINT backBufferCount, D3D_FEATURE_LEVEL minFeatureLevel, unsigned int flags) 
+	noexcept :
         m_screenViewport{},
         m_backBufferFormat(backBufferFormat),
         m_depthBufferFormat(depthBufferFormat),
@@ -65,10 +61,11 @@ DeviceResources::DeviceResources(
         m_options(flags | c_FlipPresent),
         m_deviceNotify(nullptr)
 {
+	 // empty
 }
 
 // Configures the Direct3D device, and stores handles to it and the device context.
-void DeviceResources::CreateDeviceResources() 
+void Direct3D::CreateDeviceResources() 
 {
     UINT creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 
@@ -242,7 +239,7 @@ void DeviceResources::CreateDeviceResources()
 }
 
 // These resources need to be recreated every time the window size is changed.
-void DeviceResources::CreateWindowSizeDependentResources() 
+void Direct3D::CreateWindowSizeDependentResources() 
 {
     if (!m_window)
     {
@@ -374,7 +371,7 @@ void DeviceResources::CreateWindowSizeDependentResources()
 }
 
 // This method is called when the Win32 window is created (or re-created).
-void DeviceResources::SetWindow(HWND window, int width, int height)
+void Direct3D::SetWindow(HWND window, int width, int height)
 {
     m_window = window;
 
@@ -384,7 +381,7 @@ void DeviceResources::SetWindow(HWND window, int width, int height)
 }
 
 // This method is called when the Win32 window changes size
-bool DeviceResources::WindowSizeChanged(int width, int height)
+bool Direct3D::WindowSizeChanged(int width, int height)
 {
     RECT newRc;
     newRc.left = newRc.top = 0;
@@ -404,7 +401,7 @@ bool DeviceResources::WindowSizeChanged(int width, int height)
 }
 
 // Recreate all device resources and set them back to the current state.
-void DeviceResources::HandleDeviceLost()
+void Direct3D::HandleDeviceLost()
 {
     if (m_deviceNotify)
     {
@@ -442,7 +439,7 @@ void DeviceResources::HandleDeviceLost()
 }
 
 // Present the contents of the swap chain to the screen.
-void DeviceResources::Present() 
+void Direct3D::Present() 
 {
     HRESULT hr;
     if (m_options & c_AllowTearing)
@@ -492,7 +489,7 @@ void DeviceResources::Present()
     }
 }
 
-void DeviceResources::CreateFactory()
+void Direct3D::CreateFactory()
 {
 #if defined(_DEBUG) && (_WIN32_WINNT >= 0x0603 /*_WIN32_WINNT_WINBLUE*/)
     bool debugDXGI = false;
@@ -517,7 +514,7 @@ void DeviceResources::CreateFactory()
 
 // This method acquires the first available hardware adapter.
 // If no such adapter can be found, *ppAdapter will be set to nullptr.
-void DeviceResources::GetHardwareAdapter(IDXGIAdapter1** ppAdapter)
+void Direct3D::GetHardwareAdapter(IDXGIAdapter1** ppAdapter)
 {
     *ppAdapter = nullptr;
 
@@ -528,12 +525,7 @@ void DeviceResources::GetHardwareAdapter(IDXGIAdapter1** ppAdapter)
     HRESULT hr = m_dxgiFactory.As(&factory6);
     if (SUCCEEDED(hr))
     {
-        for (UINT adapterIndex = 0;
-            DXGI_ERROR_NOT_FOUND != factory6->EnumAdapterByGpuPreference(
-                adapterIndex,
-                DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
-                IID_PPV_ARGS(adapter.ReleaseAndGetAddressOf()));
-            adapterIndex++)
+        for (UINT adapterIndex = 0; DXGI_ERROR_NOT_FOUND != factory6->EnumAdapterByGpuPreference(adapterIndex, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(adapter.ReleaseAndGetAddressOf())); adapterIndex++)
         {
             DXGI_ADAPTER_DESC1 desc;
             adapter->GetDesc1(&desc);
@@ -555,11 +547,7 @@ void DeviceResources::GetHardwareAdapter(IDXGIAdapter1** ppAdapter)
     }
     else
 #endif
-    for (UINT adapterIndex = 0;
-        DXGI_ERROR_NOT_FOUND != m_dxgiFactory->EnumAdapters1(
-            adapterIndex,
-            adapter.ReleaseAndGetAddressOf());
-        adapterIndex++)
+    for (UINT adapterIndex = 0; DXGI_ERROR_NOT_FOUND != m_dxgiFactory->EnumAdapters1(adapterIndex, adapter.ReleaseAndGetAddressOf()); adapterIndex++)
     {
         DXGI_ADAPTER_DESC1 desc;
         adapter->GetDesc1(&desc);
@@ -583,7 +571,7 @@ void DeviceResources::GetHardwareAdapter(IDXGIAdapter1** ppAdapter)
 }
 
 // Sets the color space for the swap chain in order to handle HDR output.
-void DeviceResources::UpdateColorSpace()
+void Direct3D::UpdateColorSpace()
 {
     DXGI_COLOR_SPACE_TYPE colorSpace = DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709;
 

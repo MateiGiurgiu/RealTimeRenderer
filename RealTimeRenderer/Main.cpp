@@ -1,13 +1,11 @@
 #include "pch.h"
 #include "Game.h"
-#include "Engine.h"
 
 using namespace DirectX;
 
 namespace
 {
     std::unique_ptr<Game> g_game;
-	std::unique_ptr<Engine> engine;
 };
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -31,6 +29,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	Log::Init();
 	Log::Print("Entry Point!");
 
+	// Remove warnings
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
@@ -42,7 +41,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
         return 1;
 
     g_game = std::make_unique<Game>();
-	engine = std::make_unique<Engine>();
 
     // Register class and create window
     {
@@ -85,7 +83,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
         GetClientRect(hwnd, &rc);
 
         g_game->Initialize(hwnd, rc.right - rc.left, rc.bottom - rc.top);
-		engine->Initialize(hwnd, rc.right - rc.left, rc.bottom - rc.top);
     }
 
     // Main message loop
@@ -270,7 +267,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     return DefWindowProc(hWnd, message, wParam, lParam);
 }
-
 
 // Exit helper
 void ExitGame()

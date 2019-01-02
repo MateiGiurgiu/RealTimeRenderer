@@ -4,6 +4,10 @@
 
 #include "pch.h"
 #include "Game.h"
+#include <GeometricPrimitive.h>
+#include "Mesh.h"
+#include <Model.h>
+#include <CommonStates.h>
 
 extern void ExitGame();
 
@@ -11,22 +15,26 @@ using namespace DirectX;
 
 using Microsoft::WRL::ComPtr;
 
+
+
 Game::Game() noexcept(false)
 {
-    m_deviceResources = std::make_unique<DX::DeviceResources>();
-    m_deviceResources->RegisterDeviceNotify(this);
+    m_Direct3D = std::make_unique<DX::Direct3D>();
+    m_Direct3D->RegisterDeviceNotify(this);
 }
 
 // Initialize the Direct3D resources required to run.
 void Game::Initialize(HWND window, int width, int height)
 {
-    m_deviceResources->SetWindow(window, width, height);
+    m_Direct3D->SetWindow(window, width, height);
 
-    m_deviceResources->CreateDeviceResources();
+    m_Direct3D->CreateDeviceResources();
     CreateDeviceDependentResources();
 
-    m_deviceResources->CreateWindowSizeDependentResources();
+    m_Direct3D->CreateWindowSizeDependentResources();
     CreateWindowSizeDependentResources();
+
+	CreateGameObjects();
 
     // TODO: Change the timer settings if you want something other than the default variable timestep mode.
     // e.g. for 60 FPS fixed timestep update logic, call:
@@ -54,7 +62,9 @@ void Game::Update(DX::StepTimer const& timer)
     float elapsedTime = float(timer.GetElapsedSeconds());
 
     // TODO: Add your game logic here.
-    elapsedTime;
+	float time = float(timer.GetTotalSeconds());
+
+	m_world = Matrix::CreateRotationZ(time);
 }
 #pragma endregion
 
@@ -70,38 +80,42 @@ void Game::Render()
 
     Clear();
 
-    m_deviceResources->PIXBeginEvent(L"Render");
-    auto context = m_deviceResources->GetD3DDeviceContext();
+    m_Direct3D->PIXBeginEvent(L"Render");
+	ID3D11DeviceContext1* context = m_Direct3D->GetD3DDeviceContext();
 
     // TODO: Add your rendering code here.
-    context;
+	m_mesh->PrepareForRendering(context);
+	m_shader->SetShaderParameters(context, m_world, m_view, m_proj, Vector4(0, 5, 0, 1));
 
-    m_deviceResources->PIXEndEvent();
+	m_shader->RenderShader(context, m_mesh->GetIndexCount());
+
+    m_Direct3D->PIXEndEvent();
 
     // Show the new frame.
-    m_deviceResources->Present();
+    m_Direct3D->Present();
 }
 
 // Helper method to clear the back buffers.
 void Game::Clear()
 {
-    m_deviceResources->PIXBeginEvent(L"Clear");
+    m_Direct3D->PIXBeginEvent(L"Clear");
+	
+	// Clear the views.
+	auto context = m_Direct3D->GetD3DDeviceContext();
+	auto renderTarget = m_Direct3D->GetRenderTargetView();
+	auto depthStencil = m_Direct3D->GetDepthStencilView();
 
-    // Clear the views.
-    auto context = m_deviceResources->GetD3DDeviceContext();
-    auto renderTarget = m_deviceResources->GetRenderTargetView();
-    auto depthStencil = m_deviceResources->GetDepthStencilView();
+	context->ClearRenderTargetView(renderTarget, Colors::CornflowerBlue);
+	context->ClearDepthStencilView(depthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	context->OMSetRenderTargets(1, &renderTarget, depthStencil);
 
-    context->ClearRenderTargetView(renderTarget, Colors::CornflowerBlue);
-    context->ClearDepthStencilView(depthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-    context->OMSetRenderTargets(1, &renderTarget, depthStencil);
-
-    // Set the viewport.
-    auto viewport = m_deviceResources->GetScreenViewport();
-    context->RSSetViewports(1, &viewport);
-
-    m_deviceResources->PIXEndEvent();
+	// Set the viewport.
+	auto viewport = m_Direct3D->GetScreenViewport();
+	context->RSSetViewports(1, &viewport);
+	
+    m_Direct3D->PIXEndEvent();
 }
+
 #pragma endregion
 
 #pragma region Message Handlers
@@ -130,13 +144,13 @@ void Game::OnResuming()
 
 void Game::OnWindowMoved()
 {
-    auto r = m_deviceResources->GetOutputSize();
-    m_deviceResources->WindowSizeChanged(r.right, r.bottom);
+    auto r = m_Direct3D->GetOutputSize();
+    m_Direct3D->WindowSizeChanged(r.right, r.bottom);
 }
 
 void Game::OnWindowSizeChanged(int width, int height)
 {
-    if (!m_deviceResources->WindowSizeChanged(width, height))
+    if (!m_Direct3D->WindowSizeChanged(width, height))
         return;
 
     CreateWindowSizeDependentResources();
@@ -157,21 +171,23 @@ void Game::GetDefaultSize(int& width, int& height) const
 // These are the resources that depend on the device.
 void Game::CreateDeviceDependentResources()
 {
-    auto device = m_deviceResources->GetD3DDevice();
+    auto device = m_Direct3D->GetD3DDevice();
 
-    // TODO: Initialize device dependent objects here (independent of window size).
-    device;
+	m_world = SimpleMath::Matrix::Identity;
 }
 
 // Allocate all memory resources that change on a window SizeChanged event.
 void Game::CreateWindowSizeDependentResources()
 {
-    // TODO: Initialize windows-size dependent objects here.
+	m_view = SimpleMath::Matrix::CreateLookAt(SimpleMath::Vector3(2.f, 2.f, 2.f),
+	                              SimpleMath::Vector3::Zero, SimpleMath::Vector3::UnitY);
+	m_proj = SimpleMath::Matrix::CreatePerspectiveFieldOfView(XM_PI / 4.f,
+		float(m_Direct3D->GetScreenViewport().Width) / float(m_Direct3D->GetScreenViewport().Height), 0.1f, 10.f);
 }
 
 void Game::OnDeviceLost()
 {
-    // TODO: Add Direct3D resource cleanup here.
+
 }
 
 void Game::OnDeviceRestored()
@@ -181,3 +197,14 @@ void Game::OnDeviceRestored()
     CreateWindowSizeDependentResources();
 }
 #pragma endregion
+
+void Game::CreateGameObjects()
+{
+	ID3D11DeviceContext1* context = m_Direct3D->GetD3DDeviceContext();
+	ID3D11Device1* device = m_Direct3D->GetD3DDevice();
+
+	m_mesh = std::make_unique<Mesh>(device, context);
+
+	m_shader = std::make_unique<SimpleShader>();
+	m_shader->Initialize(device, *m_mesh);
+}
