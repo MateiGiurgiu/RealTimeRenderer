@@ -63,7 +63,13 @@ private:
 	DirectX::SimpleMath::Matrix m_world;
 	DirectX::SimpleMath::Matrix m_view;
 	DirectX::SimpleMath::Matrix m_proj;
+	Vector4 m_LightPos;
 
 	ID3DX11Effect* m_pEffect = nullptr;
 	ID3DX11EffectTechnique* m_pTechnique = nullptr;
+	ID3DX11EffectMatrixVariable* m_pWorldVariable = nullptr;
+	ID3DX11EffectMatrixVariable* m_pViewVariable = nullptr;
+	ID3DX11EffectMatrixVariable* m_pProjectionVariable = nullptr;
+	ID3DX11EffectVectorVariable* m_lightPosVariable;
+	ID3D11InputLayout* m_layout;
 };
