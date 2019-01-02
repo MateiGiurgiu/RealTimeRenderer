@@ -11,6 +11,9 @@
     <Filter Include="Objects">
       <UniqueIdentifier>{551091ef-62b7-4ff2-856c-aa5936bacc78}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Managers">
+      <UniqueIdentifier>{e4726564-8b8b-4f5b-91d8-8a8229979017}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h" />
@@ -36,6 +39,15 @@
     <ClInclude Include="ReadData.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshRenderer.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceManager.h">
+      <Filter>Managers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
@@ -53,6 +65,15 @@
       <Filter>Objects</Filter>
     </ClCompile>
     <ClCompile Include="SimpleShader.cpp" />
+    <ClCompile Include="Shader.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshRenderer.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceManager.cpp">
+      <Filter>Managers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -71,7 +92,7 @@
     <None Include="packages.config" />
     <None Include="Models\Sphere.cmo" />
     <None Include="Models\Sphere.sdkmesh" />
-    <None Include="SimpleShader2.fx" />
+    <None Include="Shaders\SimpleShader2.fx" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="SimpleShader.fx" />

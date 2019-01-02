@@ -9,6 +9,8 @@
 #include <Model.h>
 #include <CommonStates.h>
 #include <d3dcompiler.h>
+#include "Shader.h"
+#include "ResourceManager.h"
 
 extern void ExitGame();
 
@@ -86,34 +88,9 @@ void Game::Render()
 	ID3D11Device1* device = m_Direct3D->GetD3DDevice();
 
     // TODO: Add your rendering code here.
-	m_mesh->PrepareForRendering(context);
-	//m_shader->SetShaderParameters(context, m_world, m_view, m_proj, Vector4(0, 5, 0, 1));
-
-	//m_shader->RenderShader(context, m_mesh->GetIndexCount());
-
-	D3DX11_PASS_DESC PassDesc;
-	HRESULT r = m_pTechnique->GetPassByIndex(0)->GetDesc(&PassDesc);
-	if (FAILED(r))
-	{
-		LOG_ERROR("Get pass failed");
-	}
-
-	r = device->CreateInputLayout(m_mesh->GetLayoutDesc(), m_mesh->GetLayoutDescCount(), PassDesc.pIAInputSignature, PassDesc.IAInputSignatureSize, &m_layout);
-
-	if (FAILED(r))
-	{
-		LOG_ERROR("Create input layout failed");
-	}
-	context->IASetInputLayout(m_layout);
-
-	m_pProjectionVariable->SetMatrix(reinterpret_cast<float*>(&m_proj));
-	m_pViewVariable->SetMatrix(reinterpret_cast<float*>(&m_view));
-	m_pWorldVariable->SetMatrix(reinterpret_cast<float*>(&m_world));
 	m_lightPosVariable->SetFloatVector(reinterpret_cast<float*>(&m_LightPos));
 
-
-	m_pTechnique->GetPassByIndex(0)->Apply(0, context);
-	context->DrawIndexed(m_mesh->GetIndexCount(), 0, 0);
+	m_meshRenderer->Render(context, m_world, m_view, m_proj);
 
     m_Direct3D->PIXEndEvent();
 
@@ -231,26 +208,10 @@ void Game::CreateGameObjects()
 	ID3D11DeviceContext1* context = m_Direct3D->GetD3DDeviceContext();
 	ID3D11Device1* device = m_Direct3D->GetD3DDevice();
 
-	m_mesh = std::make_unique<Mesh>(device, context);
+	std::shared_ptr<Mesh> mesh = ResourceManager::GetMesh(L"Models/Sphere.cmo", device);
+	std::shared_ptr<Shader> shader = ResourceManager::GetShader(L"Shaders/SimpleShader2.fx", device);
+	m_meshRenderer = std::make_shared<MeshRenderer>(mesh, shader, device);
 
-	HRESULT result = D3DX11CompileEffectFromFile(L"SimpleShader2.fx", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
-	                                             D3DCOMPILE_ENABLE_STRICTNESS, 0, device, &m_pEffect, nullptr);
-	if (FAILED(result))
-	{
-		LOG("something went wrong when compiling effect");
-	}
+	m_lightPosVariable = shader->GetEffect()->GetVariableByName("LightPos")->AsVector();
 
-	// Obtain the technique
-	m_pTechnique = m_pEffect->GetTechniqueByName("Render");
-	
-	// Obtain the variables
-	m_pWorldVariable = m_pEffect->GetVariableByName("World")->AsMatrix();
-	m_pViewVariable = m_pEffect->GetVariableByName("View")->AsMatrix();
-	m_pProjectionVariable = m_pEffect->GetVariableByName("Projection")->AsMatrix();
-	m_lightPosVariable = m_pEffect->GetVariableByName("LightPos")->AsVector();
-
-
-
-	//m_shader = std::make_unique<SimpleShader>();
-	//m_shader->Initialize(device, *m_mesh);
 }

@@ -2,21 +2,16 @@
 #include "Mesh.h"
 #include "Effects.h"
 #include "Model.h"
-#include "CommonStates.h"
 
-Mesh::Mesh(ID3D11Device1* device, ID3D11DeviceContext1* context) :
+Mesh::Mesh(wchar_t* filename, ID3D11Device1* device) :
 	m_vertexBuffer(nullptr), 
 	m_indexBuffer(nullptr)
 {
 	auto fx = std::make_unique<DirectX::EffectFactory>(device);
-	auto model = DirectX::Model::CreateFromCMO(device, L"Models/Sphere.cmo", *fx);
+	auto model = DirectX::Model::CreateFromCMO(device, filename, *fx);
 
-	//std::unique_ptr<DirectX::CommonStates> states = std::make_unique<DirectX::CommonStates>(device);
-
-	//model->meshes[0]->PrepareForRendering(context, *states);
-
-	m_vertexBuffer = model->meshes[0]->meshParts[0]->vertexBuffer;
-	m_indexBuffer = model->meshes[0]->meshParts[0]->indexBuffer;
+	model->meshes[0]->meshParts[0]->vertexBuffer.Swap(m_vertexBuffer);
+	model->meshes[0]->meshParts[0]->indexBuffer.Swap(m_indexBuffer);
 
 	m_indexCount = model->meshes[0]->meshParts[0]->indexCount;
 	D3D11_BUFFER_DESC desc;
@@ -34,6 +29,7 @@ Mesh::Mesh(ID3D11Device1* device, ID3D11DeviceContext1* context) :
 
 Mesh::~Mesh()
 {
+	LOG("Destructor called");
 	if (m_indexBuffer)
 	{
 		m_indexBuffer.Reset();
@@ -48,9 +44,8 @@ Mesh::~Mesh()
 	}
 }
 
-void Mesh::PrepareForRendering(ID3D11DeviceContext1* context)
+void Mesh::PrepareForDraw(ID3D11DeviceContext1* context)
 {
-	int q = 32;
 	// Set the vertex buffer to active in the input assembler so it can be rendered.
 	context->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &m_vertexStride, &m_vertexOffset);
 

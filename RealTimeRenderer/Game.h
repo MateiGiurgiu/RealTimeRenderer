@@ -9,6 +9,8 @@
 #include <Model.h>
 #include "SimpleShader.h"
 #include <d3dx11effect.h>
+#include "Shader.h"
+#include "MeshRenderer.h"
 
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
@@ -57,19 +59,12 @@ private:
     // Rendering loop timer.
     DX::StepTimer m_timer;
 
-	std::unique_ptr<SimpleShader> m_shader;
-	std::unique_ptr<Mesh> m_mesh;
+	std::shared_ptr<MeshRenderer> m_meshRenderer;
 
 	DirectX::SimpleMath::Matrix m_world;
 	DirectX::SimpleMath::Matrix m_view;
 	DirectX::SimpleMath::Matrix m_proj;
-	Vector4 m_LightPos;
 
-	ID3DX11Effect* m_pEffect = nullptr;
-	ID3DX11EffectTechnique* m_pTechnique = nullptr;
-	ID3DX11EffectMatrixVariable* m_pWorldVariable = nullptr;
-	ID3DX11EffectMatrixVariable* m_pViewVariable = nullptr;
-	ID3DX11EffectMatrixVariable* m_pProjectionVariable = nullptr;
+	Vector4 m_LightPos;
 	ID3DX11EffectVectorVariable* m_lightPosVariable;
-	ID3D11InputLayout* m_layout;
 };

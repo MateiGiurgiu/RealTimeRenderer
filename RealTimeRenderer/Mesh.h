@@ -4,10 +4,10 @@
 class Mesh
 {
 public:
-	Mesh(ID3D11Device1* device, ID3D11DeviceContext1* context);
+	Mesh(wchar_t* filename, ID3D11Device1* device);
 	~Mesh();
 
-	void PrepareForRendering(ID3D11DeviceContext1* context);
+	void PrepareForDraw(ID3D11DeviceContext1* context);
 
 	// Accessors
 	unsigned int GetIndexCount() const { return m_indexCount; };
