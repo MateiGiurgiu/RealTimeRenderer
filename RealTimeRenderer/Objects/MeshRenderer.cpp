@@ -77,18 +77,3 @@ void MeshRenderer::DrawInstanced(ID3D11DeviceContext1* context, const Matrix wor
 
 	context->DrawIndexedInstanced(m_mesh->GetIndexCount(), numOfInstances, 0, 0, 0);
 }
-
-void MeshRenderer::SetVector(const LPCSTR varName, DirectX::SimpleMath::Vector2& value) const
-{
-	m_shader->GetEffect()->GetVariableByName(varName)->AsVector()->SetFloatVector(reinterpret_cast<float*>(&value));
-}
-
-void MeshRenderer::SetVector(const LPCSTR varName, DirectX::SimpleMath::Vector3& value) const
-{
-	m_shader->GetEffect()->GetVariableByName(varName)->AsVector()->SetFloatVector(reinterpret_cast<float*>(&value));
-}
-
-void MeshRenderer::SetVector(const LPCSTR varName, DirectX::SimpleMath::Vector4& value) const
-{
-	m_shader->GetEffect()->GetVariableByName(varName)->AsVector()->SetFloatVector(reinterpret_cast<float*>(&value));
-}

@@ -1,4 +1,5 @@
 #pragma once
+#include "Texture.h"
 #include <d3dx11effect.h>
 
 class Shader
@@ -16,7 +17,10 @@ public:
 	ID3DX11Effect* GetEffect() const { return m_effect; };
 
 	// Utilities
-	void SetTexture(LPCSTR varName, ID3D11ShaderResourceView* texture);
+	void SetTexture(LPCSTR varName, const Texture& texture);
+	void SetVector(LPCSTR varName, DirectX::SimpleMath::Vector2& vector);
+	void SetVector(LPCSTR varName, DirectX::SimpleMath::Vector3& vector);
+	void SetVector(LPCSTR varName, DirectX::SimpleMath::Vector4& vector);
 
 private:
 	ID3D11InputLayout* m_vertexInputLayout = nullptr;

@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Shader.h"
+#include "Texture.h"
 #include <d3dcompiler.h>
 
 Shader::Shader(const wchar_t* filename, ID3D11Device1* device)
@@ -56,7 +57,7 @@ void Shader::PrepareForDraw(ID3D11DeviceContext1* context, const int passIndex)
 {
 	context->IASetInputLayout(m_vertexInputLayout);
 	
-	HRESULT result = m_technique->GetPassByIndex(passIndex)->Apply(0, context);
+	DX::ThrowIfFailed(m_technique->GetPassByIndex(passIndex)->Apply(0, context));
 }
 
 ID3DX11EffectPass* Shader::GetPass(int passIndex) const
@@ -71,10 +72,34 @@ ID3DX11EffectPass* Shader::GetPass(int passIndex) const
 	}
 }
 
-void Shader::SetTexture(LPCSTR varName, ID3D11ShaderResourceView* texture)
+void Shader::SetTexture(LPCSTR varName, const Texture& texture)
 {
 	if (IsValid())
 	{
-		m_effect->GetVariableByName(varName)->AsShaderResource()->SetResource(texture);
+		m_effect->GetVariableByName(varName)->AsShaderResource()->SetResource(texture.GetShaderResourceView());
+	}
+}
+
+void Shader::SetVector(LPCSTR varName, DirectX::SimpleMath::Vector2& vector)
+{
+	if (IsValid())
+	{
+		m_effect->GetVariableByName(varName)->AsVector()->SetFloatVector(reinterpret_cast<float*>(&vector));
+	}
+}
+
+void Shader::SetVector(LPCSTR varName, DirectX::SimpleMath::Vector3& vector)
+{
+	if (IsValid())
+	{
+		m_effect->GetVariableByName(varName)->AsVector()->SetFloatVector(reinterpret_cast<float*>(&vector));
+	}
+}
+
+void Shader::SetVector(LPCSTR varName, DirectX::SimpleMath::Vector4& vector)
+{
+	if (IsValid())
+	{
+		m_effect->GetVariableByName(varName)->AsVector()->SetFloatVector(reinterpret_cast<float*>(&vector));
 	}
 }

@@ -32,10 +32,6 @@ public:
 #pragma endregion
 
 
-	void SetVector(const LPCSTR varName, DirectX::SimpleMath::Vector2& value) const;
-	void SetVector(const LPCSTR varName, DirectX::SimpleMath::Vector3& value) const;
-	void SetVector(const LPCSTR varName, DirectX::SimpleMath::Vector4& value) const;
-
 private:
 	std::shared_ptr<Mesh> m_mesh;
 	std::shared_ptr<Shader> m_shader;
