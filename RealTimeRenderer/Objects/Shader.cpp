@@ -70,3 +70,11 @@ ID3DX11EffectPass* Shader::GetPass(int passIndex) const
 		return nullptr;
 	}
 }
+
+void Shader::SetTexture(LPCSTR varName, ID3D11ShaderResourceView* texture)
+{
+	if (IsValid())
+	{
+		m_effect->GetVariableByName(varName)->AsShaderResource()->SetResource(texture);
+	}
+}

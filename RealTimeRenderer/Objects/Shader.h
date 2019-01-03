@@ -12,9 +12,11 @@ public:
 	bool IsValid() const { return m_effect != nullptr; }
 	ID3DX11EffectPass* GetPass(int passIndex) const;
 
-	// Accessors
+	// Getters
 	ID3DX11Effect* GetEffect() const { return m_effect; };
 
+	// Utilities
+	void SetTexture(LPCSTR varName, ID3D11ShaderResourceView* texture);
 
 private:
 	ID3D11InputLayout* m_vertexInputLayout = nullptr;
