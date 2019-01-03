@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Game.h"
 #include "ResourceManager.h"
+#include "Geometry.h"
+#include "Texture.h"
 
 extern void ExitGame();
 
@@ -20,13 +22,13 @@ void Game::Initialize(HWND window, int width, int height)
 {
     m_Direct3D->SetWindow(window, width, height);
 
-	CreateGameObjects();
-
     m_Direct3D->CreateDeviceResources();
     CreateDeviceDependentResources();
 
     m_Direct3D->CreateWindowSizeDependentResources();
     CreateWindowSizeDependentResources();
+
+	CreateGameObjects();
 
     // TODO: Change the timer settings if you want something other than the default variable timestep mode.
     // e.g. for 60 FPS fixed timestep update logic, call:
@@ -85,8 +87,13 @@ void Game::Render()
     // TODO: Add your rendering code here.
 	m_lightPosVariable->SetFloatVector(reinterpret_cast<float*>(&m_LightPos));
 
+	for (unsigned int i = 0; i < m_renderables.size(); ++i)
+	{
+		m_renderables[i]->Render(context, m_camera.GetViewMatrix(), m_proj);
+	}
+
 	//m_meshRenderer->Draw(context, m_world, m_camera.GetViewMatrix(), m_proj);
-	m_meshRenderer->DrawInstanced(context, m_world, m_camera.GetViewMatrix(), m_proj, 100);
+	//m_meshRenderer->DrawInstanced(context, m_world, m_camera.GetViewMatrix(), m_proj, 100);
 
     m_Direct3D->PIXEndEvent();
 
@@ -219,6 +226,7 @@ void Game::CreateWindowSizeDependentResources()
 	// Add GUI widgets
 	TwAddVarRW(infoBar, "Camera Movement Speed", TW_TYPE_FLOAT, &m_camera.MovementSpeed, "");
 	TwAddVarRW(infoBar, "Camera Rotation Speed", TW_TYPE_FLOAT, &m_camera.RotationSpeed, "");
+	TwAddVarRO(infoBar, "MeshesLoaded", TW_TYPE_INT32, &ResourceManager::MeshesLoaded, "");
 }
 
 void Game::OnDeviceLost()
@@ -236,5 +244,12 @@ void Game::OnDeviceRestored()
 
 void Game::CreateGameObjects()
 {
+	ID3D11Device1* device = m_Direct3D->GetD3DDevice();
 
+	m_renderables.reserve(10);
+	auto geom = std::make_shared<Geometry>(device, L"Models/Axis.sdkmesh", L"Shaders/SimpleShader2.fx");
+	geom->SetPosition(4.0, 0, 4);
+	m_renderables.push_back(geom);
+
+	Texture texture = Texture(device, L"matei.exe");
 }

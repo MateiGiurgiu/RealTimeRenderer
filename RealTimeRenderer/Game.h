@@ -11,6 +11,8 @@
 #include <Keyboard.h>
 #include "Camera.h"
 #include <AntTweakBar.h>
+#include <vector>
+#include "IRenderable.h"
 
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
@@ -63,6 +65,8 @@ private:
 	std::unique_ptr<DirectX::Keyboard> m_keyboard;
 
 	std::shared_ptr<MeshRenderer> m_meshRenderer;
+	std::vector<std::shared_ptr<IRenderable>> m_renderables;
+
 
 	DirectX::SimpleMath::Matrix m_world;
 	DirectX::SimpleMath::Matrix m_proj;
