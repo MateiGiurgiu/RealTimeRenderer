@@ -45,6 +45,7 @@
       <Filter>Managers</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Geometry.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
@@ -71,6 +72,7 @@
       <Filter>Managers</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Geometry.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

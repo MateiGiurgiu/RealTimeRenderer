@@ -4,7 +4,7 @@
 class Mesh
 {
 public:
-	Mesh(wchar_t* filename, ID3D11Device1* device);
+	Mesh(const wchar_t* filename, ID3D11Device1* device);
 	~Mesh();
 
 	void PrepareForDraw(ID3D11DeviceContext1* context);

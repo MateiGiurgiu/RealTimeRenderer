@@ -5,13 +5,13 @@
 using namespace DirectX::SimpleMath;
 
 Camera::Camera()
-	: m_pos(Vector3::Zero), m_yaw(0.0f), m_pitch(0.0f), MovementSpeed(1.0f)
+	: MovementSpeed(3.0f), RotationSpeed(3.0f), m_pos(Vector3::Zero), m_yaw(0.0f), m_pitch(0.0f)
 {
 	
 }
 
 Camera::Camera(Vector3 initialPos)
-	: m_pos(initialPos), m_yaw(0.0f), m_pitch(0.0f), MovementSpeed(1.0f)
+	: MovementSpeed(3.0f), RotationSpeed(3.0f), m_pos(initialPos), m_yaw(0.0f), m_pitch(0.0f)
 {
 	
 }
@@ -39,10 +39,13 @@ void Camera::Update(float deltaTime)
 		if (state.D || state.Right)
 			rotation.x -= 1.0f;
 
+		rotation.Normalize();
+		rotation *= RotationSpeed;
+
 		// limit pitch to avoid gimbal lock
 		m_pitch += rotation.y * deltaTime;
 		m_yaw += rotation.x * deltaTime;
-		float limit = DirectX::XM_PI / 2.0f - 0.1f;
+		float const limit = DirectX::XM_PI / 2.0f - 0.1f;
 		m_pitch = std::max(-limit, m_pitch);
 		m_pitch = std::min(+limit, m_pitch);
 
@@ -87,7 +90,7 @@ void Camera::Update(float deltaTime)
 	}
 }
 
-Matrix Camera::GetViewMatrix()
+Matrix Camera::GetViewMatrix() const
 {
 	float y = sinf(m_pitch);
 	float r = cosf(m_pitch);

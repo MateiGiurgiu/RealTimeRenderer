@@ -2,7 +2,7 @@
 #include "Shader.h"
 #include <d3dcompiler.h>
 
-Shader::Shader(wchar_t* filename, ID3D11Device1* device)
+Shader::Shader(const wchar_t* filename, ID3D11Device1* device)
 {
 	ID3DBlob* error;
 	HRESULT result = D3DX11CompileEffectFromFile(filename, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, D3DCOMPILE_ENABLE_STRICTNESS, 0, device, &m_effect, &error);
@@ -55,7 +55,8 @@ HRESULT Shader::SetInputLayout(D3D11_INPUT_ELEMENT_DESC* inputDesc, UINT inputDe
 void Shader::PrepareForDraw(ID3D11DeviceContext1* context, const int passIndex)
 {
 	context->IASetInputLayout(m_vertexInputLayout);
-	m_technique->GetPassByIndex(passIndex)->Apply(0, context);
+	
+	HRESULT result = m_technique->GetPassByIndex(passIndex)->Apply(0, context);
 }
 
 ID3DX11EffectPass* Shader::GetPass(int passIndex) const

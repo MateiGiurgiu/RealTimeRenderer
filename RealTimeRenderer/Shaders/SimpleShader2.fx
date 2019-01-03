@@ -1,13 +1,16 @@
 //--------------------------------------------------------------------------------------
 // Constant Buffer Variables
 //--------------------------------------------------------------------------------------
-cbuffer ConstantBuffer : register(b0)
-{
-	matrix World;
-	matrix View;
-	matrix Projection;
-	float4 LightPos;
-}
+
+// MVP
+matrix World;
+matrix View;
+matrix Projection;
+
+// LIGHT
+float4 LightPos;
+
+float4 InstanceData[512];
 
 //--------------------------------------------------------------------------------------
 struct VS_INPUT
@@ -54,11 +57,12 @@ RasterizerState rasterizerState
 //--------------------------------------------------------------------------------------
 // Vertex Shader
 //--------------------------------------------------------------------------------------
-PS_INPUT VS(VS_INPUT input)
+PS_INPUT VS(VS_INPUT input, uint id : SV_InstanceID)
 {
 	PS_INPUT output = (PS_INPUT)0;
 
 	output.Pos = mul(input.Pos, World);
+	output.Pos += InstanceData[id];
 	output.wPos = output.Pos.xyz;
 	output.Pos = mul(output.Pos, View);
 	output.Pos = mul(output.Pos, Projection);

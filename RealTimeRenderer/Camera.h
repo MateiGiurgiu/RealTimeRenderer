@@ -9,10 +9,11 @@ public:
 
 	void Update(float deltaTime);
 
-	DirectX::SimpleMath::Matrix GetViewMatrix();
-	DirectX::SimpleMath::Matrix GetProjectionMatrix();
+	DirectX::SimpleMath::Matrix GetViewMatrix() const;
+	DirectX::SimpleMath::Matrix GetProjectionMatrix() const;
 
 	float MovementSpeed;
+	float RotationSpeed;
 
 private:
 	DirectX::SimpleMath::Vector3 m_pos;

@@ -159,6 +159,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Direct3D.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="Geometry.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshRenderer.h" />
@@ -172,6 +173,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Direct3D.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="Log.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>

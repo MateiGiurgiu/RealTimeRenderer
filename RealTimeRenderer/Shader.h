@@ -4,7 +4,7 @@
 class Shader
 {
 public:
-	Shader(wchar_t* filename, ID3D11Device1* device);
+	Shader(const wchar_t* filename, ID3D11Device1* device);
 	~Shader();
 
 	HRESULT SetInputLayout(D3D11_INPUT_ELEMENT_DESC* inputDesc, UINT inputDescCount, ID3D11Device1* device);

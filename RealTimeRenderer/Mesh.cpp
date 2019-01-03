@@ -3,7 +3,7 @@
 #include "Effects.h"
 #include "Model.h"
 
-Mesh::Mesh(wchar_t* filename, ID3D11Device1* device) :
+Mesh::Mesh(const wchar_t* filename, ID3D11Device1* device) :
 	m_vertexBuffer(nullptr), 
 	m_indexBuffer(nullptr)
 {
@@ -29,9 +29,6 @@ Mesh::Mesh(wchar_t* filename, ID3D11Device1* device) :
 	{
 		m_layoutDesc[i] = layoutDesc->at(i);
 	}
-
-	//m_layoutDesc = layoutDesc->data();
-
 }
 
 Mesh::~Mesh()

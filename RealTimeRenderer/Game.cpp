@@ -9,7 +9,6 @@ using namespace DirectX;
 using Microsoft::WRL::ComPtr;
 
 
-
 Game::Game() noexcept(false)
 {
     m_Direct3D = std::make_unique<DX::Direct3D>();
@@ -86,7 +85,8 @@ void Game::Render()
     // TODO: Add your rendering code here.
 	m_lightPosVariable->SetFloatVector(reinterpret_cast<float*>(&m_LightPos));
 
-	m_meshRenderer->Draw(context, m_world, m_camera.GetViewMatrix(), m_proj);
+	//m_meshRenderer->Draw(context, m_world, m_camera.GetViewMatrix(), m_proj);
+	m_meshRenderer->DrawInstanced(context, m_world, m_camera.GetViewMatrix(), m_proj, 100);
 
     m_Direct3D->PIXEndEvent();
 
@@ -179,6 +179,18 @@ void Game::CreateDeviceDependentResources()
 	std::shared_ptr<Shader> shader = ResourceManager::GetShader(L"Shaders/SimpleShader2.fx", device);
 	m_meshRenderer = std::make_shared<MeshRenderer>(mesh, shader, device);
 
+	instanceData = new SimpleMath::Vector4[100];
+
+	for(int i = 0; i < 10; ++i)
+	{
+		for (int j = 0; j < 10; ++j)
+		{
+			instanceData[i * 10 + j] = SimpleMath::Vector4(static_cast<float>(i) * 2.5f, 0, static_cast<float>(j) * 2.5f, 1);
+		}
+	}
+
+	m_meshRenderer->SetInstanceData(device, reinterpret_cast<float*>(instanceData), sizeof(SimpleMath::Vector4), 100);
+
 	m_lightPosVariable = shader->GetEffect()->GetVariableByName("LightPos")->AsVector();
 	m_world = SimpleMath::Matrix::Identity;
 	//m_world = SimpleMath::Matrix::CreateScale(1.0f);
@@ -189,17 +201,24 @@ void Game::CreateWindowSizeDependentResources()
 {
 	ID3D11Device1* device = m_Direct3D->GetD3DDevice();
 
-	TwInit(TW_DIRECT3D11, device);
-	TwWindowSize(m_Direct3D->GetScreenViewport().Width, m_Direct3D->GetScreenViewport().Height);
-
 	m_camera = Camera(SimpleMath::Vector3(0.f, 0.0f, -4.f));
-	infoBar = TwNewBar("NameOfMyTweakBar");
-	TwAddVarRW(infoBar, "NameOfMyVariable", TW_TYPE_FLOAT, &m_camera.MovementSpeed, "");
+	
 
 	m_proj = SimpleMath::Matrix::CreatePerspectiveFieldOfView(XM_PI / 4.f,
 		float(m_Direct3D->GetScreenViewport().Width) / float(m_Direct3D->GetScreenViewport().Height), 0.1f, 100.f);
 
 	m_LightPos = SimpleMath::Vector4(0, 4, 0, 1);
+
+	// Initialize GUI
+	TwInit(TW_DIRECT3D11, device);
+	TwWindowSize(static_cast<int>(m_Direct3D->GetScreenViewport().Width), static_cast<int>(m_Direct3D->GetScreenViewport().Height));
+
+	// Make the widget bar
+	infoBar = TwNewBar("NameOfMyTweakBar");
+
+	// Add GUI widgets
+	TwAddVarRW(infoBar, "Camera Movement Speed", TW_TYPE_FLOAT, &m_camera.MovementSpeed, "");
+	TwAddVarRW(infoBar, "Camera Rotation Speed", TW_TYPE_FLOAT, &m_camera.RotationSpeed, "");
 }
 
 void Game::OnDeviceLost()

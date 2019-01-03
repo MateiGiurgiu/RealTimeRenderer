@@ -69,7 +69,9 @@ private:
 	DirectX::SimpleMath::Vector4 m_LightPos;
 
 	Camera m_camera;
+	DirectX::SimpleMath::Vector4* instanceData;
 
+	// GUI
 	TwBar* infoBar = nullptr;
 	ID3DX11EffectVectorVariable* m_lightPosVariable;
 };
