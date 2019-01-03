@@ -14,6 +14,15 @@
     <Filter Include="Managers">
       <UniqueIdentifier>{e4726564-8b8b-4f5b-91d8-8a8229979017}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Interfaces">
+      <UniqueIdentifier>{4ca9e825-d94c-4413-991b-b1c6eb51d9d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{f5bd67c5-c4eb-4dd0-bd7d-29b8e575eb5e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Models">
+      <UniqueIdentifier>{f6b28769-331f-4a67-a36b-542b84871011}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h" />
@@ -29,23 +38,23 @@
     <ClInclude Include="Direct3D.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>Objects</Filter>
-    </ClInclude>
     <ClInclude Include="ReadData.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="Shader.h">
-      <Filter>Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="MeshRenderer.h">
-      <Filter>Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="ResourceManager.h">
-      <Filter>Managers</Filter>
-    </ClInclude>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Geometry.h" />
+    <ClInclude Include="Managers\ResourceManager.h">
+      <Filter>Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Mesh.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\MeshRenderer.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Shader.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
@@ -59,20 +68,20 @@
     <ClCompile Include="Direct3D.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="Mesh.cpp">
-      <Filter>Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="Shader.cpp">
-      <Filter>Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="MeshRenderer.cpp">
-      <Filter>Objects</Filter>
-    </ClCompile>
-    <ClCompile Include="ResourceManager.cpp">
-      <Filter>Managers</Filter>
-    </ClCompile>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Geometry.cpp" />
+    <ClCompile Include="Managers\ResourceManager.cpp">
+      <Filter>Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Mesh.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\MeshRenderer.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Shader.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -89,10 +98,20 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Models\Sphere.cmo" />
-    <None Include="Shaders\SimpleShader2.fx" />
-    <None Include="Models\Axis.cmo" />
-    <None Include="Models\Axis.sdkmesh" />
-    <None Include="Models\Plane.cmo" />
+    <None Include="Shaders\SimpleShader2.fx">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Models\Axis.cmo">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="Models\Axis.sdkmesh">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="Models\Plane.cmo">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="Models\Sphere.cmo">
+      <Filter>Models</Filter>
+    </None>
   </ItemGroup>
 </Project>
