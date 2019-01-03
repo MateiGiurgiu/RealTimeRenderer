@@ -2,12 +2,15 @@
 #include "Geometry.h"
 #include "ResourceManager.h"
 
+using namespace DirectX::SimpleMath;
 
 Geometry::Geometry()
+	: m_position(Vector3::Zero), m_eulerAngles(Vector3::Zero), m_orientation(Quaternion::Identity), m_scale(Vector3::One)
 {
 }
 
 Geometry::Geometry(ID3D11Device1* device, const wchar_t* meshName, const wchar_t* shaderName)
+	: m_position(Vector3::Zero), m_eulerAngles(Vector3::Zero), m_orientation(Quaternion::Identity), m_scale(Vector3::One)
 {
 	std::shared_ptr<Mesh> mesh = ResourceManager::GetMesh(meshName, device);
 	std::shared_ptr<Shader> shader = ResourceManager::GetShader(shaderName, device);
@@ -16,4 +19,19 @@ Geometry::Geometry(ID3D11Device1* device, const wchar_t* meshName, const wchar_t
 
 Geometry::~Geometry()
 {
+	
+}
+
+void Geometry::Render(ID3D11DeviceContext1* context, const Matrix view, const Matrix proj)
+{
+	m_meshRenderer->Draw(context, GetWorldMatrix(), view, proj);
+}
+
+Matrix Geometry::GetWorldMatrix() const
+{
+	Matrix T = Matrix::CreateTranslation(m_position);
+	Matrix R = Matrix::CreateFromQuaternion(m_orientation);
+	Matrix S = Matrix::CreateScale(m_scale);
+
+	return T * R * S;
 }

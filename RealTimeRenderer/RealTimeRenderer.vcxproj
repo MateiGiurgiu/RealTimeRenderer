@@ -93,7 +93,7 @@
       <FloatingPointModel>Fast</FloatingPointModel>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
-      <AdditionalIncludeDirectories>$(ProjectDir)\Managers;$(ProjectDir);$(ProjectDir)\Objects</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\Managers;$(ProjectDir);$(ProjectDir)\Objects;$(ProjectDir)\Interfaces</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -128,7 +128,7 @@
       <FloatingPointModel>Fast</FloatingPointModel>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
-      <AdditionalIncludeDirectories>$(ProjectDir)\Managers;$(ProjectDir);$(ProjectDir)\Objects</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\Managers;$(ProjectDir);$(ProjectDir)\Objects;$(ProjectDir)\Interfaces</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -162,6 +162,7 @@
     <ClInclude Include="Direct3D.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Geometry.h" />
+    <ClInclude Include="Interfaces\IRenderable.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="Objects\Mesh.h" />
     <ClInclude Include="Objects\MeshRenderer.h" />
@@ -170,6 +171,7 @@
     <ClInclude Include="Managers\ResourceManager.h" />
     <ClInclude Include="Objects\Shader.h" />
     <ClInclude Include="StepTimer.h" />
+    <ClInclude Include="Texture.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
@@ -193,6 +195,7 @@
     </ClCompile>
     <ClCompile Include="Managers\ResourceManager.cpp" />
     <ClCompile Include="Objects\Shader.cpp" />
+    <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

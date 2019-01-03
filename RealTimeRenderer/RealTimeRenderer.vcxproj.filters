@@ -23,6 +23,9 @@
     <Filter Include="Models">
       <UniqueIdentifier>{f6b28769-331f-4a67-a36b-542b84871011}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GameObjects">
+      <UniqueIdentifier>{64548eb0-42e3-47bd-aed4-7424b3f1662e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h" />
@@ -42,7 +45,6 @@
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="Geometry.h" />
     <ClInclude Include="Managers\ResourceManager.h">
       <Filter>Managers</Filter>
     </ClInclude>
@@ -55,6 +57,13 @@
     <ClInclude Include="Objects\Shader.h">
       <Filter>Objects</Filter>
     </ClInclude>
+    <ClInclude Include="Interfaces\IRenderable.h">
+      <Filter>Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometry.h">
+      <Filter>GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
@@ -69,7 +78,6 @@
       <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="Managers\ResourceManager.cpp">
       <Filter>Managers</Filter>
     </ClCompile>
@@ -82,6 +90,10 @@
     <ClCompile Include="Objects\Shader.cpp">
       <Filter>Objects</Filter>
     </ClCompile>
+    <ClCompile Include="Geometry.cpp">
+      <Filter>GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
