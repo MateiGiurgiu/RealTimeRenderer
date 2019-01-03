@@ -17,7 +17,7 @@ MeshRenderer::MeshRenderer(std::shared_ptr<Mesh>& mesh, std::shared_ptr<Shader>&
 	m_pProjVariable = m_shader->GetEffect()->GetVariableByName("Projection")->AsMatrix();
 }
 
-void MeshRenderer::Render(ID3D11DeviceContext1* context, Matrix world, Matrix view, Matrix proj)
+void MeshRenderer::Draw(ID3D11DeviceContext1* context, Matrix world, Matrix view, Matrix proj)
 {
 	m_pWorldVariable->SetMatrix(reinterpret_cast<float*>(&world));
 	m_pViewVariable->SetMatrix(reinterpret_cast<float*>(&view));
@@ -29,3 +29,34 @@ void MeshRenderer::Render(ID3D11DeviceContext1* context, Matrix world, Matrix vi
 	context->DrawIndexed(m_mesh->GetIndexCount(), 0, 0);
 }
 
+void MeshRenderer::Draw(ID3D11DeviceContext1* context, Matrix world, Matrix view, Matrix proj, ID3D11RasterizerState* rState)
+{
+	m_pWorldVariable->SetMatrix(reinterpret_cast<float*>(&world));
+	m_pViewVariable->SetMatrix(reinterpret_cast<float*>(&view));
+	m_pProjVariable->SetMatrix(reinterpret_cast<float*>(&proj));
+
+	context->RSSetState(rState);
+
+	m_mesh->PrepareForDraw(context);
+	m_shader->PrepareForDraw(context);
+
+	context->DrawIndexed(m_mesh->GetIndexCount(), 0, 0);
+}
+
+void MeshRenderer::DrawWithShader(ID3D11DeviceContext1* context, ID3D11Device1* device, std::shared_ptr<Shader>& shader, Matrix world, Matrix view, Matrix proj)
+{
+	shader->GetEffect()->GetVariableByName("World")->AsMatrix()->SetMatrix(reinterpret_cast<float*>(&world));
+	shader->GetEffect()->GetVariableByName("View")->AsMatrix()->SetMatrix(reinterpret_cast<float*>(&view));
+	shader->GetEffect()->GetVariableByName("Projection")->AsMatrix()->SetMatrix(reinterpret_cast<float*>(&proj));
+
+	HRESULT result = m_shader->SetInputLayout(m_mesh->GetLayoutDesc(), m_mesh->GetLayoutDescCount(), device);
+	if (FAILED(result))
+	{
+		LOG_ERROR("Error when setting shader layout");
+	}
+
+	m_mesh->PrepareForDraw(context);
+	shader->PrepareForDraw(context);
+
+	context->DrawIndexed(m_mesh->GetIndexCount(), 0, 0);
+}

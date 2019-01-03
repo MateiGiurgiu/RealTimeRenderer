@@ -8,7 +8,7 @@ Mesh::Mesh(wchar_t* filename, ID3D11Device1* device) :
 	m_indexBuffer(nullptr)
 {
 	auto fx = std::make_unique<DirectX::EffectFactory>(device);
-	auto model = DirectX::Model::CreateFromCMO(device, filename, *fx);
+	auto model = DirectX::Model::CreateFromSDKMESH(device, filename, *fx);
 
 	model->meshes[0]->meshParts[0]->vertexBuffer.Swap(m_vertexBuffer);
 	model->meshes[0]->meshParts[0]->indexBuffer.Swap(m_indexBuffer);
@@ -20,10 +20,17 @@ Mesh::Mesh(wchar_t* filename, ID3D11Device1* device) :
 	m_vertexOffset = model->meshes[0]->meshParts[0]->vertexOffset;
 	m_vertexStride = model->meshes[0]->meshParts[0]->vertexStride;
 
-	std::vector< D3D11_INPUT_ELEMENT_DESC>* layoutDesc = model->meshes[0]->meshParts[0]->vbDecl.get();
+	std::vector<D3D11_INPUT_ELEMENT_DESC>* layoutDesc = model->meshes[0]->meshParts[0]->vbDecl.get();
 
 	m_layoutDescCount = layoutDesc->size();
-	m_layoutDesc = layoutDesc->data();
+	m_layoutDesc = new D3D11_INPUT_ELEMENT_DESC[m_layoutDescCount];
+
+	for(int i = 0; i < m_layoutDescCount; ++i)
+	{
+		m_layoutDesc[i] = layoutDesc->at(i);
+	}
+
+	//m_layoutDesc = layoutDesc->data();
 
 }
 

@@ -57,3 +57,15 @@ void Shader::PrepareForDraw(ID3D11DeviceContext1* context, const int passIndex)
 	context->IASetInputLayout(m_vertexInputLayout);
 	m_technique->GetPassByIndex(passIndex)->Apply(0, context);
 }
+
+ID3DX11EffectPass* Shader::GetPass(int passIndex) const
+{
+	if(IsValid())
+	{
+		return m_technique->GetPassByIndex(passIndex);
+	}
+	else
+	{
+		return nullptr;
+	}
+}

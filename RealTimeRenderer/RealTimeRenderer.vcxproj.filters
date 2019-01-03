@@ -32,10 +32,6 @@
     <ClInclude Include="Mesh.h">
       <Filter>Objects</Filter>
     </ClInclude>
-    <ClInclude Include="IShader.h">
-      <Filter>Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="SimpleShader.h" />
     <ClInclude Include="ReadData.h">
       <Filter>Common</Filter>
     </ClInclude>
@@ -48,6 +44,7 @@
     <ClInclude Include="ResourceManager.h">
       <Filter>Managers</Filter>
     </ClInclude>
+    <ClInclude Include="Camera.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
@@ -64,7 +61,6 @@
     <ClCompile Include="Mesh.cpp">
       <Filter>Objects</Filter>
     </ClCompile>
-    <ClCompile Include="SimpleShader.cpp" />
     <ClCompile Include="Shader.cpp">
       <Filter>Objects</Filter>
     </ClCompile>
@@ -74,6 +70,7 @@
     <ClCompile Include="ResourceManager.cpp">
       <Filter>Managers</Filter>
     </ClCompile>
+    <ClCompile Include="Camera.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -91,11 +88,9 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="Models\Sphere.cmo" />
-    <None Include="Models\Sphere.sdkmesh" />
     <None Include="Shaders\SimpleShader2.fx" />
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="SimpleShader.fx" />
-    <FxCompile Include="Test.hlsl" />
+    <None Include="Models\Axis.cmo" />
+    <None Include="Models\Axis.sdkmesh" />
+    <None Include="Models\Plane.cmo" />
   </ItemGroup>
 </Project>

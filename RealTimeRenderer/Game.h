@@ -6,11 +6,11 @@
 
 #include "Direct3D.h"
 #include "StepTimer.h"
-#include <Model.h>
-#include "SimpleShader.h"
-#include <d3dx11effect.h>
-#include "Shader.h"
 #include "MeshRenderer.h"
+#include <d3dx11effect.h>
+#include <Keyboard.h>
+#include "Camera.h"
+#include <AntTweakBar.h>
 
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
@@ -59,12 +59,19 @@ private:
     // Rendering loop timer.
     DX::StepTimer m_timer;
 
+	// Input
+	std::unique_ptr<DirectX::Keyboard> m_keyboard;
+
 	std::shared_ptr<MeshRenderer> m_meshRenderer;
 
 	DirectX::SimpleMath::Matrix m_world;
-	DirectX::SimpleMath::Matrix m_view;
 	DirectX::SimpleMath::Matrix m_proj;
+	DirectX::SimpleMath::Vector4 m_LightPos;
 
-	Vector4 m_LightPos;
+	Camera m_camera;
+
+	TwBar* infoBar = nullptr;
 	ID3DX11EffectVectorVariable* m_lightPosVariable;
+
+	int x;
 };

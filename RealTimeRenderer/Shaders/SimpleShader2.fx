@@ -24,6 +24,7 @@ struct PS_INPUT
 	float4 Pos : SV_POSITION;
 	float3 wPos : TEXCOORD0;
 	float3 Norm : TEXCOORD1;
+	float4 col : TEXCOORD2;
 };
 
 
@@ -43,6 +44,12 @@ BlendState NoBlending
 	BlendEnable[0] = FALSE;
 };
 
+RasterizerState rasterizerState
+{
+	FillMode = SOLID;
+	CullMode = BACK;
+};
+
 
 //--------------------------------------------------------------------------------------
 // Vertex Shader
@@ -55,7 +62,9 @@ PS_INPUT VS(VS_INPUT input)
 	output.wPos = output.Pos.xyz;
 	output.Pos = mul(output.Pos, View);
 	output.Pos = mul(output.Pos, Projection);
-	output.Norm = mul(float4(input.Norm, 1), World).xyz;
+	//output.Norm = mul(float4(input.Norm, 1), World).xyz;
+	output.Norm = input.Norm;
+	output.col = input.Col;
 
 	return output;
 }
@@ -66,9 +75,10 @@ PS_INPUT VS(VS_INPUT input)
 float4 PS(PS_INPUT input) : SV_Target
 {
 	float3 lightDir = normalize(LightPos.xyz - input.wPos);
-	float diff = max(0.0, dot(lightDir.xyz, input.Norm));
+	float diff = max(0.2, dot(lightDir.xyz, input.Norm));
 
-	return float4(diff, diff, diff, 1);
+	//return float4(diff, diff, diff, 1);
+	return input.col * diff;
 }
 
 
@@ -84,6 +94,7 @@ technique11 Render
 		SetPixelShader(CompileShader(ps_4_0, PS()));
 
 		SetDepthStencilState(EnableDepth, 0);
+		SetRasterizerState(rasterizerState);
 		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
 	}
 }
