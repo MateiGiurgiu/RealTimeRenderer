@@ -72,6 +72,4 @@ private:
 
 	TwBar* infoBar = nullptr;
 	ID3DX11EffectVectorVariable* m_lightPosVariable;
-
-	int x;
 };

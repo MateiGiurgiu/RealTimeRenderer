@@ -35,9 +35,8 @@ void Game::Initialize(HWND window, int width, int height)
     m_timer.SetFixedTimeStep(true);
     m_timer.SetTargetElapsedSeconds(1.0 / 60);
     */
-	x = 54;
-	infoBar = TwNewBar("NameOfMyTweakBar");
-	TwAddVarRW(infoBar, "NameOfMyVariable", TW_TYPE_INT32, &x, "");
+	
+	
 
 	// Create keyboard singleton
 	m_keyboard = std::make_unique<Keyboard>();
@@ -194,6 +193,8 @@ void Game::CreateWindowSizeDependentResources()
 	TwWindowSize(m_Direct3D->GetScreenViewport().Width, m_Direct3D->GetScreenViewport().Height);
 
 	m_camera = Camera(SimpleMath::Vector3(0.f, 0.0f, -4.f));
+	infoBar = TwNewBar("NameOfMyTweakBar");
+	TwAddVarRW(infoBar, "NameOfMyVariable", TW_TYPE_FLOAT, &m_camera.MovementSpeed, "");
 
 	m_proj = SimpleMath::Matrix::CreatePerspectiveFieldOfView(XM_PI / 4.f,
 		float(m_Direct3D->GetScreenViewport().Width) / float(m_Direct3D->GetScreenViewport().Height), 0.1f, 100.f);

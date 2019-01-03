@@ -12,6 +12,8 @@ public:
 	DirectX::SimpleMath::Matrix GetViewMatrix();
 	DirectX::SimpleMath::Matrix GetProjectionMatrix();
 
+	float MovementSpeed;
+
 private:
 	DirectX::SimpleMath::Vector3 m_pos;
 	float m_yaw;

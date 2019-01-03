@@ -5,13 +5,13 @@
 using namespace DirectX::SimpleMath;
 
 Camera::Camera()
-	: m_pos(Vector3::Zero), m_yaw(0.0f), m_pitch(0.0f)
+	: m_pos(Vector3::Zero), m_yaw(0.0f), m_pitch(0.0f), MovementSpeed(1.0f)
 {
 	
 }
 
 Camera::Camera(Vector3 initialPos)
-	: m_pos(initialPos), m_yaw(0.0f), m_pitch(0.0f)
+	: m_pos(initialPos), m_yaw(0.0f), m_pitch(0.0f), MovementSpeed(1.0f)
 {
 	
 }
@@ -26,40 +26,65 @@ void Camera::Update(float deltaTime)
 	DirectX::Keyboard::State state = DirectX::Keyboard::Get().GetState();
 
 	// handle camera rotation
-	/*
-	if (state.W || state.Up)
-		m_pitch += 1.0f;
-	if (state.S || state.Down)
-		m_pitch -= 1.0f;
-	if (state.A || state.Left)
-		m_yaw -= 1.0f;
-	if (state.S || state.Right)
-		m_yaw += 1.0f;
-	*/
+	if (!state.LeftControl)
+	{
+		Vector2 rotation = Vector2::Zero;
 
-	// handle camera movement
-	Vector3 movement = Vector3::Zero;
+		if (state.W || state.Up)
+			rotation.y += 1.0f;
+		if (state.S || state.Down)
+			rotation.y -= 1.0f;
+		if (state.A || state.Left)
+			rotation.x += 1.0f;
+		if (state.D || state.Right)
+			rotation.x -= 1.0f;
 
-	if (state.LeftControl && (state.W || state.Up))
-		movement.z += 1.0f;
-	if (state.LeftControl && (state.S || state.Down))
-		movement.z -= 1.0f;
-	if (state.LeftControl && (state.A || state.Left))
-		movement.x += 1.0f;
-	if (state.LeftControl && (state.D || state.Right))
-		movement.x -= 1.0f;
+		// limit pitch to avoid gimbal lock
+		m_pitch += rotation.y * deltaTime;
+		m_yaw += rotation.x * deltaTime;
+		float limit = DirectX::XM_PI / 2.0f - 0.1f;
+		m_pitch = std::max(-limit, m_pitch);
+		m_pitch = std::min(+limit, m_pitch);
 
-	if (state.LeftControl && state.E)
-		movement.y += 1.0f;
+		// keep longitude in sane range by wrapping
+		if (m_yaw > DirectX::XM_PI)
+		{
+			m_yaw -= DirectX::XM_PI * 2.0f;
+		}
+		else if (m_yaw < -DirectX::XM_PI)
+		{
+			m_yaw += DirectX::XM_PI * 2.0f;
+		}
+	}
+	else
+	{
+		// handle camera movement
+		Vector3 movement = Vector3::Zero;
 
-	if (state.LeftControl && state.Q)
-		movement.y -= 1.0f;
+		if (state.W || state.Up)
+			movement.z += 1.0f;
+		if (state.S || state.Down)
+			movement.z -= 1.0f;
+		if (state.A || state.Left)
+			movement.x += 1.0f;
+		if (state.D || state.Right)
+			movement.x -= 1.0f;
 
-	Quaternion q = Quaternion::CreateFromYawPitchRoll(m_yaw, m_pitch, 0.0f);
-	movement = Vector3::Transform(movement, q);
-	movement *= deltaTime;
+		if (state.E)
+			movement.y += 1.0f;
+
+		if (state.Q)
+			movement.y -= 1.0f;
+
+		movement.Normalize();
+
+		Quaternion q = Quaternion::CreateFromYawPitchRoll(m_yaw, -m_pitch, 0.0f);
 	
-	m_pos += movement;
+		movement = Vector3::Transform(movement, q);
+		movement *= deltaTime * MovementSpeed;
+
+		m_pos += movement;
+	}
 }
 
 Matrix Camera::GetViewMatrix()
