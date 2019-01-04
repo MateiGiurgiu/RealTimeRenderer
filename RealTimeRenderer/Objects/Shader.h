@@ -10,7 +10,7 @@ public:
 
 	HRESULT SetInputLayout(D3D11_INPUT_ELEMENT_DESC* inputDesc, UINT inputDescCount, ID3D11Device1* device);
 	void PrepareForDraw(ID3D11DeviceContext1* context, const int passIndex = 0);
-	bool IsValid() const { return m_effect != nullptr; }
+	bool IsValid() const { return (m_effect != nullptr && m_effect->IsValid()); }
 	ID3DX11EffectPass* GetPass(int passIndex) const;
 
 	// Getters
@@ -18,9 +18,11 @@ public:
 
 	// Utilities
 	void SetTexture(LPCSTR varName, const Texture& texture);
+	void SetTexture(LPCSTR varName, ID3D11ShaderResourceView* texture);
 	void SetVector(LPCSTR varName, DirectX::SimpleMath::Vector2& vector);
 	void SetVector(LPCSTR varName, DirectX::SimpleMath::Vector3& vector);
 	void SetVector(LPCSTR varName, DirectX::SimpleMath::Vector4& vector);
+	void SetMatrix(LPCSTR varName, DirectX::SimpleMath::Matrix& matrix);
 
 private:
 	ID3D11InputLayout* m_vertexInputLayout = nullptr;

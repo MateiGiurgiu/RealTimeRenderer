@@ -76,7 +76,23 @@ void Shader::SetTexture(LPCSTR varName, const Texture& texture)
 {
 	if (IsValid())
 	{
-		m_effect->GetVariableByName(varName)->AsShaderResource()->SetResource(texture.GetShaderResourceView());
+		auto var = m_effect->GetVariableByName(varName)->AsShaderResource();
+		if (var->IsValid())
+		{
+			var->SetResource(texture.GetShaderResourceView());
+		}
+	}
+}
+
+void Shader::SetTexture(LPCSTR varName, ID3D11ShaderResourceView* texture)
+{
+	if (IsValid())
+	{
+		auto var = m_effect->GetVariableByName(varName)->AsShaderResource();
+		if (var->IsValid())
+		{
+			var->SetResource(texture);
+		}
 	}
 }
 
@@ -100,6 +116,22 @@ void Shader::SetVector(LPCSTR varName, DirectX::SimpleMath::Vector4& vector)
 {
 	if (IsValid())
 	{
-		m_effect->GetVariableByName(varName)->AsVector()->SetFloatVector(reinterpret_cast<float*>(&vector));
+		auto var = m_effect->GetVariableByName(varName)->AsVector();
+		if(var->IsValid())
+		{
+			var->SetFloatVector(reinterpret_cast<float*>(&vector));
+		}
+	}
+}
+
+void Shader::SetMatrix(LPCSTR varName, DirectX::SimpleMath::Matrix& matrix)
+{
+	if (IsValid())
+	{
+		auto var = m_effect->GetVariableByName(varName)->AsMatrix();
+		if(var->IsValid())
+		{
+			var->SetMatrix(reinterpret_cast<float*>(&matrix));
+		}
 	}
 }

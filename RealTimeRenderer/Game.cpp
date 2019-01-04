@@ -92,10 +92,38 @@ void Game::Render()
 		m_renderables[i]->Render(context, m_camera.GetViewMatrix(), m_proj);
 	}
 
+	
+
 	//m_meshRenderer->Draw(context, m_world, m_camera.GetViewMatrix(), m_proj);
 	//m_meshRenderer->DrawInstanced(context, m_world, m_camera.GetViewMatrix(), m_proj, 100);
 
+
+
     m_Direct3D->PIXEndEvent();
+
+	// POST PROCESSING
+	m_Direct3D->PIXBeginEvent(L"PostProcessing");
+
+	//auto backBufferRenderTarget = m_Direct3D->GetCustomRenderView();
+	//auto depthStencil = m_Direct3D->GetDepthStencilView();
+
+	// METHOD 1
+	//context->CopyResource(m_Direct3D->GetRenderTarget(), m_Direct3D->GetCustomRenderTarget());
+
+	// METHOD 1
+	auto backBufferRenderTarget = m_Direct3D->GetRenderTargetView();
+	auto depthStencil = m_Direct3D->GetDepthStencilView();
+
+	context->ClearRenderTargetView(backBufferRenderTarget, Colors::CornflowerBlue);
+	//context->ClearDepthStencilView(depthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	context->OMSetRenderTargets(1, &backBufferRenderTarget, depthStencil);
+
+	m_renderQuad->GetShader()->SetTexture("mainTex", m_Direct3D->GetCustomShaderResource());
+	m_renderQuad->Draw(context);
+
+
+
+	m_Direct3D->PIXEndEvent();
 
 	// Draw the GUI
 	TwDraw();
@@ -111,12 +139,12 @@ void Game::Clear()
 	
 	// Clear the views.
 	auto context = m_Direct3D->GetD3DDeviceContext();
-	auto renderTarget = m_Direct3D->GetRenderTargetView();
+	auto customRenderTarget = m_Direct3D->GetCustomRenderView();
 	auto depthStencil = m_Direct3D->GetDepthStencilView();
 
-	context->ClearRenderTargetView(renderTarget, Colors::CornflowerBlue);
+	context->ClearRenderTargetView(customRenderTarget, Colors::CornflowerBlue);
 	context->ClearDepthStencilView(depthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	context->OMSetRenderTargets(1, &renderTarget, depthStencil);
+	context->OMSetRenderTargets(1, &customRenderTarget, depthStencil);
 
 	// Set the viewport.
 	auto viewport = m_Direct3D->GetScreenViewport();
@@ -208,11 +236,18 @@ void Game::CreateWindowSizeDependentResources()
 {
 	ID3D11Device1* device = m_Direct3D->GetD3DDevice();
 
+	// Render quad, very important for post processing
+	std::shared_ptr<Shader> postProcessingShader = ResourceManager::GetShader(L"Shaders/PP_Test.fx", device);
+	m_renderQuad = std::make_unique<RenderQuad>(device, postProcessingShader, m_Direct3D->GetScreenViewport().Width, m_Direct3D->GetScreenViewport().Height);
+
+	auto tex = ResourceManager::GetTexture(L"hytale.jpg", device);
+	m_renderQuad->GetShader()->SetTexture("mainTex", *tex);
+
 	m_camera = Camera(SimpleMath::Vector3(0.f, 0.0f, -4.f));
 	
-
 	m_proj = SimpleMath::Matrix::CreatePerspectiveFieldOfView(XM_PI / 4.f,
 		float(m_Direct3D->GetScreenViewport().Width) / float(m_Direct3D->GetScreenViewport().Height), 0.1f, 100.f);
+
 
 	m_LightPos = SimpleMath::Vector4(0, 4, 0, 1);
 
@@ -248,8 +283,13 @@ void Game::CreateGameObjects()
 
 	m_renderables.reserve(10);
 	auto geom = std::make_shared<Geometry>(device, L"Models/Axis.sdkmesh", L"Shaders/SimpleShader2.fx");
+
+	if (IRenderable* pa = dynamic_cast<IRenderable*>(geom.get()))
+	{
+		int x = 4;
+	}
+
 	geom->SetPosition(4.0, 0, 4);
 	m_renderables.push_back(geom);
 
-	Texture texture = Texture(device, L"matei.exe");
 }

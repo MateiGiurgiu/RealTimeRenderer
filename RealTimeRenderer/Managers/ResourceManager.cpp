@@ -9,6 +9,7 @@ std::map<wchar_t*, std::shared_ptr<Shader>> ResourceManager::m_shaders = {};
 std::map<std::wstring, std::shared_ptr<Texture>> ResourceManager::m_textures = {};
 
 int ResourceManager::MeshesLoaded = { 0 };
+int ResourceManager::ShadersLoaded = { 0 };
 
 std::shared_ptr<Mesh> ResourceManager::GetMesh(const wchar_t* filename, ID3D11Device1* device)
 {
@@ -35,6 +36,7 @@ std::shared_ptr<Shader> ResourceManager::GetShader(const wchar_t* filename, ID3D
 	else
 	{
 		m_shaders[const_cast<wchar_t*>(filename)] = std::make_shared<Shader>(filename, device);
+		ShadersLoaded++;
 		return m_shaders[const_cast<wchar_t*>(filename)];
 	}
 }

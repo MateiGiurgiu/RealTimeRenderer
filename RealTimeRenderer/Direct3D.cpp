@@ -296,6 +296,9 @@ void Direct3D::CreateWindowSizeDependentResources()
     UINT backBufferHeight = std::max<UINT>(m_outputSize.bottom - m_outputSize.top, 1);
     DXGI_FORMAT backBufferFormat = (m_options & (c_FlipPresent | c_AllowTearing | c_EnableHDR)) ? NoSRGB(m_backBufferFormat) : m_backBufferFormat;
 
+	m_Width = backBufferWidth;
+	m_Height = backBufferHeight;
+
     if (m_swapChain)
     {
         // If the swap chain already exists, resize it.
@@ -361,16 +364,18 @@ void Direct3D::CreateWindowSizeDependentResources()
     // Handle color space settings for HDR
     UpdateColorSpace();
 
-    // Create a render target view of the swap chain back buffer.
-    ThrowIfFailed(m_swapChain->GetBuffer(0, IID_PPV_ARGS(m_renderTarget.ReleaseAndGetAddressOf())));
+	// Create a render target view of the swap chain back buffer.
+	ThrowIfFailed(m_swapChain->GetBuffer(0, IID_PPV_ARGS(m_renderTarget.ReleaseAndGetAddressOf())));
 
-    CD3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc(D3D11_RTV_DIMENSION_TEXTURE2D, m_backBufferFormat);
-    ThrowIfFailed(m_d3dDevice->CreateRenderTargetView(
-        m_renderTarget.Get(),
-        &renderTargetViewDesc,
-        m_d3dRenderTargetView.ReleaseAndGetAddressOf()
-        ));
+	CD3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc(D3D11_RTV_DIMENSION_TEXTURE2D, m_backBufferFormat);
+	ThrowIfFailed(m_d3dDevice->CreateRenderTargetView(
+		m_renderTarget.Get(),
+		&renderTargetViewDesc,
+		m_d3dRenderTargetView.ReleaseAndGetAddressOf()
+	));
+	
 
+	// DEPTH & STENCIL
     if (m_depthBufferFormat != DXGI_FORMAT_UNKNOWN)
     {
         // Create a depth stencil view for use with 3D rendering if needed.
@@ -398,12 +403,141 @@ void Direct3D::CreateWindowSizeDependentResources()
     }
     
     // Set the 3D rendering viewport to target the entire window.
-    m_screenViewport = CD3D11_VIEWPORT(
-        0.0f,
-        0.0f,
-        static_cast<float>(backBufferWidth),
-        static_cast<float>(backBufferHeight)
-        );
+    m_screenViewport = CD3D11_VIEWPORT(0.0f, 0.0f, static_cast<float>(backBufferWidth), static_cast<float>(backBufferHeight));
+
+	CreateTestBuffers();
+}
+
+// This method creates the multiple render targets needed for deferred rendering
+void Direct3D::CreateDeferredBuffers()
+{
+	D3D11_TEXTURE2D_DESC renderTextureDesc;
+	// Initialize the render target texture description.
+	ZeroMemory(&renderTextureDesc, sizeof(renderTextureDesc));
+	// Setup the render target texture description.
+	renderTextureDesc.Width = m_Width;
+	renderTextureDesc.Height = m_Height;
+	renderTextureDesc.MipLevels = 1;
+	renderTextureDesc.ArraySize = 1;
+	renderTextureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	renderTextureDesc.SampleDesc.Count = 1;
+	renderTextureDesc.Usage = D3D11_USAGE_DEFAULT;
+	renderTextureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	renderTextureDesc.CPUAccessFlags = 0;
+	renderTextureDesc.MiscFlags = 0;
+	// Create the render target textures.
+	for (unsigned int i = 0; i < BUFFER_COUNT; i++)
+	{
+		DX::ThrowIfFailed(m_d3dDevice->CreateTexture2D(&renderTextureDesc, nullptr, &m_deferredRenderTargets[i]));
+	}
+
+
+
+	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
+	// Initialize the render target view description.
+	ZeroMemory(&renderTargetViewDesc, sizeof(renderTargetViewDesc));
+	// Setup the description of the render target view.
+	renderTargetViewDesc.Format = renderTextureDesc.Format;
+	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	renderTargetViewDesc.Texture2D.MipSlice = 0;
+	// Create the render target views.
+	for (unsigned int i = 0; i < BUFFER_COUNT; i++)
+	{
+		DX::ThrowIfFailed(m_d3dDevice->CreateRenderTargetView(m_deferredRenderTargets[i].Get(), &renderTargetViewDesc, &m_deferredRenderTargetsView[i]));
+	}
+
+
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+	// Initialize the render target texture description.
+	ZeroMemory(&shaderResourceViewDesc, sizeof(shaderResourceViewDesc));
+	// Setup the description of the shader resource view.
+	shaderResourceViewDesc.Format = renderTextureDesc.Format;
+	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+	shaderResourceViewDesc.Texture2D.MipLevels = 1;
+	// Create the shader resource views.
+	for (unsigned int i = 0; i < BUFFER_COUNT; i++)
+	{
+		DX::ThrowIfFailed(m_d3dDevice->CreateShaderResourceView(m_deferredRenderTargets[i].Get(), &shaderResourceViewDesc, m_deferredRenderShaderResource[i].ReleaseAndGetAddressOf()));
+	}
+
+
+
+	D3D11_TEXTURE2D_DESC depthStencilTextureDesc;
+	// Initialize the description of the depth buffer.
+	ZeroMemory(&depthStencilTextureDesc, sizeof(depthStencilTextureDesc));
+	// Set up the description of the depth buffer.
+	depthStencilTextureDesc.Width = m_Width;
+	depthStencilTextureDesc.Height = m_Height;
+	depthStencilTextureDesc.MipLevels = 1;
+	depthStencilTextureDesc.ArraySize = 1;
+	depthStencilTextureDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depthStencilTextureDesc.SampleDesc.Count = 1;
+	depthStencilTextureDesc.SampleDesc.Quality = 0;
+	depthStencilTextureDesc.Usage = D3D11_USAGE_DEFAULT;
+	depthStencilTextureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	depthStencilTextureDesc.CPUAccessFlags = 0;
+	depthStencilTextureDesc.MiscFlags = 0;
+	// Create the texture for the depth buffer using the filled out description.
+	DX::ThrowIfFailed(m_d3dDevice->CreateTexture2D(&depthStencilTextureDesc, nullptr, m_depthStencilRenderTarget.ReleaseAndGetAddressOf()));
+
+
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
+	// Initialize the depth stencil view description.
+	ZeroMemory(&depthStencilViewDesc, sizeof(depthStencilViewDesc));
+	// Set up the depth stencil view description.
+	depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	depthStencilViewDesc.Texture2D.MipSlice = 0;
+	// Create the depth stencil view.
+	DX::ThrowIfFailed(m_d3dDevice->CreateDepthStencilView(m_depthStencilRenderTarget.Get(), &depthStencilViewDesc, m_depthStencilRenderTargetView.ReleaseAndGetAddressOf()));
+}
+
+void Direct3D::CreateTestBuffers()
+{
+	D3D11_TEXTURE2D_DESC renderTextureDesc;
+	// Initialize the render target texture description.
+	ZeroMemory(&renderTextureDesc, sizeof(renderTextureDesc));
+	// Setup the render target texture description.
+	renderTextureDesc.Width = m_Width;
+	renderTextureDesc.Height = m_Height;
+	renderTextureDesc.MipLevels = 1;
+	renderTextureDesc.ArraySize = 1;
+	renderTextureDesc.Format = m_backBufferFormat;
+	renderTextureDesc.SampleDesc.Count = 1;
+	renderTextureDesc.Usage = D3D11_USAGE_DEFAULT;
+	renderTextureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	renderTextureDesc.CPUAccessFlags = 0;
+	renderTextureDesc.MiscFlags = 0;
+	// Create the render target textures.
+	DX::ThrowIfFailed(m_d3dDevice->CreateTexture2D(&renderTextureDesc, nullptr, &m_customT));
+
+
+
+	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
+	// Initialize the render target view description.
+	ZeroMemory(&renderTargetViewDesc, sizeof(renderTargetViewDesc));
+	// Setup the description of the render target view.
+	renderTargetViewDesc.Format = renderTextureDesc.Format;
+	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	renderTargetViewDesc.Texture2D.MipSlice = 0;
+	// Create the render target views.
+	DX::ThrowIfFailed(m_d3dDevice->CreateRenderTargetView(m_customT.Get(), &renderTargetViewDesc, &m_customV));
+
+
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+	// Initialize the render target texture description.
+	ZeroMemory(&shaderResourceViewDesc, sizeof(shaderResourceViewDesc));
+	// Setup the description of the shader resource view.
+	shaderResourceViewDesc.Format = renderTextureDesc.Format;
+	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+	shaderResourceViewDesc.Texture2D.MipLevels = 1;
+	// Create the shader resource views.
+	DX::ThrowIfFailed(m_d3dDevice->CreateShaderResourceView(m_customT.Get(), &shaderResourceViewDesc, m_customS.ReleaseAndGetAddressOf()));
 }
 
 // This method is called when the Win32 window is created (or re-created).

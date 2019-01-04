@@ -26,6 +26,9 @@
     <Filter Include="GameObjects">
       <UniqueIdentifier>{64548eb0-42e3-47bd-aed4-7424b3f1662e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Systems">
+      <UniqueIdentifier>{fd55449a-3f6b-4061-be20-19ecccdae268}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h" />
@@ -44,7 +47,6 @@
     <ClInclude Include="ReadData.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="Camera.h" />
     <ClInclude Include="Managers\ResourceManager.h">
       <Filter>Managers</Filter>
     </ClInclude>
@@ -64,6 +66,11 @@
       <Filter>GameObjects</Filter>
     </ClInclude>
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="Camera.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderSystem.h" />
+    <ClInclude Include="RenderQuad.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
@@ -77,7 +84,6 @@
     <ClCompile Include="Direct3D.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Managers\ResourceManager.cpp">
       <Filter>Managers</Filter>
     </ClCompile>
@@ -94,12 +100,23 @@
       <Filter>GameObjects</Filter>
     </ClCompile>
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="Camera.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderSystem.cpp" />
+    <ClCompile Include="RenderQuad.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="directx.ico">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="hytale.jpg">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Wood.dds">
       <Filter>Assets</Filter>
     </Image>
   </ItemGroup>
@@ -124,6 +141,9 @@
     </None>
     <None Include="Models\Sphere.cmo">
       <Filter>Models</Filter>
+    </None>
+    <None Include="Shaders\PP_Test.fx">
+      <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
 </Project>

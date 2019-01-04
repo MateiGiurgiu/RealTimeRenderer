@@ -1,45 +1,26 @@
-//--------------------------------------------------------------------------------------
-// Constant Buffer Variables
-//--------------------------------------------------------------------------------------
-
-// MVP
-matrix World;
-matrix View;
 matrix Projection;
-
-
-// LIGHT
-float4 LightPos;
-
-float4 InstanceData[512];
+Texture2D mainTex;
 
 //--------------------------------------------------------------------------------------
 struct VS_INPUT
 {
 	float4 Pos : SV_Position;
-	float2 Tex : TEXCOORD;
-	float3 Norm : NORMAL;
-	float3 Tang : TANGENT;
-	float4 Col : COLOR;
+	float2 TexCoord : TEXCOORD;
 };
 
 struct PS_INPUT
 {
 	float4 Pos : SV_POSITION;
-	float3 wPos : TEXCOORD0;
-	float3 Norm : TEXCOORD1;
-	float4 col : TEXCOORD2;
+	float2 TexCoord : TEXCOORD0;
 };
 
 
 //--------------------------------------------------------------------------------------
 // DepthStates
 //--------------------------------------------------------------------------------------
-DepthStencilState EnableDepth
+DepthStencilState DisableDepth
 {
-	DepthEnable = TRUE;
-	DepthWriteMask = ALL;
-	DepthFunc = LESS_EQUAL;
+	DepthEnable = FALSE;
 };
 
 BlendState NoBlending
@@ -51,7 +32,14 @@ BlendState NoBlending
 RasterizerState rasterizerState
 {
 	FillMode = SOLID;
-	CullMode = BACK;
+	CullMode = NONE;
+};
+
+SamplerState sampleLinear 
+{ 
+	Filter = MIN_MAG_MIP_LINEAR;     
+	AddressU = Wrap;     
+	AddressV = Wrap; 
 };
 
 
@@ -62,14 +50,8 @@ PS_INPUT VS(VS_INPUT input, uint id : SV_InstanceID)
 {
 	PS_INPUT output = (PS_INPUT)0;
 
-	output.Pos = mul(input.Pos, World);
-	output.Pos += InstanceData[id];
-	output.wPos = output.Pos.xyz;
-	output.Pos = mul(output.Pos, View);
-	output.Pos = mul(output.Pos, Projection);
-	//output.Norm = mul(float4(input.Norm, 1), World).xyz;
-	output.Norm = input.Norm;
-	output.col = input.Col;
+	output.Pos = input.Pos;
+	output.TexCoord = float2(input.TexCoord.x, input.TexCoord.y * -1);
 
 	return output;
 }
@@ -79,11 +61,9 @@ PS_INPUT VS(VS_INPUT input, uint id : SV_InstanceID)
 //--------------------------------------------------------------------------------------
 float4 PS(PS_INPUT input) : SV_Target
 {
-	float3 lightDir = normalize(LightPos.xyz - input.wPos);
-	float diff = max(0.2, dot(lightDir.xyz, input.Norm));
-
-	//return float4(diff, diff, diff, 1);
-	return input.col * diff;
+	//return float4(input.TexCoord.x, input.TexCoord.y, 0, 1);
+	float4 texColor = mainTex.Sample(sampleLinear, input.TexCoord);
+	return 1 - texColor;
 }
 
 
@@ -98,7 +78,7 @@ technique11 Render
 		SetGeometryShader(NULL);
 		SetPixelShader(CompileShader(ps_4_0, PS()));
 
-		SetDepthStencilState(EnableDepth, 0);
+		SetDepthStencilState(DisableDepth, 0);
 		SetRasterizerState(rasterizerState);
 		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
 	}

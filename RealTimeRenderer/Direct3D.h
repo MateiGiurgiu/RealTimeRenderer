@@ -6,6 +6,8 @@
 
 namespace DX
 {
+	const int BUFFER_COUNT = 2;
+
     // Provides an interface for an application that owns Direct3D to be notified of the device being lost or created.
     interface IDeviceNotify
     {
@@ -54,6 +56,10 @@ namespace DX
         DXGI_COLOR_SPACE_TYPE   GetColorSpace() const                   { return m_colorSpace; }
         unsigned int            GetDeviceOptions() const                { return m_options; }
 
+		ID3D11Texture2D*        GetCustomRenderTarget() const			{ return m_customT.Get(); }
+		ID3D11RenderTargetView* GetCustomRenderView() const				{ return m_customV.Get(); }
+		ID3D11ShaderResourceView* GetCustomShaderResource() const		{ return m_customS.Get(); }
+
         // Performance events
         void PIXBeginEvent(_In_z_ const wchar_t* name)
         {
@@ -74,6 +80,8 @@ namespace DX
         void CreateFactory();
         void GetHardwareAdapter(IDXGIAdapter1** ppAdapter);
         void UpdateColorSpace();
+		void CreateDeferredBuffers();
+		void CreateTestBuffers();
 
         // Direct3D objects.
         Microsoft::WRL::ComPtr<IDXGIFactory2>               m_dxgiFactory;
@@ -83,30 +91,46 @@ namespace DX
         Microsoft::WRL::ComPtr<ID3DUserDefinedAnnotation>   m_d3dAnnotation;
 
         // Direct3D rendering objects. Required for 3D.
-        Microsoft::WRL::ComPtr<ID3D11Texture2D>         m_renderTarget;
-        Microsoft::WRL::ComPtr<ID3D11Texture2D>         m_depthStencil;
-        Microsoft::WRL::ComPtr<ID3D11RenderTargetView>  m_d3dRenderTargetView;
-        Microsoft::WRL::ComPtr<ID3D11DepthStencilView>  m_d3dDepthStencilView;
-        D3D11_VIEWPORT                                  m_screenViewport;
+		Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_deferredRenderTargets[BUFFER_COUNT];
+		Microsoft::WRL::ComPtr<ID3D11RenderTargetView>		m_deferredRenderTargetsView[BUFFER_COUNT];
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	m_deferredRenderShaderResource[BUFFER_COUNT];
+
+		Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_depthStencilRenderTarget;
+		Microsoft::WRL::ComPtr<ID3D11DepthStencilView>		m_depthStencilRenderTargetView;
+
+        Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_renderTarget;
+        Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_depthStencil;
+        Microsoft::WRL::ComPtr<ID3D11RenderTargetView>		m_d3dRenderTargetView;
+        Microsoft::WRL::ComPtr<ID3D11DepthStencilView>		m_d3dDepthStencilView;
+        D3D11_VIEWPORT										m_screenViewport;
+
+		//temp
+		Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_customT;
+		Microsoft::WRL::ComPtr<ID3D11RenderTargetView>		m_customV;
+		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	m_customS;
+
+		// rendering size
+		UINT												m_Width;
+		UINT												m_Height;
 
         // Direct3D properties.
-        DXGI_FORMAT                                     m_backBufferFormat;
-        DXGI_FORMAT                                     m_depthBufferFormat;
-        UINT                                            m_backBufferCount;
-        D3D_FEATURE_LEVEL                               m_d3dMinFeatureLevel;
+        DXGI_FORMAT											m_backBufferFormat;
+        DXGI_FORMAT											m_depthBufferFormat;
+        UINT												m_backBufferCount;
+        D3D_FEATURE_LEVEL									m_d3dMinFeatureLevel;
 
         // Cached device properties.
-        HWND                                            m_window;
-        D3D_FEATURE_LEVEL                               m_d3dFeatureLevel;
-        RECT                                            m_outputSize;
+        HWND												m_window;
+        D3D_FEATURE_LEVEL									m_d3dFeatureLevel;
+        RECT												m_outputSize;
 
         // HDR Support
-        DXGI_COLOR_SPACE_TYPE                           m_colorSpace;
+        DXGI_COLOR_SPACE_TYPE								m_colorSpace;
 
         // Direct3D options (see flags above)
-        unsigned int                                    m_options;
+        unsigned int										m_options;
 
         // The IDeviceNotify can be held directly as it owns the Direct3D.
-        IDeviceNotify*                                  m_deviceNotify;
+        IDeviceNotify*										m_deviceNotify;
     };
 }

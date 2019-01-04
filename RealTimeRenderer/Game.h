@@ -13,6 +13,7 @@
 #include <AntTweakBar.h>
 #include <vector>
 #include "IRenderable.h"
+#include "RenderQuad.h"
 
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
@@ -63,6 +64,9 @@ private:
 
 	// Input
 	std::unique_ptr<DirectX::Keyboard> m_keyboard;
+
+	// RenderQuad for doing post processing
+	std::unique_ptr<RenderQuad> m_renderQuad;
 
 	std::shared_ptr<MeshRenderer> m_meshRenderer;
 	std::vector<std::shared_ptr<IRenderable>> m_renderables;
