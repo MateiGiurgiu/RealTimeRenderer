@@ -65,12 +65,17 @@
     <ClInclude Include="Geometry.h">
       <Filter>GameObjects</Filter>
     </ClInclude>
-    <ClInclude Include="Texture.h" />
     <ClInclude Include="Camera.h">
       <Filter>Objects</Filter>
     </ClInclude>
     <ClInclude Include="RenderSystem.h" />
-    <ClInclude Include="RenderQuad.h" />
+    <ClInclude Include="Texture.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderQuad.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTexture.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
@@ -99,12 +104,17 @@
     <ClCompile Include="Geometry.cpp">
       <Filter>GameObjects</Filter>
     </ClCompile>
-    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Camera.cpp">
       <Filter>Objects</Filter>
     </ClCompile>
     <ClCompile Include="RenderSystem.cpp" />
-    <ClCompile Include="RenderQuad.cpp" />
+    <ClCompile Include="Texture.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderQuad.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

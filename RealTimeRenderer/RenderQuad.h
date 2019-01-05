@@ -9,8 +9,8 @@ public:
 	~RenderQuad() = default;
 
 	void PrepareForDraw(ID3D11DeviceContext1* context);
-	void Draw(ID3D11DeviceContext1* context);
-	void DrawWithShader(ID3D11DeviceContext1* context, ID3D11Device1* device, Shader& shader);
+	void Draw(ID3D11DeviceContext1* context, int pass = 0);
+	void DrawWithShader(ID3D11DeviceContext1* context, ID3D11Device1* device, Shader& shader, int pass);
 
 	std::shared_ptr<Shader> GetShader() const { return m_shader; };
 

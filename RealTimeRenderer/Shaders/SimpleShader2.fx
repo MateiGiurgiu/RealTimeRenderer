@@ -31,6 +31,12 @@ struct PS_INPUT
 	float4 col : TEXCOORD2;
 };
 
+struct PS_OUTPUT
+{
+	float4 color : SV_Target0;
+	float4 normal : SV_Target1;
+};
+
 
 //--------------------------------------------------------------------------------------
 // DepthStates
@@ -77,13 +83,17 @@ PS_INPUT VS(VS_INPUT input, uint id : SV_InstanceID)
 //--------------------------------------------------------------------------------------
 // Pixel Shader
 //--------------------------------------------------------------------------------------
-float4 PS(PS_INPUT input) : SV_Target
+PS_OUTPUT PS(PS_INPUT input) : SV_Target
 {
+	PS_OUTPUT output = (PS_OUTPUT)0;
+
 	float3 lightDir = normalize(LightPos.xyz - input.wPos);
 	float diff = max(0.2, dot(lightDir.xyz, input.Norm));
 
 	//return float4(diff, diff, diff, 1);
-	return input.col * diff;
+	output.color = input.col * diff;
+	output.normal = float4(input.Norm * 0.5 + 0.5, 1);
+	return output;
 }
 
 

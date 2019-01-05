@@ -111,15 +111,16 @@ void Game::Render()
 	//context->CopyResource(m_Direct3D->GetRenderTarget(), m_Direct3D->GetCustomRenderTarget());
 
 	// METHOD 1
-	auto backBufferRenderTarget = m_Direct3D->GetRenderTargetView();
+	auto backBufferRenderTarget = m_Direct3D->GetBackBufferRenderTargetView();
 	auto depthStencil = m_Direct3D->GetDepthStencilView();
 
 	context->ClearRenderTargetView(backBufferRenderTarget, Colors::CornflowerBlue);
 	//context->ClearDepthStencilView(depthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	context->OMSetRenderTargets(1, &backBufferRenderTarget, depthStencil);
 
-	m_renderQuad->GetShader()->SetTexture("mainTex", m_Direct3D->GetCustomShaderResource());
-	m_renderQuad->Draw(context);
+	m_renderQuad->GetShader()->SetTexture("buffer1", m_Direct3D->customRenderTexture->GetShaderResourceView());
+	m_renderQuad->GetShader()->SetTexture("buffer2", m_Direct3D->customRenderTexture2->GetShaderResourceView());
+	m_renderQuad->Draw(context, m_currentVisualizationType);
 
 
 
@@ -139,12 +140,14 @@ void Game::Clear()
 	
 	// Clear the views.
 	auto context = m_Direct3D->GetD3DDeviceContext();
-	auto customRenderTarget = m_Direct3D->GetCustomRenderView();
+	//auto customRenderTarget = m_Direct3D->GetCustomRenderView();
+
 	auto depthStencil = m_Direct3D->GetDepthStencilView();
 
-	context->ClearRenderTargetView(customRenderTarget, Colors::CornflowerBlue);
+	context->ClearRenderTargetView(m_Direct3D->customRenderTexture->GetRenderTargetView().Get(), Colors::CornflowerBlue);
+	context->ClearRenderTargetView(m_Direct3D->customRenderTexture2->GetRenderTargetView().Get(), Colors::CornflowerBlue);
 	context->ClearDepthStencilView(depthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	context->OMSetRenderTargets(1, &customRenderTarget, depthStencil);
+	context->OMSetRenderTargets(2, m_Direct3D->GetBuffers(), depthStencil);
 
 	// Set the viewport.
 	auto viewport = m_Direct3D->GetScreenViewport();
@@ -262,6 +265,7 @@ void Game::CreateWindowSizeDependentResources()
 	TwAddVarRW(infoBar, "Camera Movement Speed", TW_TYPE_FLOAT, &m_camera.MovementSpeed, "");
 	TwAddVarRW(infoBar, "Camera Rotation Speed", TW_TYPE_FLOAT, &m_camera.RotationSpeed, "");
 	TwAddVarRO(infoBar, "MeshesLoaded", TW_TYPE_INT32, &ResourceManager::MeshesLoaded, "");
+	TwAddVarRW(infoBar, "Density", TwDefineEnumFromString("Visualization", "Buffer1,Buffer2"), &m_currentVisualizationType, nullptr);
 }
 
 void Game::OnDeviceLost()

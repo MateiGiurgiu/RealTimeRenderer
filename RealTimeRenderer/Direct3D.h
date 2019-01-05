@@ -3,6 +3,7 @@
 //
 
 #pragma once
+#include "RenderTexture.h"
 
 namespace DX
 {
@@ -45,9 +46,9 @@ namespace DX
         ID3D11DeviceContext1*   GetD3DDeviceContext() const             { return m_d3dContext.Get(); }
         IDXGISwapChain1*        GetSwapChain() const                    { return m_swapChain.Get(); }
         D3D_FEATURE_LEVEL       GetDeviceFeatureLevel() const           { return m_d3dFeatureLevel; }
-        ID3D11Texture2D*        GetRenderTarget() const                 { return m_renderTarget.Get(); }
+        ID3D11Texture2D*        GetBackBufferRenderTarget() const       { return m_backBufferRenderTarget.Get(); }
         ID3D11Texture2D*        GetDepthStencil() const                 { return m_depthStencil.Get(); }
-        ID3D11RenderTargetView*	GetRenderTargetView() const             { return m_d3dRenderTargetView.Get(); }
+        ID3D11RenderTargetView*	GetBackBufferRenderTargetView() const   { return m_backBufferRenderTargetView.Get(); }
         ID3D11DepthStencilView* GetDepthStencilView() const             { return m_d3dDepthStencilView.Get(); }
         DXGI_FORMAT             GetBackBufferFormat() const             { return m_backBufferFormat; }
         DXGI_FORMAT             GetDepthBufferFormat() const            { return m_depthBufferFormat; }
@@ -55,10 +56,6 @@ namespace DX
         UINT                    GetBackBufferCount() const              { return m_backBufferCount; }
         DXGI_COLOR_SPACE_TYPE   GetColorSpace() const                   { return m_colorSpace; }
         unsigned int            GetDeviceOptions() const                { return m_options; }
-
-		ID3D11Texture2D*        GetCustomRenderTarget() const			{ return m_customT.Get(); }
-		ID3D11RenderTargetView* GetCustomRenderView() const				{ return m_customV.Get(); }
-		ID3D11ShaderResourceView* GetCustomShaderResource() const		{ return m_customS.Get(); }
 
         // Performance events
         void PIXBeginEvent(_In_z_ const wchar_t* name)
@@ -75,6 +72,11 @@ namespace DX
         {
             m_d3dAnnotation->SetMarker(name);
         }
+
+		RenderTexture* customRenderTexture;
+		RenderTexture* customRenderTexture2;
+		ID3D11RenderTargetView* const* GetBuffers();
+		ID3D11RenderTargetView* temp[2];
 
     private:
         void CreateFactory();
@@ -98,16 +100,11 @@ namespace DX
 		Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_depthStencilRenderTarget;
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilView>		m_depthStencilRenderTargetView;
 
-        Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_renderTarget;
+        Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_backBufferRenderTarget;
         Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_depthStencil;
-        Microsoft::WRL::ComPtr<ID3D11RenderTargetView>		m_d3dRenderTargetView;
+        Microsoft::WRL::ComPtr<ID3D11RenderTargetView>		m_backBufferRenderTargetView;
         Microsoft::WRL::ComPtr<ID3D11DepthStencilView>		m_d3dDepthStencilView;
         D3D11_VIEWPORT										m_screenViewport;
-
-		//temp
-		Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_customT;
-		Microsoft::WRL::ComPtr<ID3D11RenderTargetView>		m_customV;
-		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	m_customS;
 
 		// rendering size
 		UINT												m_Width;

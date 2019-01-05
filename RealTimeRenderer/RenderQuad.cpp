@@ -78,25 +78,25 @@ void RenderQuad::PrepareForDraw(ID3D11DeviceContext1* context)
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-void RenderQuad::Draw(ID3D11DeviceContext1* context)
+void RenderQuad::Draw(ID3D11DeviceContext1* context, const int pass)
 {
 	if(m_shader)
 	{
 		PrepareForDraw(context);
 		m_shader->SetMatrix("Projection", m_projectionMatrix);
-		m_shader->PrepareForDraw(context);
+		m_shader->PrepareForDraw(context, pass);
 		context->DrawIndexed(m_indexCount, 0, 0);
 	}
 }
 
-void RenderQuad::DrawWithShader(ID3D11DeviceContext1* context, ID3D11Device1* device, Shader& shader)
+void RenderQuad::DrawWithShader(ID3D11DeviceContext1* context, ID3D11Device1* device, Shader& shader, const int pass)
 {
 	PrepareForDraw(context);
 
 	DX::ThrowIfFailed(shader.SetInputLayout(m_layoutDesc, m_layoutDescCount, device));
 
 	shader.SetMatrix("Projection", m_projectionMatrix);
-	shader.PrepareForDraw(context);
+	shader.PrepareForDraw(context, pass);
 
 	context->DrawIndexed(m_indexCount, 0, 0);
 }

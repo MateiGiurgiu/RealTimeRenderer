@@ -285,9 +285,9 @@ void Direct3D::CreateWindowSizeDependentResources()
     // Clear the previous window size specific context.
     ID3D11RenderTargetView* nullViews[] = {nullptr};
     m_d3dContext->OMSetRenderTargets(_countof(nullViews), nullViews, nullptr);
-    m_d3dRenderTargetView.Reset();
+	m_backBufferRenderTargetView.Reset();
     m_d3dDepthStencilView.Reset();
-    m_renderTarget.Reset();
+	m_backBufferRenderTarget.Reset();
     m_depthStencil.Reset();
     m_d3dContext->Flush();
 
@@ -365,13 +365,13 @@ void Direct3D::CreateWindowSizeDependentResources()
     UpdateColorSpace();
 
 	// Create a render target view of the swap chain back buffer.
-	ThrowIfFailed(m_swapChain->GetBuffer(0, IID_PPV_ARGS(m_renderTarget.ReleaseAndGetAddressOf())));
+	ThrowIfFailed(m_swapChain->GetBuffer(0, IID_PPV_ARGS(m_backBufferRenderTarget.ReleaseAndGetAddressOf())));
 
 	CD3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc(D3D11_RTV_DIMENSION_TEXTURE2D, m_backBufferFormat);
 	ThrowIfFailed(m_d3dDevice->CreateRenderTargetView(
-		m_renderTarget.Get(),
+		m_backBufferRenderTarget.Get(),
 		&renderTargetViewDesc,
-		m_d3dRenderTargetView.ReleaseAndGetAddressOf()
+		m_backBufferRenderTargetView.ReleaseAndGetAddressOf()
 	));
 	
 
@@ -431,8 +431,6 @@ void Direct3D::CreateDeferredBuffers()
 		DX::ThrowIfFailed(m_d3dDevice->CreateTexture2D(&renderTextureDesc, nullptr, &m_deferredRenderTargets[i]));
 	}
 
-
-
 	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
 	// Initialize the render target view description.
 	ZeroMemory(&renderTargetViewDesc, sizeof(renderTargetViewDesc));
@@ -445,8 +443,6 @@ void Direct3D::CreateDeferredBuffers()
 	{
 		DX::ThrowIfFailed(m_d3dDevice->CreateRenderTargetView(m_deferredRenderTargets[i].Get(), &renderTargetViewDesc, &m_deferredRenderTargetsView[i]));
 	}
-
-
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
 	// Initialize the render target texture description.
@@ -461,8 +457,6 @@ void Direct3D::CreateDeferredBuffers()
 	{
 		DX::ThrowIfFailed(m_d3dDevice->CreateShaderResourceView(m_deferredRenderTargets[i].Get(), &shaderResourceViewDesc, m_deferredRenderShaderResource[i].ReleaseAndGetAddressOf()));
 	}
-
-
 
 	D3D11_TEXTURE2D_DESC depthStencilTextureDesc;
 	// Initialize the description of the depth buffer.
@@ -497,47 +491,15 @@ void Direct3D::CreateDeferredBuffers()
 
 void Direct3D::CreateTestBuffers()
 {
-	D3D11_TEXTURE2D_DESC renderTextureDesc;
-	// Initialize the render target texture description.
-	ZeroMemory(&renderTextureDesc, sizeof(renderTextureDesc));
-	// Setup the render target texture description.
-	renderTextureDesc.Width = m_Width;
-	renderTextureDesc.Height = m_Height;
-	renderTextureDesc.MipLevels = 1;
-	renderTextureDesc.ArraySize = 1;
-	renderTextureDesc.Format = m_backBufferFormat;
-	renderTextureDesc.SampleDesc.Count = 1;
-	renderTextureDesc.Usage = D3D11_USAGE_DEFAULT;
-	renderTextureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-	renderTextureDesc.CPUAccessFlags = 0;
-	renderTextureDesc.MiscFlags = 0;
-	// Create the render target textures.
-	DX::ThrowIfFailed(m_d3dDevice->CreateTexture2D(&renderTextureDesc, nullptr, &m_customT));
+	customRenderTexture = new RenderTexture(m_d3dDevice.Get(), m_backBufferFormat, m_Width, m_Height);
+	customRenderTexture2 = new RenderTexture(m_d3dDevice.Get(), m_backBufferFormat, m_Width, m_Height);
+}
 
-
-
-	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
-	// Initialize the render target view description.
-	ZeroMemory(&renderTargetViewDesc, sizeof(renderTargetViewDesc));
-	// Setup the description of the render target view.
-	renderTargetViewDesc.Format = renderTextureDesc.Format;
-	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-	renderTargetViewDesc.Texture2D.MipSlice = 0;
-	// Create the render target views.
-	DX::ThrowIfFailed(m_d3dDevice->CreateRenderTargetView(m_customT.Get(), &renderTargetViewDesc, &m_customV));
-
-
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
-	// Initialize the render target texture description.
-	ZeroMemory(&shaderResourceViewDesc, sizeof(shaderResourceViewDesc));
-	// Setup the description of the shader resource view.
-	shaderResourceViewDesc.Format = renderTextureDesc.Format;
-	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-	shaderResourceViewDesc.Texture2D.MipLevels = 1;
-	// Create the shader resource views.
-	DX::ThrowIfFailed(m_d3dDevice->CreateShaderResourceView(m_customT.Get(), &shaderResourceViewDesc, m_customS.ReleaseAndGetAddressOf()));
+ID3D11RenderTargetView* const* Direct3D::GetBuffers()
+{
+	temp[0] = customRenderTexture->GetRenderTargetView().Get();
+	temp[1] = customRenderTexture2->GetRenderTargetView().Get();
+	return temp;
 }
 
 // This method is called when the Win32 window is created (or re-created).
@@ -579,8 +541,8 @@ void Direct3D::HandleDeviceLost()
     }
 
     m_d3dDepthStencilView.Reset();
-    m_d3dRenderTargetView.Reset();
-    m_renderTarget.Reset();
+	m_backBufferRenderTargetView.Reset();
+	m_backBufferRenderTarget.Reset();
     m_depthStencil.Reset();
     m_swapChain.Reset();
     m_d3dContext.Reset();
@@ -628,7 +590,7 @@ void Direct3D::Present()
     // Discard the contents of the render target.
     // This is a valid operation only when the existing contents will be entirely
     // overwritten. If dirty or scroll rects are used, this call should be removed.
-    m_d3dContext->DiscardView(m_d3dRenderTargetView.Get());
+    m_d3dContext->DiscardView(m_backBufferRenderTargetView.Get());
 
     if (m_d3dDepthStencilView)
     {
