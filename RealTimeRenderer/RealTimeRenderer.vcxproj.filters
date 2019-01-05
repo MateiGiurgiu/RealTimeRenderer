@@ -76,6 +76,9 @@
       <Filter>Objects</Filter>
     </ClInclude>
     <ClInclude Include="RenderTexture.h" />
+    <ClInclude Include="SceneNode.h">
+      <Filter>GameObjects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
@@ -115,6 +118,9 @@
       <Filter>Objects</Filter>
     </ClCompile>
     <ClCompile Include="RenderTexture.cpp" />
+    <ClCompile Include="SceneNode.cpp">
+      <Filter>GameObjects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -123,10 +129,13 @@
     <Image Include="directx.ico">
       <Filter>Assets</Filter>
     </Image>
-    <Image Include="hytale.jpg">
+    <Image Include="Textures\hytale.jpg">
       <Filter>Assets</Filter>
     </Image>
-    <Image Include="Wood.dds">
+    <Image Include="Textures\stones_NM_height.DDS">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\Wood.dds">
       <Filter>Assets</Filter>
     </Image>
   </ItemGroup>
@@ -140,9 +149,6 @@
     <None Include="Shaders\SimpleShader2.fx">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Models\Axis.cmo">
-      <Filter>Models</Filter>
-    </None>
     <None Include="Models\Axis.sdkmesh">
       <Filter>Models</Filter>
     </None>
@@ -155,5 +161,6 @@
     <None Include="Shaders\PP_Test.fx">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Models\SpaceShip.sdkmesh" />
   </ItemGroup>
 </Project>

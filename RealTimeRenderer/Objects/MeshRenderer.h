@@ -31,6 +31,7 @@ public:
 
 #pragma endregion
 
+	std::shared_ptr<Shader> GetShader() const { return m_shader; }
 
 private:
 	std::shared_ptr<Mesh> m_mesh;

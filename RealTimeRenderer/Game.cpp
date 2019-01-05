@@ -64,7 +64,11 @@ void Game::Update(DX::StepTimer const& timer)
 	float time = float(timer.GetTotalSeconds());
 
 	m_camera.Update(elapsedTime);
-	//m_world = SimpleMath::Matrix::CreateRotationZ(time);
+	for (unsigned int i = 0; i < m_gameObjects.size(); ++i)
+	{
+		m_gameObjects[i]->Update(elapsedTime);
+	}
+	m_gameObjects[0]->SetOrientation(0, time / 2, 0);
 }
 #pragma endregion
 
@@ -81,48 +85,30 @@ void Game::Render()
     Clear();
 
     m_Direct3D->PIXBeginEvent(L"Render");
+
 	ID3D11DeviceContext1* context = m_Direct3D->GetD3DDeviceContext();
 	ID3D11Device1* device = m_Direct3D->GetD3DDevice();
 
     // TODO: Add your rendering code here.
 	m_lightPosVariable->SetFloatVector(reinterpret_cast<float*>(&m_LightPos));
 
-	for (unsigned int i = 0; i < m_renderables.size(); ++i)
+	for (unsigned int i = 0; i < m_gameObjects.size(); ++i)
 	{
-		m_renderables[i]->Render(context, m_camera.GetViewMatrix(), m_proj);
+		m_gameObjects[i]->Render(context, m_camera.GetViewMatrix(), m_camera.GetProjectionMatrix());
 	}
 
-	
-
-	//m_meshRenderer->Draw(context, m_world, m_camera.GetViewMatrix(), m_proj);
-	//m_meshRenderer->DrawInstanced(context, m_world, m_camera.GetViewMatrix(), m_proj, 100);
-
-
-
     m_Direct3D->PIXEndEvent();
+
 
 	// POST PROCESSING
 	m_Direct3D->PIXBeginEvent(L"PostProcessing");
 
-	//auto backBufferRenderTarget = m_Direct3D->GetCustomRenderView();
-	//auto depthStencil = m_Direct3D->GetDepthStencilView();
+	m_Direct3D->SetBackBufferAsRenderTarget();
 
-	// METHOD 1
-	//context->CopyResource(m_Direct3D->GetRenderTarget(), m_Direct3D->GetCustomRenderTarget());
-
-	// METHOD 1
-	auto backBufferRenderTarget = m_Direct3D->GetBackBufferRenderTargetView();
-	auto depthStencil = m_Direct3D->GetDepthStencilView();
-
-	context->ClearRenderTargetView(backBufferRenderTarget, Colors::CornflowerBlue);
-	//context->ClearDepthStencilView(depthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	context->OMSetRenderTargets(1, &backBufferRenderTarget, depthStencil);
-
-	m_renderQuad->GetShader()->SetTexture("buffer1", m_Direct3D->customRenderTexture->GetShaderResourceView());
-	m_renderQuad->GetShader()->SetTexture("buffer2", m_Direct3D->customRenderTexture2->GetShaderResourceView());
+	m_renderQuad->GetShader()->SetTexture("buffer1", m_Direct3D->m_gBufferColor->GetShaderResourceView());
+	m_renderQuad->GetShader()->SetTexture("buffer2", m_Direct3D->m_gBufferNormals->GetShaderResourceView());
+	m_renderQuad->GetShader()->SetTexture("buffer3", m_Direct3D->m_gBufferPos->GetShaderResourceView());
 	m_renderQuad->Draw(context, m_currentVisualizationType);
-
-
 
 	m_Direct3D->PIXEndEvent();
 
@@ -140,14 +126,17 @@ void Game::Clear()
 	
 	// Clear the views.
 	auto context = m_Direct3D->GetD3DDeviceContext();
-	//auto customRenderTarget = m_Direct3D->GetCustomRenderView();
 
-	auto depthStencil = m_Direct3D->GetDepthStencilView();
+	m_Direct3D->ClearGBuffers();
+	m_Direct3D->ClearBackBuffer();
+	m_Direct3D->ClearDepthStencil();
 
-	context->ClearRenderTargetView(m_Direct3D->customRenderTexture->GetRenderTargetView().Get(), Colors::CornflowerBlue);
-	context->ClearRenderTargetView(m_Direct3D->customRenderTexture2->GetRenderTargetView().Get(), Colors::CornflowerBlue);
-	context->ClearDepthStencilView(depthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	context->OMSetRenderTargets(2, m_Direct3D->GetBuffers(), depthStencil);
+	m_Direct3D->SetGBufferAsRenderTarget();
+
+	//context->ClearRenderTargetView(m_Direct3D->customRenderTexture->GetRenderTargetView().Get(), Colors::CornflowerBlue);
+	//context->ClearRenderTargetView(m_Direct3D->customRenderTexture2->GetRenderTargetView().Get(), Colors::CornflowerBlue);
+	//context->ClearDepthStencilView(depthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	//context->OMSetRenderTargets(2, m_Direct3D->GetBuffers(), depthStencil);
 
 	// Set the viewport.
 	auto viewport = m_Direct3D->GetScreenViewport();
@@ -213,25 +202,9 @@ void Game::CreateDeviceDependentResources()
 {
 	ID3D11Device1* device = m_Direct3D->GetD3DDevice();
 
-	std::shared_ptr<Mesh> mesh = ResourceManager::GetMesh(L"Models/Axis.sdkmesh", device);
 	std::shared_ptr<Shader> shader = ResourceManager::GetShader(L"Shaders/SimpleShader2.fx", device);
-	m_meshRenderer = std::make_shared<MeshRenderer>(mesh, shader, device);
-
-	instanceData = new SimpleMath::Vector4[100];
-
-	for(int i = 0; i < 10; ++i)
-	{
-		for (int j = 0; j < 10; ++j)
-		{
-			instanceData[i * 10 + j] = SimpleMath::Vector4(static_cast<float>(i) * 2.5f, 0, static_cast<float>(j) * 2.5f, 1);
-		}
-	}
-
-	m_meshRenderer->SetInstanceData(device, reinterpret_cast<float*>(instanceData), sizeof(SimpleMath::Vector4), 100);
 
 	m_lightPosVariable = shader->GetEffect()->GetVariableByName("LightPos")->AsVector();
-	m_world = SimpleMath::Matrix::Identity;
-	//m_world = SimpleMath::Matrix::CreateScale(1.0f);
 }
 
 // Allocate all memory resources that change on a window SizeChanged event.
@@ -241,16 +214,9 @@ void Game::CreateWindowSizeDependentResources()
 
 	// Render quad, very important for post processing
 	std::shared_ptr<Shader> postProcessingShader = ResourceManager::GetShader(L"Shaders/PP_Test.fx", device);
-	m_renderQuad = std::make_unique<RenderQuad>(device, postProcessingShader, m_Direct3D->GetScreenViewport().Width, m_Direct3D->GetScreenViewport().Height);
+	m_renderQuad = std::make_unique<RenderQuad>(device, postProcessingShader, m_Direct3D->GetScreenViewport().Width, m_Direct3D->GetScreenViewport().Height);;
 
-	auto tex = ResourceManager::GetTexture(L"hytale.jpg", device);
-	m_renderQuad->GetShader()->SetTexture("mainTex", *tex);
-
-	m_camera = Camera(SimpleMath::Vector3(0.f, 0.0f, -4.f));
-	
-	m_proj = SimpleMath::Matrix::CreatePerspectiveFieldOfView(XM_PI / 4.f,
-		float(m_Direct3D->GetScreenViewport().Width) / float(m_Direct3D->GetScreenViewport().Height), 0.1f, 100.f);
-
+	m_camera = Camera(SimpleMath::Vector3(0.f, 0.0f, -4.f), m_Direct3D->GetScreenViewport().Width, m_Direct3D->GetScreenViewport().Height, 55.0f);
 
 	m_LightPos = SimpleMath::Vector4(0, 4, 0, 1);
 
@@ -265,7 +231,7 @@ void Game::CreateWindowSizeDependentResources()
 	TwAddVarRW(infoBar, "Camera Movement Speed", TW_TYPE_FLOAT, &m_camera.MovementSpeed, "");
 	TwAddVarRW(infoBar, "Camera Rotation Speed", TW_TYPE_FLOAT, &m_camera.RotationSpeed, "");
 	TwAddVarRO(infoBar, "MeshesLoaded", TW_TYPE_INT32, &ResourceManager::MeshesLoaded, "");
-	TwAddVarRW(infoBar, "Density", TwDefineEnumFromString("Visualization", "Buffer1,Buffer2"), &m_currentVisualizationType, nullptr);
+	TwAddVarRW(infoBar, "Density", TwDefineEnumFromString("Visualization", "Buffer1,Buffer2,Buffer3"), &m_currentVisualizationType, nullptr);
 }
 
 void Game::OnDeviceLost()
@@ -285,15 +251,12 @@ void Game::CreateGameObjects()
 {
 	ID3D11Device1* device = m_Direct3D->GetD3DDevice();
 
-	m_renderables.reserve(10);
-	auto geom = std::make_shared<Geometry>(device, L"Models/Axis.sdkmesh", L"Shaders/SimpleShader2.fx");
+	m_gameObjects.reserve(10);
+	auto geom = std::make_shared<Geometry>(device, L"Models/SpaceShip.sdkmesh", L"Shaders/SimpleShader2.fx");
 
-	if (IRenderable* pa = dynamic_cast<IRenderable*>(geom.get()))
-	{
-		int x = 4;
-	}
-
-	geom->SetPosition(4.0, 0, 4);
-	m_renderables.push_back(geom);
+	m_diffuse = ResourceManager::GetTexture(L"Textures/hytale.jpg", device);
+	geom->SetDiffuseTexture(m_diffuse);
+	geom->SetPosition(4.0, -2, 4);
+	m_gameObjects.push_back(geom);
 
 }

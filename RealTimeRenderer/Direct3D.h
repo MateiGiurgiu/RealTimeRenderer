@@ -7,7 +7,7 @@
 
 namespace DX
 {
-	const int BUFFER_COUNT = 2;
+	const int BUFFER_COUNT = 3;
 
     // Provides an interface for an application that owns Direct3D to be notified of the device being lost or created.
     interface IDeviceNotify
@@ -36,6 +36,11 @@ namespace DX
         bool WindowSizeChanged(int width, int height);
         void HandleDeviceLost();
         void RegisterDeviceNotify(IDeviceNotify* deviceNotify) { m_deviceNotify = deviceNotify; }
+		void SetGBufferAsRenderTarget();
+		void ClearGBuffers();
+		void SetBackBufferAsRenderTarget();
+		void ClearBackBuffer(const FLOAT color[4] = DirectX::Colors::CornflowerBlue);
+		void ClearDepthStencil();
         void Present();
 
         // Device Accessors.
@@ -47,15 +52,17 @@ namespace DX
         IDXGISwapChain1*        GetSwapChain() const                    { return m_swapChain.Get(); }
         D3D_FEATURE_LEVEL       GetDeviceFeatureLevel() const           { return m_d3dFeatureLevel; }
         ID3D11Texture2D*        GetBackBufferRenderTarget() const       { return m_backBufferRenderTarget.Get(); }
-        ID3D11Texture2D*        GetDepthStencil() const                 { return m_depthStencil.Get(); }
+        ID3D11Texture2D*        GetDepthStencil() const                 { return m_depthStencilRenderTarget.Get(); }
         ID3D11RenderTargetView*	GetBackBufferRenderTargetView() const   { return m_backBufferRenderTargetView.Get(); }
-        ID3D11DepthStencilView* GetDepthStencilView() const             { return m_d3dDepthStencilView.Get(); }
+        ID3D11DepthStencilView* GetDepthStencilView() const             { return m_depthStencilRenderTargetView.Get(); }
         DXGI_FORMAT             GetBackBufferFormat() const             { return m_backBufferFormat; }
         DXGI_FORMAT             GetDepthBufferFormat() const            { return m_depthBufferFormat; }
         D3D11_VIEWPORT          GetScreenViewport() const               { return m_screenViewport; }
         UINT                    GetBackBufferCount() const              { return m_backBufferCount; }
         DXGI_COLOR_SPACE_TYPE   GetColorSpace() const                   { return m_colorSpace; }
         unsigned int            GetDeviceOptions() const                { return m_options; }
+		UINT					GetScreenWidth() const					{ return m_Width; }
+		UINT					GetScreenHeight() const					{ return m_Height; }
 
         // Performance events
         void PIXBeginEvent(_In_z_ const wchar_t* name)
@@ -73,17 +80,14 @@ namespace DX
             m_d3dAnnotation->SetMarker(name);
         }
 
-		RenderTexture* customRenderTexture;
-		RenderTexture* customRenderTexture2;
-		ID3D11RenderTargetView* const* GetBuffers();
-		ID3D11RenderTargetView* temp[2];
+		std::shared_ptr<RenderTexture>						m_gBufferColor;
+		std::shared_ptr<RenderTexture>						m_gBufferNormals;
+		std::shared_ptr<RenderTexture>						m_gBufferPos;
 
     private:
         void CreateFactory();
         void GetHardwareAdapter(IDXGIAdapter1** ppAdapter);
         void UpdateColorSpace();
-		void CreateDeferredBuffers();
-		void CreateTestBuffers();
 
         // Direct3D objects.
         Microsoft::WRL::ComPtr<IDXGIFactory2>               m_dxgiFactory;
@@ -93,17 +97,13 @@ namespace DX
         Microsoft::WRL::ComPtr<ID3DUserDefinedAnnotation>   m_d3dAnnotation;
 
         // Direct3D rendering objects. Required for 3D.
-		Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_deferredRenderTargets[BUFFER_COUNT];
-		Microsoft::WRL::ComPtr<ID3D11RenderTargetView>		m_deferredRenderTargetsView[BUFFER_COUNT];
-		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>	m_deferredRenderShaderResource[BUFFER_COUNT];
+
 
 		Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_depthStencilRenderTarget;
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilView>		m_depthStencilRenderTargetView;
 
         Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_backBufferRenderTarget;
-        Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_depthStencil;
         Microsoft::WRL::ComPtr<ID3D11RenderTargetView>		m_backBufferRenderTargetView;
-        Microsoft::WRL::ComPtr<ID3D11DepthStencilView>		m_d3dDepthStencilView;
         D3D11_VIEWPORT										m_screenViewport;
 
 		// rendering size

@@ -2,18 +2,15 @@
 #include "Camera.h"
 #include <Keyboard.h>
 
-using namespace DirectX::SimpleMath;
+using namespace DirectX;
+using namespace SimpleMath;
 
-Camera::Camera()
-	: MovementSpeed(3.0f), RotationSpeed(3.0f), m_pos(Vector3::Zero), m_yaw(0.0f), m_pitch(0.0f)
-{
-	
-}
 
-Camera::Camera(Vector3 initialPos)
+Camera::Camera(DirectX::SimpleMath::Vector3 initialPos, float screenWidth, float screenHeight, float fov, float nearPlane, float farPlane)
 	: MovementSpeed(3.0f), RotationSpeed(3.0f), m_pos(initialPos), m_yaw(0.0f), m_pitch(0.0f)
 {
-	
+	const float fovInRad = (XM_PI / 180.0f) * fov;
+	m_projection = Matrix::CreatePerspectiveFieldOfView(fovInRad, screenWidth / screenHeight, nearPlane, farPlane);
 }
 
 
@@ -100,4 +97,9 @@ Matrix Camera::GetViewMatrix() const
 	Vector3 lookAt = m_pos + Vector3(x, y, z);
 
 	return Matrix::CreateLookAt(m_pos, lookAt, Vector3::UnitY);
+}
+
+Matrix Camera::GetProjectionMatrix() const
+{
+	return m_projection;
 }

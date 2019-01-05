@@ -37,14 +37,12 @@ Mesh::~Mesh()
 	if (m_indexBuffer)
 	{
 		m_indexBuffer.Reset();
-		//m_indexBuffer = nullptr;
 	}
 
 	// Release the vertex buffer.
 	if (m_vertexBuffer)
 	{
 		m_vertexBuffer.Reset();
-		//m_vertexBuffer = nullptr;
 	}
 }
 

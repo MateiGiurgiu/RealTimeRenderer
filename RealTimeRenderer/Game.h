@@ -14,6 +14,7 @@
 #include <vector>
 #include "IRenderable.h"
 #include "RenderQuad.h"
+#include "SceneNode.h"
 
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
@@ -68,12 +69,12 @@ private:
 	// RenderQuad for doing post processing
 	std::unique_ptr<RenderQuad> m_renderQuad;
 
-	std::shared_ptr<MeshRenderer> m_meshRenderer;
-	std::vector<std::shared_ptr<IRenderable>> m_renderables;
+	// Game Objects list
+	std::vector<std::shared_ptr<SceneNode>> m_gameObjects;
 
-
-	DirectX::SimpleMath::Matrix m_world;
-	DirectX::SimpleMath::Matrix m_proj;
+	std::shared_ptr<Texture> m_diffuse;
+	std::shared_ptr<Texture> m_normal;
+	
 	DirectX::SimpleMath::Vector4 m_LightPos;
 
 	Camera m_camera;

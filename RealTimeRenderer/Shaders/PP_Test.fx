@@ -1,6 +1,7 @@
 matrix Projection;
 Texture2D buffer1;
 Texture2D buffer2;
+Texture2D buffer3;
 
 //--------------------------------------------------------------------------------------
 struct VS_INPUT
@@ -75,6 +76,23 @@ float4 PS2(PS_INPUT input) : SV_Target
 	return texColor;
 }
 
+//--------------------------------------------------------------------------------------
+// Pixel Shader - Visualize Buffer 3
+//--------------------------------------------------------------------------------------
+float4 PS3(PS_INPUT input) : SV_Target
+{
+	float4 texColor = buffer3.Sample(sampleLinear, input.TexCoord);
+	if (texColor.g < 0)
+	{
+		return float4(0, 1, 0, 1);
+	}
+	else
+	{
+		return float4(1, 0, 0, 1);
+	}
+	//return texColor;
+}
+
 
 //--------------------------------------------------------------------------------------
 // Technique
@@ -97,6 +115,17 @@ technique11 Render
 		SetVertexShader(CompileShader(vs_4_0, VS()));
 		SetGeometryShader(NULL);
 		SetPixelShader(CompileShader(ps_4_0, PS2()));
+
+		SetDepthStencilState(DisableDepth, 0);
+		SetRasterizerState(rasterizerState);
+		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
+	}
+
+	pass P2
+	{
+		SetVertexShader(CompileShader(vs_4_0, VS()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_4_0, PS3()));
 
 		SetDepthStencilState(DisableDepth, 0);
 		SetRasterizerState(rasterizerState);

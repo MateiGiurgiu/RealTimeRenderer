@@ -3,8 +3,8 @@
 class Camera
 {
 public:
-	Camera();
-	Camera(DirectX::SimpleMath::Vector3 initialPos);
+	Camera() = default;
+	Camera(DirectX::SimpleMath::Vector3 initialPos, float screenWidth, float screenHeight, float fov = 45.0f, float nearPlane = 0.1f, float farPlane = 500);
 	~Camera();
 
 	void Update(float deltaTime);
@@ -20,6 +20,7 @@ private:
 	float m_yaw;
 	float m_pitch;
 
+	DirectX::SimpleMath::Matrix m_projection;
 	DirectX::SimpleMath::Vector3 m_lookAt;
 };
 

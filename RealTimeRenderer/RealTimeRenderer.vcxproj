@@ -175,6 +175,7 @@
     <ClInclude Include="RenderQuad.h" />
     <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="RenderTexture.h" />
+    <ClInclude Include="SceneNode.h" />
     <ClInclude Include="StepTimer.h" />
     <ClInclude Include="Texture.h" />
   </ItemGroup>
@@ -203,23 +204,25 @@
     <ClCompile Include="RenderQuad.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="RenderTexture.cpp" />
+    <ClCompile Include="SceneNode.cpp" />
     <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="hytale.jpg" />
     <Image Include="directx.ico" />
-    <Image Include="Wood.dds" />
+    <Image Include="Textures\hytale.jpg" />
+    <Image Include="Textures\stones_NM_height.DDS" />
+    <Image Include="Textures\Wood.dds" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="settings.manifest" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Models\Axis.cmo" />
     <None Include="Models\Axis.sdkmesh" />
     <None Include="Models\Plane.cmo" />
+    <None Include="Models\SpaceShip.sdkmesh" />
     <None Include="Models\Sphere.cmo" />
     <None Include="packages.config" />
   </ItemGroup>

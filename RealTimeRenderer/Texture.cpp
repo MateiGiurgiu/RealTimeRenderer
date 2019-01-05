@@ -11,7 +11,7 @@ Texture::Texture(ID3D11Device1* device, const std::wstring& filename)
 	const unsigned int startLocation = filename.find_first_of('.');
 	const std::wstring extension = filename.substr(startLocation + 1);
 
-	if (extension == L"dds")
+	if (extension == L"dds" || extension == L"DDS")
 	{
 		DX::ThrowIfFailed(DirectX::CreateDDSTextureFromFile(device, filename.c_str(), m_resource.ReleaseAndGetAddressOf(), m_shaderResourceView.ReleaseAndGetAddressOf()));
 		DX::ThrowIfFailed(m_resource.As(&m_texture2D));

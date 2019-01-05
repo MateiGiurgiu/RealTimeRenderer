@@ -4,6 +4,21 @@
 RenderTexture::RenderTexture(ID3D11Device1* device, DXGI_FORMAT format, UINT width, UINT height, bool useWithShader)
 	: m_useWithShader(useWithShader)
 {
+	UINT formatSupport = 0;
+	if (FAILED(device->CheckFormatSupport(format, &formatSupport)))
+	{
+		throw std::exception("CheckFormatSupport");
+	}
+
+	const UINT32 required = D3D11_FORMAT_SUPPORT_TEXTURE2D | D3D11_FORMAT_SUPPORT_RENDER_TARGET;
+	if ((formatSupport & required) != required)
+	{
+#ifdef _DEBUG
+		char buff[128] = {};
+		LOG_ERROR("RenderTexture: Device does not support the requested format " << format);
+#endif
+		throw std::exception("RenderTexture");
+	}
 	// Initialize the render target texture description.
 	ZeroMemory(&m_textureDesc, sizeof(m_textureDesc));
 	// Setup the render target texture description.

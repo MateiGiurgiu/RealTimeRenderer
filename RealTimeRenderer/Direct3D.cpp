@@ -286,9 +286,9 @@ void Direct3D::CreateWindowSizeDependentResources()
     ID3D11RenderTargetView* nullViews[] = {nullptr};
     m_d3dContext->OMSetRenderTargets(_countof(nullViews), nullViews, nullptr);
 	m_backBufferRenderTargetView.Reset();
-    m_d3dDepthStencilView.Reset();
+    m_depthStencilRenderTargetView.Reset();
 	m_backBufferRenderTarget.Reset();
-    m_depthStencil.Reset();
+    m_depthStencilRenderTarget.Reset();
     m_d3dContext->Flush();
 
     // Determine the render target size in pixels.
@@ -391,115 +391,56 @@ void Direct3D::CreateWindowSizeDependentResources()
         ThrowIfFailed(m_d3dDevice->CreateTexture2D(
             &depthStencilDesc,
             nullptr,
-            m_depthStencil.ReleaseAndGetAddressOf()
+			m_depthStencilRenderTarget.ReleaseAndGetAddressOf()
             ));
 
         CD3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc(D3D11_DSV_DIMENSION_TEXTURE2D);
         ThrowIfFailed(m_d3dDevice->CreateDepthStencilView(
-            m_depthStencil.Get(),
+			m_depthStencilRenderTarget.Get(),
             &depthStencilViewDesc,
-            m_d3dDepthStencilView.ReleaseAndGetAddressOf()
+            m_depthStencilRenderTargetView.ReleaseAndGetAddressOf()
             ));
     }
     
     // Set the 3D rendering viewport to target the entire window.
     m_screenViewport = CD3D11_VIEWPORT(0.0f, 0.0f, static_cast<float>(backBufferWidth), static_cast<float>(backBufferHeight));
 
-	CreateTestBuffers();
+	// Create deferred buffers
+	m_gBufferColor = std::make_shared<RenderTexture>(m_d3dDevice.Get(), DXGI_FORMAT_B8G8R8A8_UNORM, m_Width, m_Height);
+	m_gBufferNormals = std::make_shared<RenderTexture>(m_d3dDevice.Get(), DXGI_FORMAT_R32G32B32A32_FLOAT, m_Width, m_Height);
+	m_gBufferPos = std::make_shared<RenderTexture>(m_d3dDevice.Get(), DXGI_FORMAT_R32G32B32A32_FLOAT, m_Width, m_Height);
 }
 
-// This method creates the multiple render targets needed for deferred rendering
-void Direct3D::CreateDeferredBuffers()
+
+void Direct3D::SetGBufferAsRenderTarget()
 {
-	D3D11_TEXTURE2D_DESC renderTextureDesc;
-	// Initialize the render target texture description.
-	ZeroMemory(&renderTextureDesc, sizeof(renderTextureDesc));
-	// Setup the render target texture description.
-	renderTextureDesc.Width = m_Width;
-	renderTextureDesc.Height = m_Height;
-	renderTextureDesc.MipLevels = 1;
-	renderTextureDesc.ArraySize = 1;
-	renderTextureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	renderTextureDesc.SampleDesc.Count = 1;
-	renderTextureDesc.Usage = D3D11_USAGE_DEFAULT;
-	renderTextureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-	renderTextureDesc.CPUAccessFlags = 0;
-	renderTextureDesc.MiscFlags = 0;
-	// Create the render target textures.
-	for (unsigned int i = 0; i < BUFFER_COUNT; i++)
-	{
-		DX::ThrowIfFailed(m_d3dDevice->CreateTexture2D(&renderTextureDesc, nullptr, &m_deferredRenderTargets[i]));
-	}
-
-	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
-	// Initialize the render target view description.
-	ZeroMemory(&renderTargetViewDesc, sizeof(renderTargetViewDesc));
-	// Setup the description of the render target view.
-	renderTargetViewDesc.Format = renderTextureDesc.Format;
-	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-	renderTargetViewDesc.Texture2D.MipSlice = 0;
-	// Create the render target views.
-	for (unsigned int i = 0; i < BUFFER_COUNT; i++)
-	{
-		DX::ThrowIfFailed(m_d3dDevice->CreateRenderTargetView(m_deferredRenderTargets[i].Get(), &renderTargetViewDesc, &m_deferredRenderTargetsView[i]));
-	}
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
-	// Initialize the render target texture description.
-	ZeroMemory(&shaderResourceViewDesc, sizeof(shaderResourceViewDesc));
-	// Setup the description of the shader resource view.
-	shaderResourceViewDesc.Format = renderTextureDesc.Format;
-	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-	shaderResourceViewDesc.Texture2D.MipLevels = 1;
-	// Create the shader resource views.
-	for (unsigned int i = 0; i < BUFFER_COUNT; i++)
-	{
-		DX::ThrowIfFailed(m_d3dDevice->CreateShaderResourceView(m_deferredRenderTargets[i].Get(), &shaderResourceViewDesc, m_deferredRenderShaderResource[i].ReleaseAndGetAddressOf()));
-	}
-
-	D3D11_TEXTURE2D_DESC depthStencilTextureDesc;
-	// Initialize the description of the depth buffer.
-	ZeroMemory(&depthStencilTextureDesc, sizeof(depthStencilTextureDesc));
-	// Set up the description of the depth buffer.
-	depthStencilTextureDesc.Width = m_Width;
-	depthStencilTextureDesc.Height = m_Height;
-	depthStencilTextureDesc.MipLevels = 1;
-	depthStencilTextureDesc.ArraySize = 1;
-	depthStencilTextureDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	depthStencilTextureDesc.SampleDesc.Count = 1;
-	depthStencilTextureDesc.SampleDesc.Quality = 0;
-	depthStencilTextureDesc.Usage = D3D11_USAGE_DEFAULT;
-	depthStencilTextureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-	depthStencilTextureDesc.CPUAccessFlags = 0;
-	depthStencilTextureDesc.MiscFlags = 0;
-	// Create the texture for the depth buffer using the filled out description.
-	DX::ThrowIfFailed(m_d3dDevice->CreateTexture2D(&depthStencilTextureDesc, nullptr, m_depthStencilRenderTarget.ReleaseAndGetAddressOf()));
-
-
-
-	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
-	// Initialize the depth stencil view description.
-	ZeroMemory(&depthStencilViewDesc, sizeof(depthStencilViewDesc));
-	// Set up the depth stencil view description.
-	depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-	depthStencilViewDesc.Texture2D.MipSlice = 0;
-	// Create the depth stencil view.
-	DX::ThrowIfFailed(m_d3dDevice->CreateDepthStencilView(m_depthStencilRenderTarget.Get(), &depthStencilViewDesc, m_depthStencilRenderTargetView.ReleaseAndGetAddressOf()));
+	ID3D11RenderTargetView* renderTargets[BUFFER_COUNT];
+	renderTargets[0] = m_gBufferColor->GetRenderTargetView().Get();
+	renderTargets[1] = m_gBufferNormals->GetRenderTargetView().Get();
+	renderTargets[2] = m_gBufferPos->GetRenderTargetView().Get();
+	m_d3dContext->OMSetRenderTargets(BUFFER_COUNT, renderTargets, m_depthStencilRenderTargetView.Get());
 }
 
-void Direct3D::CreateTestBuffers()
+void Direct3D::ClearGBuffers()
 {
-	customRenderTexture = new RenderTexture(m_d3dDevice.Get(), m_backBufferFormat, m_Width, m_Height);
-	customRenderTexture2 = new RenderTexture(m_d3dDevice.Get(), m_backBufferFormat, m_Width, m_Height);
+	m_d3dContext->ClearRenderTargetView(m_gBufferColor->GetRenderTargetView().Get(), Colors::CornflowerBlue);
+	m_d3dContext->ClearRenderTargetView(m_gBufferNormals->GetRenderTargetView().Get(), Colors::Black);
+	m_d3dContext->ClearRenderTargetView(m_gBufferPos->GetRenderTargetView().Get(), Colors::Black);
 }
 
-ID3D11RenderTargetView* const* Direct3D::GetBuffers()
+void Direct3D::SetBackBufferAsRenderTarget()
 {
-	temp[0] = customRenderTexture->GetRenderTargetView().Get();
-	temp[1] = customRenderTexture2->GetRenderTargetView().Get();
-	return temp;
+	m_d3dContext->OMSetRenderTargets(1, m_backBufferRenderTargetView.GetAddressOf(), m_depthStencilRenderTargetView.Get());
+}
+
+void Direct3D::ClearBackBuffer(const FLOAT color[4])
+{
+	m_d3dContext->ClearRenderTargetView(m_backBufferRenderTargetView.Get(), Colors::Black);
+}
+
+void Direct3D::ClearDepthStencil()
+{
+	m_d3dContext->ClearDepthStencilView(m_depthStencilRenderTargetView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
 // This method is called when the Win32 window is created (or re-created).
@@ -540,10 +481,10 @@ void Direct3D::HandleDeviceLost()
         m_deviceNotify->OnDeviceLost();
     }
 
-    m_d3dDepthStencilView.Reset();
+    m_depthStencilRenderTargetView.Reset();
 	m_backBufferRenderTargetView.Reset();
 	m_backBufferRenderTarget.Reset();
-    m_depthStencil.Reset();
+    m_depthStencilRenderTarget.Reset();
     m_swapChain.Reset();
     m_d3dContext.Reset();
     m_d3dAnnotation.Reset();
@@ -592,10 +533,10 @@ void Direct3D::Present()
     // overwritten. If dirty or scroll rects are used, this call should be removed.
     m_d3dContext->DiscardView(m_backBufferRenderTargetView.Get());
 
-    if (m_d3dDepthStencilView)
+    if (m_depthStencilRenderTargetView)
     {
         // Discard the contents of the depth stencil.
-        m_d3dContext->DiscardView(m_d3dDepthStencilView.Get());
+        m_d3dContext->DiscardView(m_depthStencilRenderTargetView.Get());
     }
 
     // If the device was removed either by a disconnection or a driver upgrade, we 
