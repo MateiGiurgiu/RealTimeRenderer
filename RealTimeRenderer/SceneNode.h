@@ -22,6 +22,7 @@ public:
 		m_eulerAngles = DirectX::SimpleMath::Vector3(x, y, z);
 	}
 	void SetScale(const DirectX::SimpleMath::Vector3 scale) { m_scale = scale; }
+	void SetScale(float x, float y, float z) { m_scale = DirectX::SimpleMath::Vector3(x, y, z); }
 
 	// Getters
 	DirectX::SimpleMath::Vector3 GetPosition() const { return m_position; };

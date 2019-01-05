@@ -82,15 +82,7 @@ float4 PS2(PS_INPUT input) : SV_Target
 float4 PS3(PS_INPUT input) : SV_Target
 {
 	float4 texColor = buffer3.Sample(sampleLinear, input.TexCoord);
-	if (texColor.g < 0)
-	{
-		return float4(0, 1, 0, 1);
-	}
-	else
-	{
-		return float4(1, 0, 0, 1);
-	}
-	//return texColor;
+	return texColor;
 }
 
 

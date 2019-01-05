@@ -75,9 +75,14 @@
     <ClInclude Include="RenderQuad.h">
       <Filter>Objects</Filter>
     </ClInclude>
-    <ClInclude Include="RenderTexture.h" />
     <ClInclude Include="SceneNode.h">
       <Filter>GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="Skybox.h">
+      <Filter>GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTexture.h">
+      <Filter>Objects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -117,9 +122,14 @@
     <ClCompile Include="RenderQuad.cpp">
       <Filter>Objects</Filter>
     </ClCompile>
-    <ClCompile Include="RenderTexture.cpp" />
     <ClCompile Include="SceneNode.cpp">
       <Filter>GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="Skybox.cpp">
+      <Filter>GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderTexture.cpp">
+      <Filter>Objects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -138,6 +148,9 @@
     <Image Include="Textures\Wood.dds">
       <Filter>Assets</Filter>
     </Image>
+    <Image Include="Textures\env.dds">
+      <Filter>Assets</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="settings.manifest">
@@ -152,15 +165,17 @@
     <None Include="Models\Axis.sdkmesh">
       <Filter>Models</Filter>
     </None>
-    <None Include="Models\Plane.cmo">
-      <Filter>Models</Filter>
-    </None>
-    <None Include="Models\Sphere.cmo">
-      <Filter>Models</Filter>
-    </None>
     <None Include="Shaders\PP_Test.fx">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Models\SpaceShip.sdkmesh" />
+    <None Include="Shaders\Skybox.fx">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Models\SpaceShip.sdkmesh">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="Models\Skybox.sdkmesh">
+      <Filter>Models</Filter>
+    </None>
   </ItemGroup>
 </Project>

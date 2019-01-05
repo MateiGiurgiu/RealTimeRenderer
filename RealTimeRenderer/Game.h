@@ -15,6 +15,7 @@
 #include "IRenderable.h"
 #include "RenderQuad.h"
 #include "SceneNode.h"
+#include "Skybox.h"
 
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
@@ -72,16 +73,19 @@ private:
 	// Game Objects list
 	std::vector<std::shared_ptr<SceneNode>> m_gameObjects;
 
+	// Skybox
+	std::unique_ptr<Skybox> m_skybox;
+
 	std::shared_ptr<Texture> m_diffuse;
 	std::shared_ptr<Texture> m_normal;
 	
 	DirectX::SimpleMath::Vector4 m_LightPos;
-
+	bool rotate = true;
 	Camera m_camera;
 	DirectX::SimpleMath::Vector4* instanceData;
 
 	// GUI
 	TwBar* infoBar = nullptr;
 	ID3DX11EffectVectorVariable* m_lightPosVariable;
-	int m_currentVisualizationType = 0;
+	int m_currentVisualizationType = 1;
 };

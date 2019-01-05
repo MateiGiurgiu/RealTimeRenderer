@@ -23,13 +23,23 @@ Geometry::~Geometry()
 
 void Geometry::Render(ID3D11DeviceContext1* context, const Matrix view, const Matrix proj)
 {
-	if(m_diffuse)
+	if (m_diffuse)
 	{
 		m_meshRenderer->GetShader()->SetTexture("diffuseTex", *m_diffuse);
 	}
+	else
+	{
+		m_meshRenderer->GetShader()->SetTexture("diffuseTex", nullptr);
+	}
+
 	if (m_normal)
 	{
 		m_meshRenderer->GetShader()->SetTexture("normalTex", *m_normal);
 	}
+	else
+	{
+		m_meshRenderer->GetShader()->SetTexture("normalTex", nullptr);
+	}
+
 	m_meshRenderer->Draw(context, GetWorldMatrix(), view, proj);
 }

@@ -63,12 +63,20 @@ void Game::Update(DX::StepTimer const& timer)
     // TODO: Add your game logic here.
 	float time = float(timer.GetTotalSeconds());
 
+	if (Keyboard::Get().GetState().T)
+	{
+		rotate = !rotate;
+	}
+
 	m_camera.Update(elapsedTime);
 	for (unsigned int i = 0; i < m_gameObjects.size(); ++i)
 	{
 		m_gameObjects[i]->Update(elapsedTime);
 	}
-	m_gameObjects[0]->SetOrientation(0, time / 2, 0);
+	if (rotate)
+	{
+		m_gameObjects[0]->SetOrientation(0, time / 2, 0);
+	}
 }
 #pragma endregion
 
@@ -82,14 +90,15 @@ void Game::Render()
         return;
     }
 
+	ID3D11DeviceContext1* context = m_Direct3D->GetD3DDeviceContext();
+	ID3D11Device1* device = m_Direct3D->GetD3DDevice();
+
     Clear();
 
     m_Direct3D->PIXBeginEvent(L"Render");
 
-	ID3D11DeviceContext1* context = m_Direct3D->GetD3DDeviceContext();
-	ID3D11Device1* device = m_Direct3D->GetD3DDevice();
+	m_Direct3D->SetGBufferAsRenderTarget();
 
-    // TODO: Add your rendering code here.
 	m_lightPosVariable->SetFloatVector(reinterpret_cast<float*>(&m_LightPos));
 
 	for (unsigned int i = 0; i < m_gameObjects.size(); ++i)
@@ -109,6 +118,8 @@ void Game::Render()
 	m_renderQuad->GetShader()->SetTexture("buffer2", m_Direct3D->m_gBufferNormals->GetShaderResourceView());
 	m_renderQuad->GetShader()->SetTexture("buffer3", m_Direct3D->m_gBufferPos->GetShaderResourceView());
 	m_renderQuad->Draw(context, m_currentVisualizationType);
+
+	m_skybox->Render(context, m_camera.GetViewMatrix(), m_camera.GetProjectionMatrix());
 
 	m_Direct3D->PIXEndEvent();
 
@@ -130,8 +141,6 @@ void Game::Clear()
 	m_Direct3D->ClearGBuffers();
 	m_Direct3D->ClearBackBuffer();
 	m_Direct3D->ClearDepthStencil();
-
-	m_Direct3D->SetGBufferAsRenderTarget();
 
 	//context->ClearRenderTargetView(m_Direct3D->customRenderTexture->GetRenderTargetView().Get(), Colors::CornflowerBlue);
 	//context->ClearRenderTargetView(m_Direct3D->customRenderTexture2->GetRenderTargetView().Get(), Colors::CornflowerBlue);
@@ -251,12 +260,19 @@ void Game::CreateGameObjects()
 {
 	ID3D11Device1* device = m_Direct3D->GetD3DDevice();
 
-	m_gameObjects.reserve(10);
-	auto geom = std::make_shared<Geometry>(device, L"Models/SpaceShip.sdkmesh", L"Shaders/SimpleShader2.fx");
+	m_skybox = std::make_unique<Skybox>(device);
+	m_skybox->SetSkyTexture(ResourceManager::GetTexture(L"Textures/env.dds", device));
 
-	m_diffuse = ResourceManager::GetTexture(L"Textures/hytale.jpg", device);
-	geom->SetDiffuseTexture(m_diffuse);
-	geom->SetPosition(4.0, -2, 4);
+	m_gameObjects.reserve(10);
+	auto geom = std::make_shared<Geometry>(device, L"Models/Axis.sdkmesh", L"Shaders/SimpleShader2.fx");
+
+
+	geom->SetDiffuseTexture(ResourceManager::GetTexture(L"Textures/hytale.jpg", device));
+	geom->SetNormalTexture(ResourceManager::GetTexture(L"Textures/stones_NM_height.DDS", device));
+	geom->SetPosition(0, -2, 0);
+	m_gameObjects.push_back(geom);
+
+	geom = std::make_shared<Geometry>(device, L"Models/Axis.sdkmesh", L"Shaders/SimpleShader2.fx");
 	m_gameObjects.push_back(geom);
 
 }
