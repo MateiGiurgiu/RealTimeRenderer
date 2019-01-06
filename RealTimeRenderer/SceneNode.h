@@ -7,8 +7,9 @@ public:
 	SceneNode();
 	virtual ~SceneNode() = default;
 
-	virtual void Update(float deltaTime) {};
-	virtual void Render(ID3D11DeviceContext1* context, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj) {}
+	virtual void Update(float deltaTime, float currentTime) {};
+	virtual void RenderDeferred(ID3D11DeviceContext1* context, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj) {}
+	virtual void RenderForward(ID3D11DeviceContext1* context, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj) {}
 	virtual void RenderShadow(ID3D11DeviceContext1* context, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj) {}
 
 	// Setters

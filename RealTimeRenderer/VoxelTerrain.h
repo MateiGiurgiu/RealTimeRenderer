@@ -12,8 +12,8 @@ public:
 	VoxelTerrain(ID3D11Device1* device);
 	~VoxelTerrain();
 
-	void Update(float deltaTime) override;
-	void Render(ID3D11DeviceContext1* context, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj) override;
+	void Update(float deltaTime, float currentTime) override;
+	void RenderDeferred(ID3D11DeviceContext1* context, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj) override;
 	void RenderShadow(ID3D11DeviceContext1* context, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj) override;
 
 	void RemoveAt(int x, int y, int z);

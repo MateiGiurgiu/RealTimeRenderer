@@ -4,6 +4,7 @@
 #include "Geometry.h"
 #include "Texture.h"
 #include "VoxelTerrain.h"
+#include "ParticleSystem.h"
 
 extern void ExitGame();
 
@@ -59,24 +60,22 @@ void Game::Tick()
 // Updates the world.
 void Game::Update(DX::StepTimer const& timer)
 {
-    float elapsedTime = float(timer.GetElapsedSeconds());
-
-    // TODO: Add your game logic here.
-	float time = float(timer.GetTotalSeconds());
+    float deltaTime = float(timer.GetElapsedSeconds());
+	float currentTime = float(timer.GetTotalSeconds());
 
 	if (Keyboard::Get().GetState().T)
 	{
 		rotate = !rotate;
 	}
 
-	m_camera.Update(elapsedTime);
+	m_camera.Update(deltaTime);
 	for (unsigned int i = 0; i < m_gameObjects.size(); ++i)
 	{
-		m_gameObjects[i]->Update(elapsedTime);
+		m_gameObjects[i]->Update(deltaTime, currentTime);
 	}
 	if (rotate)
 	{
-		//m_gameObjects[0]->SetOrientation(0, time *5, 0);
+		m_gameObjects[0]->SetOrientation(0, currentTime *5, 0);
 	}
 
 	//m_directionalLight->SetPosition(0, lightPosY, lightPosX);
@@ -125,7 +124,7 @@ void Game::Render()
 
 		for (unsigned int i = 0; i < m_gameObjects.size(); ++i)
 		{
-			m_gameObjects[i]->Render(context, m_camera.GetViewMatrix(), m_camera.GetProjectionMatrix());
+			m_gameObjects[i]->RenderDeferred(context, m_camera.GetViewMatrix(), m_camera.GetProjectionMatrix());
 		}
 	}
     m_Direct3D->PIXEndEvent();
@@ -150,12 +149,26 @@ void Game::Render()
 	}
 	m_Direct3D->PIXEndEvent();
 
-
-
 	//--------------------------------------------------------------------------------------
 	// Skybox
 	//--------------------------------------------------------------------------------------
-	m_skybox->Render(context, m_camera.GetViewMatrix(), m_camera.GetProjectionMatrix());
+	m_skybox->RenderForward(context, m_camera.GetViewMatrix(), m_camera.GetProjectionMatrix());
+
+	//--------------------------------------------------------------------------------------
+	// Forward Rendering
+	//--------------------------------------------------------------------------------------
+	m_Direct3D->PIXBeginEvent(L"Forward Rendering");
+	{
+		m_Direct3D->SetBackBufferAsRenderTarget();
+
+		for (unsigned int i = 0; i < m_gameObjects.size(); ++i)
+		{
+			m_gameObjects[i]->RenderForward(context, m_camera.GetViewMatrix(), m_camera.GetProjectionMatrix());
+		}
+	}
+	m_Direct3D->PIXEndEvent();
+
+
 
 
 
@@ -322,4 +335,8 @@ void Game::CreateGameObjects()
 	ter->RemoveAtWithRadius(0, 0, 0, 1.5);
 	m_gameObjects.push_back(ter);
 
+	auto ps = std::make_shared<ParticleSystem>(device);
+	ps->SetPosition(5, 1, -1);
+	ps->SetTexture(ResourceManager::GetTexture(L"Textures/FireParticle.png", device));
+	m_gameObjects.push_back(ps);
 }

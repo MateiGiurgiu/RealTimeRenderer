@@ -11,7 +11,7 @@ public:
 	~Geometry() override;
 
 	// Interface implementation
-	void Render(ID3D11DeviceContext1* context, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj) override;
+	void RenderDeferred(ID3D11DeviceContext1* context, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj) override;
 	void RenderShadow(ID3D11DeviceContext1* context, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj) override;
 
 	void SetDiffuseTexture(std::shared_ptr<Texture> texture) { m_diffuse = texture; }

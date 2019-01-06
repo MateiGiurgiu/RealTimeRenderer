@@ -89,6 +89,7 @@
     <ClInclude Include="VoxelTerrain.h">
       <Filter>GameObjects</Filter>
     </ClInclude>
+    <ClInclude Include="ParticleSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
@@ -141,6 +142,7 @@
     <ClCompile Include="VoxelTerrain.cpp">
       <Filter>GameObjects</Filter>
     </ClCompile>
+    <ClCompile Include="ParticleSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -162,6 +164,9 @@
       <Filter>Assets</Filter>
     </Image>
     <Image Include="Textures\VoxelTile.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\FireParticle.png">
       <Filter>Assets</Filter>
     </Image>
   </ItemGroup>
@@ -203,5 +208,8 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="Shaders\VoxelTerrainShadow.fx" />
+    <None Include="Shaders\Particle.fx">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

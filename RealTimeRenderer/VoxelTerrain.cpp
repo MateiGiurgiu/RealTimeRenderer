@@ -52,11 +52,11 @@ VoxelTerrain::~VoxelTerrain()
 	}
 }
 
-void VoxelTerrain::Update(float deltaTime)
+void VoxelTerrain::Update(float deltaTime, float currentTime)
 {
 }
 
-void VoxelTerrain::Render(ID3D11DeviceContext1* context, Matrix view, Matrix proj)
+void VoxelTerrain::RenderDeferred(ID3D11DeviceContext1* context, Matrix view, Matrix proj)
 {
 	if (m_diffuse)
 	{

@@ -24,7 +24,7 @@ Geometry::~Geometry()
 	
 }
 
-void Geometry::Render(ID3D11DeviceContext1* context, const Matrix view, const Matrix proj)
+void Geometry::RenderDeferred(ID3D11DeviceContext1* context, const Matrix view, const Matrix proj)
 {
 	if (m_diffuse)
 	{
