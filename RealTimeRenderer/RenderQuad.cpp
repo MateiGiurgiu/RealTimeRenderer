@@ -3,22 +3,18 @@
 
 using namespace DirectX;
 
-RenderQuad::RenderQuad(ID3D11Device1* device, UINT screenWidth, UINT screenHeight)
+RenderQuad::RenderQuad(ID3D11Device1* device)
 	: m_indexCount(0)
 {
 	CreateGeometryData(device);
-
-	m_projectionMatrix = SimpleMath::Matrix::CreateOrthographic(static_cast<float>(screenWidth), static_cast<float>(screenHeight), 0.0f, 1.0f);
 }
 
-RenderQuad::RenderQuad(ID3D11Device1* device, std::shared_ptr<Shader> shader, UINT screenWidth, UINT screenHeight)
+RenderQuad::RenderQuad(ID3D11Device1* device, std::shared_ptr<Shader> shader)
 	: m_shader(shader), m_indexCount(0), m_layoutDescCount(2)
 {
 	CreateGeometryData(device);
 
 	m_shader->SetInputLayout(m_layoutDesc, m_layoutDescCount, device);
-
-	m_projectionMatrix = SimpleMath::Matrix::CreateOrthographic(static_cast<float>(screenWidth), static_cast<float>(screenHeight), 0.0f, 1.0f);
 }
 
 void RenderQuad::CreateGeometryData(ID3D11Device1* device)
@@ -83,7 +79,6 @@ void RenderQuad::Draw(ID3D11DeviceContext1* context, const int pass)
 	if(m_shader)
 	{
 		PrepareForDraw(context);
-		m_shader->SetMatrix("Projection", m_projectionMatrix);
 		m_shader->PrepareForDraw(context, pass);
 		context->DrawIndexed(m_indexCount, 0, 0);
 	}
@@ -95,7 +90,6 @@ void RenderQuad::DrawWithShader(ID3D11DeviceContext1* context, ID3D11Device1* de
 
 	DX::ThrowIfFailed(shader.SetInputLayout(m_layoutDesc, m_layoutDescCount, device));
 
-	shader.SetMatrix("Projection", m_projectionMatrix);
 	shader.PrepareForDraw(context, pass);
 
 	context->DrawIndexed(m_indexCount, 0, 0);

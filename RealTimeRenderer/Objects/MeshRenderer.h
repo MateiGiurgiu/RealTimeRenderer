@@ -17,6 +17,7 @@ public:
 	void Draw(ID3D11DeviceContext1* context, DirectX::SimpleMath::Matrix world, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj) const;
 	void Draw(ID3D11DeviceContext1* context, DirectX::SimpleMath::Matrix world, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj, ID3D11RasterizerState* rState) const;
 
+	void DrawShadow(ID3D11DeviceContext1* context, DirectX::SimpleMath::Matrix world, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj) const;
 	// draws the mesh with a temporary replacement shader, the m_shader remains intact
 	void DrawWithShader(ID3D11DeviceContext1* context, ID3D11Device1* device, std::shared_ptr<Shader>& shader, DirectX::SimpleMath::Matrix world, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj) const;
 
@@ -32,10 +33,12 @@ public:
 #pragma endregion
 
 	std::shared_ptr<Shader> GetShader() const { return m_shader; }
+	void SetShadowShader(ID3D11Device1* device, std::shared_ptr<Shader> shadowShader);
 
 private:
 	std::shared_ptr<Mesh> m_mesh;
 	std::shared_ptr<Shader> m_shader;
+	std::shared_ptr<Shader> m_shadowShader;
 
 	ID3DX11EffectMatrixVariable* m_pWorldVariable = nullptr;
 	ID3DX11EffectMatrixVariable* m_pViewVariable = nullptr;

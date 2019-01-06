@@ -7,10 +7,6 @@ matrix World;
 matrix View;
 matrix Projection;
 
-
-// LIGHT
-float4 LightPos;
-
 float4 InstanceData[512];
 
 //--------------------------------------------------------------------------------------
@@ -77,17 +73,13 @@ SamplerState sampleLinear
 //--------------------------------------------------------------------------------------
 // Utilities
 //--------------------------------------------------------------------------------------
-inline float3 ObjectToWorldNormal(in float3 normal) {
+inline float3 ObjectToWorldDir(in float3 normal) {
 	// Multiply by transposed inverse matrix,
 	return normalize(
 		World[0].xyz * normal.x +
 		World[1].xyz * normal.y +
 		World[2].xyz * normal.z
 	);
-}
-
-inline float3 ObjectToWorldDir(in float3 dir) {
-	return normalize(mul((float3x3)World, dir));
 }
 
 
@@ -108,10 +100,9 @@ PS_INPUT VS(VS_INPUT input, uint id : SV_InstanceID)
 	output.TexCoord = input.TexCoord;
 
 	// normal, binormal, tangent in WS
-	output.Normal = ObjectToWorldNormal(input.Normal);
-	output.Binormal = ObjectToWorldDir(input.Binormal);
-	output.Tangent = ObjectToWorldDir(normalize(input.Tangent));
-
+	output.Normal = ObjectToWorldDir(input.Normal);
+	output.Binormal = -ObjectToWorldDir(input.Binormal);
+	output.Tangent = ObjectToWorldDir(input.Tangent);
 
 	output.Color = input.Color;
 
@@ -127,23 +118,34 @@ PS_OUTPUT PS(PS_INPUT input) : SV_Target
 
 	// texture lookups
 	float4 texColor = diffuseTex.Sample(sampleLinear, input.TexCoord);
-	float4 stoneNormal = normalTex.Sample(sampleLinear, input.TexCoord* 3);
-	//float3 N = normalize(2.0 * stoneNormal.xyz - 1.0);
-	float3 N = float3(0, 0, 1);
-	float3 binormal = cross(input.Normal, input.Tangent.xyz);
+	float4 stoneNormal = normalTex.Sample(sampleLinear, input.TexCoord * 3);
+	float3 finalNormal;
+	if (length(stoneNormal.rgb) > 0.05)
+	{
+		float3 N = normalize(2.0 * stoneNormal.xyz - 1.0);
 
-	float3x3 mat2Tang = float3x3 (input.Tangent.xyz, binormal, input.Normal);
-	float3 finalNormal = mul(mat2Tang, N);
+		finalNormal = normalize(
+			N.x * input.Tangent +
+			N.y * input.Binormal +
+			N.z * input.Normal
+		);
+	}
+	else
+	{
+		finalNormal = input.Normal;
+	}
+	
 
-	float3 lightDir = normalize(LightPos.xyz - input.wPos);
-	float diff = max(0.2, dot(lightDir.xyz, input.Normal));
-
-	//return float4(diff, diff, diff, 1);
-	output.color = input.Color * texColor;
-	output.normal = float4(input.Tangent.xyz * 0.5 + 0.5, 1);
-	//output.normal = float4(finalNormal * 0.5 + 0.5, 1);
-	//output.position = float4(input.wPos, 1);
-	output.position = float4(finalNormal * 0.5 + 0.5, 1);
+	if (length(texColor) > 0.01)
+	{
+		output.color = texColor;
+	}
+	else
+	{
+		output.color = input.Color;
+	}
+	output.normal = float4(finalNormal, 1);
+	output.position = float4(input.wPos, 1);
 	return output;
 }
 

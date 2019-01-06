@@ -84,6 +84,9 @@
     <ClInclude Include="RenderTexture.h">
       <Filter>Objects</Filter>
     </ClInclude>
+    <ClInclude Include="DirectionalLight.h">
+      <Filter>GameObjects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
@@ -131,6 +134,9 @@
     <ClCompile Include="RenderTexture.cpp">
       <Filter>Objects</Filter>
     </ClCompile>
+    <ClCompile Include="DirectionalLight.cpp">
+      <Filter>GameObjects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -176,6 +182,12 @@
     </None>
     <None Include="Models\Skybox.sdkmesh">
       <Filter>Models</Filter>
+    </None>
+    <None Include="Models\Plane.sdkmesh">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="Shaders\Shadow.fx">
+      <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
 </Project>

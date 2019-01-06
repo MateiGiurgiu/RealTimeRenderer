@@ -409,6 +409,9 @@ void Direct3D::CreateWindowSizeDependentResources()
 	m_gBufferColor = std::make_shared<RenderTexture>(m_d3dDevice.Get(), DXGI_FORMAT_B8G8R8A8_UNORM, m_Width, m_Height);
 	m_gBufferNormals = std::make_shared<RenderTexture>(m_d3dDevice.Get(), DXGI_FORMAT_R32G32B32A32_FLOAT, m_Width, m_Height);
 	m_gBufferPos = std::make_shared<RenderTexture>(m_d3dDevice.Get(), DXGI_FORMAT_R32G32B32A32_FLOAT, m_Width, m_Height);
+
+	// create shadow map
+	m_shadowMap = std::make_shared<RenderTexture>(m_d3dDevice.Get(), DXGI_FORMAT_R32G32B32A32_FLOAT, m_Width, m_Height);
 }
 
 
@@ -441,6 +444,16 @@ void Direct3D::ClearBackBuffer(const FLOAT color[4])
 void Direct3D::ClearDepthStencil()
 {
 	m_d3dContext->ClearDepthStencilView(m_depthStencilRenderTargetView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+}
+
+void Direct3D::SetShadowMapAsRenderTarget()
+{
+	m_d3dContext->OMSetRenderTargets(1, m_shadowMap->GetRenderTargetView().GetAddressOf(), m_depthStencilRenderTargetView.Get());
+}
+
+void Direct3D::ClearShadowMap()
+{
+	m_d3dContext->ClearRenderTargetView(m_shadowMap->GetRenderTargetView().Get(), Colors::White);
 }
 
 // This method is called when the Win32 window is created (or re-created).

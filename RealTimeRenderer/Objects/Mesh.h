@@ -17,7 +17,6 @@ public:
 private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_indexBuffer;
-	unsigned int m_vertexCount;
 	unsigned int m_indexCount;
 
 	unsigned int m_vertexOffset;

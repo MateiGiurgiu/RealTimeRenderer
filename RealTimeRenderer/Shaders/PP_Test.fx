@@ -1,7 +1,11 @@
-matrix Projection;
-Texture2D buffer1;
-Texture2D buffer2;
-Texture2D buffer3;
+// G buffers
+Texture2D bufferColor;
+Texture2D bufferNormal;
+Texture2D bufferPosition;
+Texture2D shadowMap;
+
+// Light Information
+float3 LightDir1;
 
 //--------------------------------------------------------------------------------------
 struct VS_INPUT
@@ -23,6 +27,13 @@ struct PS_INPUT
 DepthStencilState DisableDepth
 {
 	DepthEnable = FALSE;
+};
+
+DepthStencilState EnableDepth
+{
+	DepthEnable = TRUE;
+	DepthWriteMask = ALL;
+	DepthFunc = LESS_EQUAL;
 };
 
 BlendState NoBlending
@@ -59,30 +70,52 @@ PS_INPUT VS(VS_INPUT input, uint id : SV_InstanceID)
 }
 
 //--------------------------------------------------------------------------------------
-// Pixel Shader - Visualize Buffer 1
+// Pixel Shader - Visualize Albedo
+//--------------------------------------------------------------------------------------
+float4 PS0(PS_INPUT input) : SV_Target
+{
+	float4 texColor = bufferColor.Sample(sampleLinear, input.TexCoord);
+	return texColor;
+}
+
+//--------------------------------------------------------------------------------------
+// Pixel Shader - Visualize Normals
 //--------------------------------------------------------------------------------------
 float4 PS1(PS_INPUT input) : SV_Target
 {
-	float4 texColor = buffer1.Sample(sampleLinear, input.TexCoord);
-	return texColor;
+	float3 normal = bufferNormal.Sample(sampleLinear, input.TexCoord).rgb;
+	return float4(normal * 0.5 + 0.5, 1);
 }
 
 //--------------------------------------------------------------------------------------
-// Pixel Shader - Visualize Buffer 2
+// Pixel Shader - Visualize Position
 //--------------------------------------------------------------------------------------
 float4 PS2(PS_INPUT input) : SV_Target
 {
-	float4 texColor = buffer2.Sample(sampleLinear, input.TexCoord);
+	float4 texColor = bufferPosition.Sample(sampleLinear, input.TexCoord);
 	return texColor;
 }
 
 //--------------------------------------------------------------------------------------
-// Pixel Shader - Visualize Buffer 3
+// Pixel Shader - Visualize ShadowMap
 //--------------------------------------------------------------------------------------
 float4 PS3(PS_INPUT input) : SV_Target
 {
-	float4 texColor = buffer3.Sample(sampleLinear, input.TexCoord);
+	float4 texColor = shadowMap.Sample(sampleLinear, input.TexCoord);
 	return texColor;
+}
+
+//--------------------------------------------------------------------------------------
+// Pixel Shader - Light
+//--------------------------------------------------------------------------------------
+float4 PSLight(PS_INPUT input) : SV_Target
+{
+	float3 color = bufferColor.Sample(sampleLinear, input.TexCoord).rgb;
+	float3 normal = bufferNormal.Sample(sampleLinear, input.TexCoord).xyz;
+
+	float light = max(0.0, dot(normal, -LightDir1));
+
+	return float4(light * color, 1);
 }
 
 
@@ -95,7 +128,7 @@ technique11 Render
 	{
 		SetVertexShader(CompileShader(vs_4_0, VS()));
 		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_4_0, PS1()));
+		SetPixelShader(CompileShader(ps_4_0, PS0()));
 
 		SetDepthStencilState(DisableDepth, 0);
 		SetRasterizerState(rasterizerState);
@@ -106,7 +139,7 @@ technique11 Render
 	{
 		SetVertexShader(CompileShader(vs_4_0, VS()));
 		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_4_0, PS2()));
+		SetPixelShader(CompileShader(ps_4_0, PS1()));
 
 		SetDepthStencilState(DisableDepth, 0);
 		SetRasterizerState(rasterizerState);
@@ -117,7 +150,29 @@ technique11 Render
 	{
 		SetVertexShader(CompileShader(vs_4_0, VS()));
 		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_4_0, PS2()));
+
+		SetDepthStencilState(DisableDepth, 0);
+		SetRasterizerState(rasterizerState);
+		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
+	}
+
+	pass P3
+	{
+		SetVertexShader(CompileShader(vs_4_0, VS()));
+		SetGeometryShader(NULL);
 		SetPixelShader(CompileShader(ps_4_0, PS3()));
+
+		SetDepthStencilState(EnableDepth, 0);
+		SetRasterizerState(rasterizerState);
+		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
+	}
+
+	pass P4
+	{
+		SetVertexShader(CompileShader(vs_4_0, VS()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_4_0, PSLight()));
 
 		SetDepthStencilState(DisableDepth, 0);
 		SetRasterizerState(rasterizerState);

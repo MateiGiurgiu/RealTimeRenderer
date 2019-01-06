@@ -4,8 +4,8 @@
 class RenderQuad
 {
 public:
-	RenderQuad(ID3D11Device1* device, UINT screenWidth, UINT screenHeight);
-	RenderQuad(ID3D11Device1* device, std::shared_ptr<Shader> shader, UINT screenWidth, UINT screenHeight);
+	RenderQuad(ID3D11Device1* device);
+	RenderQuad(ID3D11Device1* device, std::shared_ptr<Shader> shader);
 	~RenderQuad() = default;
 
 	void PrepareForDraw(ID3D11DeviceContext1* context);
@@ -17,7 +17,6 @@ public:
 private:
 	void CreateGeometryData(ID3D11Device1* device);
 
-	DirectX::SimpleMath::Matrix m_projectionMatrix;
 	struct Vertex
 	{
 		DirectX::XMFLOAT4 Pos;

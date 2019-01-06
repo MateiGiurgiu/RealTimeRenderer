@@ -75,8 +75,10 @@ void Game::Update(DX::StepTimer const& timer)
 	}
 	if (rotate)
 	{
-		m_gameObjects[0]->SetOrientation(0, time / 2, 0);
+		m_gameObjects[0]->SetOrientation(0, time *5, 0);
 	}
+
+	m_directionalLight->SetPosition(0, lightPosY, lightPosX);
 }
 #pragma endregion
 
@@ -93,37 +95,68 @@ void Game::Render()
 	ID3D11DeviceContext1* context = m_Direct3D->GetD3DDeviceContext();
 	ID3D11Device1* device = m_Direct3D->GetD3DDevice();
 
+	//--------------------------------------------------------------------------------------
+	// Clear ALL buffers
+	//--------------------------------------------------------------------------------------
     Clear();
 
-    m_Direct3D->PIXBeginEvent(L"Render");
-
-	m_Direct3D->SetGBufferAsRenderTarget();
-
-	m_lightPosVariable->SetFloatVector(reinterpret_cast<float*>(&m_LightPos));
-
-	for (unsigned int i = 0; i < m_gameObjects.size(); ++i)
+	//--------------------------------------------------------------------------------------
+	// Render Shadows
+	//--------------------------------------------------------------------------------------
+	m_Direct3D->PIXBeginEvent(L"Render Shadows");
 	{
-		m_gameObjects[i]->Render(context, m_camera.GetViewMatrix(), m_camera.GetProjectionMatrix());
+		m_Direct3D->SetShadowMapAsRenderTarget();
+		for (unsigned int i = 0; i < m_gameObjects.size(); ++i)
+		{
+			m_gameObjects[i]->RenderShadow(context, m_directionalLight->GetViewMatrix(), m_directionalLight->GetProjectionMatrix());
+		}
+		m_Direct3D->ClearDepthStencil();
 	}
+	m_Direct3D->PIXEndEvent();
 
+	//--------------------------------------------------------------------------------------
+	// Deferred Rendering
+	//--------------------------------------------------------------------------------------
+    m_Direct3D->PIXBeginEvent(L"Deferred Rendering");
+	{
+		m_Direct3D->SetGBufferAsRenderTarget();
+
+		for (unsigned int i = 0; i < m_gameObjects.size(); ++i)
+		{
+			m_gameObjects[i]->Render(context, m_camera.GetViewMatrix(), m_camera.GetProjectionMatrix());
+		}
+	}
     m_Direct3D->PIXEndEvent();
 
 
-	// POST PROCESSING
-	m_Direct3D->PIXBeginEvent(L"PostProcessing");
+	//--------------------------------------------------------------------------------------
+	// Deferred Lighting
+	//--------------------------------------------------------------------------------------
+	m_Direct3D->PIXBeginEvent(L"Deferred Lighting");
+	{
+		m_Direct3D->SetBackBufferAsRenderTarget();
 
-	m_Direct3D->SetBackBufferAsRenderTarget();
-
-	m_renderQuad->GetShader()->SetTexture("buffer1", m_Direct3D->m_gBufferColor->GetShaderResourceView());
-	m_renderQuad->GetShader()->SetTexture("buffer2", m_Direct3D->m_gBufferNormals->GetShaderResourceView());
-	m_renderQuad->GetShader()->SetTexture("buffer3", m_Direct3D->m_gBufferPos->GetShaderResourceView());
-	m_renderQuad->Draw(context, m_currentVisualizationType);
-
-	m_skybox->Render(context, m_camera.GetViewMatrix(), m_camera.GetProjectionMatrix());
-
+		m_renderQuad->GetShader()->SetVector("LightDir1", m_directionalLight->GetLightDir());
+		m_renderQuad->GetShader()->SetTexture("bufferColor", m_Direct3D->m_gBufferColor->GetShaderResourceView());
+		m_renderQuad->GetShader()->SetTexture("bufferNormal", m_Direct3D->m_gBufferNormals->GetShaderResourceView());
+		m_renderQuad->GetShader()->SetTexture("bufferPosition", m_Direct3D->m_gBufferPos->GetShaderResourceView());
+		m_renderQuad->GetShader()->SetTexture("shadowMap", m_Direct3D->m_shadowMap->GetShaderResourceView());
+		m_renderQuad->Draw(context, m_currentVisualizationType);
+	}
 	m_Direct3D->PIXEndEvent();
 
-	// Draw the GUI
+
+
+	//--------------------------------------------------------------------------------------
+	// Skybox
+	//--------------------------------------------------------------------------------------
+	m_skybox->Render(context, m_camera.GetViewMatrix(), m_camera.GetProjectionMatrix());
+
+
+
+	//--------------------------------------------------------------------------------------
+	// GUI
+	//--------------------------------------------------------------------------------------
 	TwDraw();
 
     // Show the new frame.
@@ -138,14 +171,10 @@ void Game::Clear()
 	// Clear the views.
 	auto context = m_Direct3D->GetD3DDeviceContext();
 
+	m_Direct3D->ClearShadowMap();
 	m_Direct3D->ClearGBuffers();
 	m_Direct3D->ClearBackBuffer();
 	m_Direct3D->ClearDepthStencil();
-
-	//context->ClearRenderTargetView(m_Direct3D->customRenderTexture->GetRenderTargetView().Get(), Colors::CornflowerBlue);
-	//context->ClearRenderTargetView(m_Direct3D->customRenderTexture2->GetRenderTargetView().Get(), Colors::CornflowerBlue);
-	//context->ClearDepthStencilView(depthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	//context->OMSetRenderTargets(2, m_Direct3D->GetBuffers(), depthStencil);
 
 	// Set the viewport.
 	auto viewport = m_Direct3D->GetScreenViewport();
@@ -200,8 +229,8 @@ void Game::OnWindowSizeChanged(int width, int height)
 void Game::GetDefaultSize(int& width, int& height) const
 {
     // TODO: Change to desired default window size (note minimum size is 320x200).
-    width = 800;
-    height = 600;
+    width = 1000;
+    height = 800;
 }
 #pragma endregion
 
@@ -210,10 +239,6 @@ void Game::GetDefaultSize(int& width, int& height) const
 void Game::CreateDeviceDependentResources()
 {
 	ID3D11Device1* device = m_Direct3D->GetD3DDevice();
-
-	std::shared_ptr<Shader> shader = ResourceManager::GetShader(L"Shaders/SimpleShader2.fx", device);
-
-	m_lightPosVariable = shader->GetEffect()->GetVariableByName("LightPos")->AsVector();
 }
 
 // Allocate all memory resources that change on a window SizeChanged event.
@@ -223,11 +248,9 @@ void Game::CreateWindowSizeDependentResources()
 
 	// Render quad, very important for post processing
 	std::shared_ptr<Shader> postProcessingShader = ResourceManager::GetShader(L"Shaders/PP_Test.fx", device);
-	m_renderQuad = std::make_unique<RenderQuad>(device, postProcessingShader, m_Direct3D->GetScreenViewport().Width, m_Direct3D->GetScreenViewport().Height);;
+	m_renderQuad = std::make_unique<RenderQuad>(device, postProcessingShader);;
 
 	m_camera = Camera(SimpleMath::Vector3(0.f, 0.0f, -4.f), m_Direct3D->GetScreenViewport().Width, m_Direct3D->GetScreenViewport().Height, 55.0f);
-
-	m_LightPos = SimpleMath::Vector4(0, 4, 0, 1);
 
 	// Initialize GUI
 	TwInit(TW_DIRECT3D11, device);
@@ -239,8 +262,11 @@ void Game::CreateWindowSizeDependentResources()
 	// Add GUI widgets
 	TwAddVarRW(infoBar, "Camera Movement Speed", TW_TYPE_FLOAT, &m_camera.MovementSpeed, "");
 	TwAddVarRW(infoBar, "Camera Rotation Speed", TW_TYPE_FLOAT, &m_camera.RotationSpeed, "");
-	TwAddVarRO(infoBar, "MeshesLoaded", TW_TYPE_INT32, &ResourceManager::MeshesLoaded, "");
-	TwAddVarRW(infoBar, "Density", TwDefineEnumFromString("Visualization", "Buffer1,Buffer2,Buffer3"), &m_currentVisualizationType, nullptr);
+	TwAddVarRW(infoBar, "Light Pos X", TW_TYPE_FLOAT, &lightPosX, "");
+	TwAddVarRW(infoBar, "Light Pos Y", TW_TYPE_FLOAT, &lightPosY, "");
+	TwAddVarRO(infoBar, "Meshes Loaded", TW_TYPE_INT32, &ResourceManager::MeshesLoaded, "");
+	TwAddVarRO(infoBar, "Shaders Loaded", TW_TYPE_INT32, &ResourceManager::ShadersLoaded, "");
+	TwAddVarRW(infoBar, "Density", TwDefineEnumFromString("Visualization", "Color,Normals,Position,ShadowMap,Light"), &m_currentVisualizationType, nullptr);
 }
 
 void Game::OnDeviceLost()
@@ -260,6 +286,9 @@ void Game::CreateGameObjects()
 {
 	ID3D11Device1* device = m_Direct3D->GetD3DDevice();
 
+	m_directionalLight = std::make_unique<DirectionalLight>(45, 0, 0);
+	m_directionalLight->SetPosition(0, 8, -2);
+
 	m_skybox = std::make_unique<Skybox>(device);
 	m_skybox->SetSkyTexture(ResourceManager::GetTexture(L"Textures/env.dds", device));
 
@@ -267,12 +296,22 @@ void Game::CreateGameObjects()
 	auto geom = std::make_shared<Geometry>(device, L"Models/Axis.sdkmesh", L"Shaders/SimpleShader2.fx");
 
 
-	geom->SetDiffuseTexture(ResourceManager::GetTexture(L"Textures/hytale.jpg", device));
+	//geom->SetDiffuseTexture(ResourceManager::GetTexture(L"Textures/hytale.jpg", device));
 	geom->SetNormalTexture(ResourceManager::GetTexture(L"Textures/stones_NM_height.DDS", device));
-	geom->SetPosition(0, -2, 0);
+	geom->SetPosition(0, 0.5, 0);
 	m_gameObjects.push_back(geom);
 
 	geom = std::make_shared<Geometry>(device, L"Models/Axis.sdkmesh", L"Shaders/SimpleShader2.fx");
+	geom->SetPosition(0, 2.5, 0);
+	m_gameObjects.push_back(geom);
+
+	geom = std::make_shared<Geometry>(device, L"Models/Axis.sdkmesh", L"Shaders/SimpleShader2.fx");
+	geom->SetPosition(0, 3, -4);
+	geom->SetScale(0.5,0.5,0.5);
+	geom->SetOrientation(45, 0, 0);
+	m_gameObjects.push_back(geom);
+
+	geom = std::make_shared<Geometry>(device, L"Models/Plane.sdkmesh", L"Shaders/SimpleShader2.fx");
 	m_gameObjects.push_back(geom);
 
 }

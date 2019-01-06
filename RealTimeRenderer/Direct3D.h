@@ -41,6 +41,8 @@ namespace DX
 		void SetBackBufferAsRenderTarget();
 		void ClearBackBuffer(const FLOAT color[4] = DirectX::Colors::CornflowerBlue);
 		void ClearDepthStencil();
+		void SetShadowMapAsRenderTarget();
+		void ClearShadowMap();
         void Present();
 
         // Device Accessors.
@@ -83,6 +85,7 @@ namespace DX
 		std::shared_ptr<RenderTexture>						m_gBufferColor;
 		std::shared_ptr<RenderTexture>						m_gBufferNormals;
 		std::shared_ptr<RenderTexture>						m_gBufferPos;
+		std::shared_ptr<RenderTexture>						m_shadowMap;
 
     private:
         void CreateFactory();
