@@ -27,7 +27,7 @@ DirectX::SimpleMath::Matrix DirectionalLight::GetViewMatrix() const
 
 DirectX::SimpleMath::Matrix DirectionalLight::GetProjectionMatrix() const
 {
-	return Matrix::CreateOrthographic(20, 20, 0.1, 10);
+	return Matrix::CreateOrthographic(20, 20, 0.1, 15);
 }
 
 Vector3 DirectionalLight::GetLightDir() const

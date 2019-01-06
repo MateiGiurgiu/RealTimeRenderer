@@ -100,8 +100,6 @@ namespace DX
         Microsoft::WRL::ComPtr<ID3DUserDefinedAnnotation>   m_d3dAnnotation;
 
         // Direct3D rendering objects. Required for 3D.
-
-
 		Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_depthStencilRenderTarget;
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilView>		m_depthStencilRenderTargetView;
 

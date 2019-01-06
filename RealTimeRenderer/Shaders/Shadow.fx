@@ -62,8 +62,7 @@ PS_INPUT VS(VS_INPUT input, uint id : SV_InstanceID)
 float4 PS(PS_INPUT input) : SV_Target
 {
 	float depth = input.Pos.z / input.Pos.w;
-	return float4(depth, depth, depth, 1);
-	//return input.Col;
+	return float4(depth, depth, depth, 1.0);
 }
 
 

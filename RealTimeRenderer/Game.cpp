@@ -78,7 +78,7 @@ void Game::Update(DX::StepTimer const& timer)
 		m_gameObjects[0]->SetOrientation(0, time *5, 0);
 	}
 
-	m_directionalLight->SetPosition(0, lightPosY, lightPosX);
+	//m_directionalLight->SetPosition(0, lightPosY, lightPosX);
 }
 #pragma endregion
 
@@ -137,6 +137,9 @@ void Game::Render()
 		m_Direct3D->SetBackBufferAsRenderTarget();
 
 		m_renderQuad->GetShader()->SetVector("LightDir1", m_directionalLight->GetLightDir());
+		m_renderQuad->GetShader()->SetMatrix("Light1View", m_directionalLight->GetViewMatrix());
+		m_renderQuad->GetShader()->SetMatrix("Light1Proj", m_directionalLight->GetProjectionMatrix());
+
 		m_renderQuad->GetShader()->SetTexture("bufferColor", m_Direct3D->m_gBufferColor->GetShaderResourceView());
 		m_renderQuad->GetShader()->SetTexture("bufferNormal", m_Direct3D->m_gBufferNormals->GetShaderResourceView());
 		m_renderQuad->GetShader()->SetTexture("bufferPosition", m_Direct3D->m_gBufferPos->GetShaderResourceView());
@@ -287,7 +290,7 @@ void Game::CreateGameObjects()
 	ID3D11Device1* device = m_Direct3D->GetD3DDevice();
 
 	m_directionalLight = std::make_unique<DirectionalLight>(45, 0, 0);
-	m_directionalLight->SetPosition(0, 8, -2);
+	m_directionalLight->SetPosition(0, 3, -4);
 
 	m_skybox = std::make_unique<Skybox>(device);
 	m_skybox->SetSkyTexture(ResourceManager::GetTexture(L"Textures/env.dds", device));
@@ -305,13 +308,14 @@ void Game::CreateGameObjects()
 	geom->SetPosition(0, 2.5, 0);
 	m_gameObjects.push_back(geom);
 
-	geom = std::make_shared<Geometry>(device, L"Models/Axis.sdkmesh", L"Shaders/SimpleShader2.fx");
-	geom->SetPosition(0, 3, -4);
-	geom->SetScale(0.5,0.5,0.5);
-	geom->SetOrientation(45, 0, 0);
-	m_gameObjects.push_back(geom);
+	//geom = std::make_shared<Geometry>(device, L"Models/Axis.sdkmesh", L"Shaders/SimpleShader2.fx");
+	//geom->SetPosition(0, 3, -4);
+	//geom->SetScale(0.5,0.5,0.5);
+	//geom->SetOrientation(45, 0, 0);
+	//m_gameObjects.push_back(geom);
 
 	geom = std::make_shared<Geometry>(device, L"Models/Plane.sdkmesh", L"Shaders/SimpleShader2.fx");
+	geom->SetScale(10, 10, 10);
 	m_gameObjects.push_back(geom);
 
 }

@@ -5,6 +5,7 @@
 
 #include "pch.h"
 #include "Direct3D.h"
+#include <minwinbase.h>
 
 using namespace DirectX;
 using namespace DX;
