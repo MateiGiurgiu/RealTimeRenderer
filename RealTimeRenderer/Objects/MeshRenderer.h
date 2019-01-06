@@ -18,17 +18,16 @@ public:
 	void Draw(ID3D11DeviceContext1* context, DirectX::SimpleMath::Matrix world, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj, ID3D11RasterizerState* rState) const;
 
 	void DrawShadow(ID3D11DeviceContext1* context, DirectX::SimpleMath::Matrix world, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj) const;
-	// draws the mesh with a temporary replacement shader, the m_shader remains intact
-	void DrawWithShader(ID3D11DeviceContext1* context, ID3D11Device1* device, std::shared_ptr<Shader>& shader, DirectX::SimpleMath::Matrix world, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj) const;
 
 #pragma endregion
 
 
 #pragma  region Draw Instanced
 
-	void SetInstanceData(ID3D11Device1* device, void* data, UINT dataSize, UINT numOfInstances) const;
-	void SetInstanceData(ID3D11Device1* device, LPCSTR instanceVarName, void* data, UINT dataSize, UINT numOfInstances) const;
+	void SetInstanceData(void* data, UINT dataSize, UINT numOfInstances) const;
+	void SetInstanceData(LPCSTR instanceVarName, void* data, UINT dataSize, UINT numOfInstances) const;
 	void DrawInstanced(ID3D11DeviceContext1* context, DirectX::SimpleMath::Matrix world, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj, UINT numOfInstances) const;
+	void DrawShadowInstanced(ID3D11DeviceContext1* context, DirectX::SimpleMath::Matrix world, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj, UINT numOfInstances) const;
 
 #pragma endregion
 

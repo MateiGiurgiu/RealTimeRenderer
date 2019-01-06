@@ -68,7 +68,6 @@
     <ClInclude Include="Camera.h">
       <Filter>Objects</Filter>
     </ClInclude>
-    <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="Texture.h">
       <Filter>Objects</Filter>
     </ClInclude>
@@ -85,6 +84,9 @@
       <Filter>Objects</Filter>
     </ClInclude>
     <ClInclude Include="DirectionalLight.h">
+      <Filter>GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="VoxelTerrain.h">
       <Filter>GameObjects</Filter>
     </ClInclude>
   </ItemGroup>
@@ -118,7 +120,6 @@
     <ClCompile Include="Camera.cpp">
       <Filter>Objects</Filter>
     </ClCompile>
-    <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="Texture.cpp">
       <Filter>Objects</Filter>
     </ClCompile>
@@ -135,6 +136,9 @@
       <Filter>Objects</Filter>
     </ClCompile>
     <ClCompile Include="DirectionalLight.cpp">
+      <Filter>GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="VoxelTerrain.cpp">
       <Filter>GameObjects</Filter>
     </ClCompile>
   </ItemGroup>
@@ -155,6 +159,9 @@
       <Filter>Assets</Filter>
     </Image>
     <Image Include="Textures\env.dds">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\VoxelTile.png">
       <Filter>Assets</Filter>
     </Image>
   </ItemGroup>
@@ -189,5 +196,12 @@
     <None Include="Shaders\Shadow.fx">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Models\Voxel.sdkmesh">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="Shaders\VoxelTerrain.fx">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\VoxelTerrainShadow.fx" />
   </ItemGroup>
 </Project>

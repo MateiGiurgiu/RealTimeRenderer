@@ -174,12 +174,12 @@
     <ClInclude Include="Managers\ResourceManager.h" />
     <ClInclude Include="Objects\Shader.h" />
     <ClInclude Include="RenderQuad.h" />
-    <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="RenderTexture.h" />
     <ClInclude Include="SceneNode.h" />
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="StepTimer.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="VoxelTerrain.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
@@ -205,11 +205,11 @@
     <ClCompile Include="Managers\ResourceManager.cpp" />
     <ClCompile Include="Objects\Shader.cpp" />
     <ClCompile Include="RenderQuad.cpp" />
-    <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="RenderTexture.cpp" />
     <ClCompile Include="SceneNode.cpp" />
     <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="VoxelTerrain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -219,6 +219,7 @@
     <Image Include="Textures\env.dds" />
     <Image Include="Textures\hytale.jpg" />
     <Image Include="Textures\stones_NM_height.DDS" />
+    <Image Include="Textures\VoxelTile.png" />
     <Image Include="Textures\Wood.dds" />
   </ItemGroup>
   <ItemGroup>
@@ -229,6 +230,7 @@
     <None Include="Models\Plane.sdkmesh" />
     <None Include="Models\Skybox.sdkmesh" />
     <None Include="Models\SpaceShip.sdkmesh" />
+    <None Include="Models\Voxel.sdkmesh" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -271,6 +273,16 @@
     <None Include="Shaders\Shadow.fx">
       <FileType>Document</FileType>
       <DeploymentContent>true</DeploymentContent>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\VoxelTerrain.fx">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\VoxelTerrainShadow.fx">
+      <FileType>Document</FileType>
     </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

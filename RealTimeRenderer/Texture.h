@@ -7,8 +7,8 @@ public:
 	Texture(ID3D11Device1* device, const std::wstring& filename);
 	virtual ~Texture() = default;
 
-	float GetWidth() const { return  m_textureDesc.Width; };
-	float GetHeight() const { return m_textureDesc.Height; };
+	UINT GetWidth() const { return  m_textureDesc.Width; };
+	UINT GetHeight() const { return m_textureDesc.Height; };
 
 	D3D11_TEXTURE2D_DESC GetTextureDesc() const { return m_textureDesc; }
 	ID3D11Texture2D* GetTexture2D() const { return m_texture2D.Get(); }

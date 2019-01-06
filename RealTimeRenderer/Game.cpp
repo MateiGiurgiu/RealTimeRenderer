@@ -3,6 +3,7 @@
 #include "ResourceManager.h"
 #include "Geometry.h"
 #include "Texture.h"
+#include "VoxelTerrain.h"
 
 extern void ExitGame();
 
@@ -75,7 +76,7 @@ void Game::Update(DX::StepTimer const& timer)
 	}
 	if (rotate)
 	{
-		m_gameObjects[0]->SetOrientation(0, time *5, 0);
+		//m_gameObjects[0]->SetOrientation(0, time *5, 0);
 	}
 
 	//m_directionalLight->SetPosition(0, lightPosY, lightPosX);
@@ -113,6 +114,7 @@ void Game::Render()
 		m_Direct3D->ClearDepthStencil();
 	}
 	m_Direct3D->PIXEndEvent();
+
 
 	//--------------------------------------------------------------------------------------
 	// Deferred Rendering
@@ -289,7 +291,7 @@ void Game::CreateGameObjects()
 {
 	ID3D11Device1* device = m_Direct3D->GetD3DDevice();
 
-	m_directionalLight = std::make_unique<DirectionalLight>(45, 0, 0);
+	m_directionalLight = std::make_unique<DirectionalLight>(55, 0, 0);
 	m_directionalLight->SetPosition(0, 3, -4);
 
 	m_skybox = std::make_unique<Skybox>(device);
@@ -314,8 +316,10 @@ void Game::CreateGameObjects()
 	//geom->SetOrientation(45, 0, 0);
 	//m_gameObjects.push_back(geom);
 
-	geom = std::make_shared<Geometry>(device, L"Models/Plane.sdkmesh", L"Shaders/SimpleShader2.fx");
-	geom->SetScale(10, 10, 10);
-	m_gameObjects.push_back(geom);
+	//geom = std::make_shared<Geometry>(device, L"Models/Plane.sdkmesh", L"Shaders/SimpleShader2.fx");
+	//geom->SetScale(10, 10, 10);
+	auto ter = std::make_shared<VoxelTerrain>(device);
+	ter->RemoveAtWithRadius(0, 0, 0, 1.5);
+	m_gameObjects.push_back(ter);
 
 }

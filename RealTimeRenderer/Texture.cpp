@@ -25,5 +25,12 @@ Texture::Texture(ID3D11Device1* device, const std::wstring& filename)
 
 		m_texture2D->GetDesc(&m_textureDesc);
 	}
+	else if (extension == L"png" || extension == L"PNG")
+	{
+		DX::ThrowIfFailed(DirectX::CreateWICTextureFromFile(device, filename.c_str(), m_resource.ReleaseAndGetAddressOf(), m_shaderResourceView.ReleaseAndGetAddressOf()));
+		DX::ThrowIfFailed(m_resource.As(&m_texture2D));
+
+		m_texture2D->GetDesc(&m_textureDesc);
+	}
 }
 

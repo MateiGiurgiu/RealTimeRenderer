@@ -1,13 +1,12 @@
 // Textures
 Texture2D diffuseTex;
-Texture2D normalTex;
 
 // MVP
 matrix World;
 matrix View;
 matrix Projection;
 
-float4 InstanceData[512];
+float4 InstanceData[4000];
 
 //--------------------------------------------------------------------------------------
 struct VS_INPUT
@@ -26,8 +25,6 @@ struct PS_INPUT
 	float2 TexCoord : TEXCOORD0;
 	float3 wPos : TEXCOORD1;
 	float3 Normal : TEXCOORD2;
-	float3 Binormal : TEXCOORD3;
-	float3 Tangent : TEXCOORD4;
 	float4 Color : TEXCOORD5;
 };
 
@@ -86,12 +83,13 @@ inline float3 ObjectToWorldDir(in float3 normal) {
 //--------------------------------------------------------------------------------------
 // Vertex Shader
 //--------------------------------------------------------------------------------------
-PS_INPUT VS(VS_INPUT input)
+PS_INPUT VS(VS_INPUT input, uint id : SV_InstanceID)
 {
 	PS_INPUT output = (PS_INPUT)0;
 
-	output.Pos = mul(input.Pos, World);
-	//output.Pos += InstanceData[id];
+	input.Pos += InstanceData[id];
+	input.Pos.xyz *= InstanceData[id].w;
+	output.Pos = mul(float4(input.Pos.xyz, 1.0), World);
 	output.wPos = output.Pos.xyz;
 	output.Pos = mul(output.Pos, View);
 	output.Pos = mul(output.Pos, Projection);
@@ -101,8 +99,6 @@ PS_INPUT VS(VS_INPUT input)
 
 	// normal, binormal, tangent in WS
 	output.Normal = ObjectToWorldDir(input.Normal);
-	output.Binormal = -ObjectToWorldDir(input.Binormal);
-	output.Tangent = ObjectToWorldDir(input.Tangent);
 
 	output.Color = input.Color;
 
@@ -118,24 +114,7 @@ PS_OUTPUT PS(PS_INPUT input) : SV_Target
 
 	// texture lookups
 	float4 texColor = diffuseTex.Sample(sampleLinear, input.TexCoord);
-	float4 stoneNormal = normalTex.Sample(sampleLinear, input.TexCoord * 3);
-	float3 finalNormal;
-	if (length(stoneNormal.rgb) > 0.05)
-	{
-		float3 N = normalize(2.0 * stoneNormal.xyz - 1.0);
-
-		finalNormal = normalize(
-			N.x * input.Tangent +
-			N.y * input.Binormal +
-			N.z * input.Normal
-		);
-	}
-	else
-	{
-		finalNormal = input.Normal;
-	}
 	
-
 	if (length(texColor) > 0.01)
 	{
 		output.color = texColor;
@@ -144,7 +123,7 @@ PS_OUTPUT PS(PS_INPUT input) : SV_Target
 	{
 		output.color = input.Color;
 	}
-	output.normal = float4(finalNormal, 1);
+	output.normal = float4(input.Normal, 1);
 	output.position = float4(input.wPos, 1);
 	return output;
 }
