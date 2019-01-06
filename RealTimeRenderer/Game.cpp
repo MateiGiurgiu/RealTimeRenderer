@@ -335,7 +335,7 @@ void Game::CreateGameObjects()
 	ter->RemoveAtWithRadius(0, 0, 0, 1.5);
 	m_gameObjects.push_back(ter);
 
-	auto ps = std::make_shared<ParticleSystem>(device);
+	auto ps = std::make_shared<ParticleSystem>(device, 1000, ResourceManager::GetShader(L"Shaders/Particle.fx", device));
 	ps->SetPosition(5, 1, -1);
 	ps->SetTexture(ResourceManager::GetTexture(L"Textures/FireParticle.png", device));
 	m_gameObjects.push_back(ps);

@@ -5,16 +5,11 @@
 using namespace DirectX;
 using namespace SimpleMath;
 
-ParticleSystem::ParticleSystem(ID3D11Device1* device)
-	: m_numOfParticles(0), m_particleData(nullptr), m_currentTime(0.0f)
+ParticleSystem::ParticleSystem(ID3D11Device1* device, int numOfParticles, std::shared_ptr<Shader> shader)
+	: m_numOfParticles(numOfParticles), m_shader(shader), m_particleData(nullptr), m_currentTime(0.0f)
 {
 	CreateGeometryData(device);
-
-	m_shader = ResourceManager::GetShader(L"Shaders/Particle.fx", device);
-
 	m_shader->SetInputLayout(m_layoutDesc, m_layoutDescCount, device);
-
-	m_numOfParticles = 100;
 }
 
 
@@ -75,10 +70,10 @@ void ParticleSystem::CreateGeometryData(ID3D11Device1* device)
 
 	Vertex vertices[] =
 	{
-		{ XMFLOAT4(-0.10f,	-0.10f, 0.0f, 1.0), XMFLOAT3(0,0,1),	XMFLOAT2(0.0f, 0.0f)},
-		{ XMFLOAT4(-0.10f,	 0.10f, 0.0f, 1.0), XMFLOAT3(0,0,1),	XMFLOAT2(0.0f, 1.0f)},
-		{ XMFLOAT4( 0.10f,	 0.10f, 0.0f, 1.0), XMFLOAT3(0,0,1),	XMFLOAT2(1.0f, 1.0f)},
-		{ XMFLOAT4( 0.10f,	-0.10f, 0.0f, 1.0), XMFLOAT3(0,0,1),	XMFLOAT2(1.0f, 0.0f)},
+		{ XMFLOAT4(-0.1f,	-0.1f, 0.0f, 1.0), XMFLOAT3(0,0,1),	XMFLOAT2(0.0f, 0.0f)},
+		{ XMFLOAT4(-0.1f,	 0.1f, 0.0f, 1.0), XMFLOAT3(0,0,1),	XMFLOAT2(0.0f, 1.0f)},
+		{ XMFLOAT4( 0.1f,	 0.1f, 0.0f, 1.0), XMFLOAT3(0,0,1),	XMFLOAT2(1.0f, 1.0f)},
+		{ XMFLOAT4( 0.1f,	-0.1f, 0.0f, 1.0), XMFLOAT3(0,0,1),	XMFLOAT2(1.0f, 0.0f)},
 	};
 
 	D3D11_BUFFER_DESC bufferDesc;

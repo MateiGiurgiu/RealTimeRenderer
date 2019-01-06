@@ -73,6 +73,12 @@ inline float3 ObjectToWorldDir(in float3 normal) {
 	);
 }
 
+float rand_1_05(in float2 uv)
+{
+	float2 noise = (frac(sin(dot(uv, float2(12.9898, 78.233)*2.0)) * 43758.5453));
+	return abs(noise.x + noise.y) * 0.5;
+}
+
 
 //--------------------------------------------------------------------------------------
 // Vertex Shader
@@ -86,10 +92,25 @@ PS_INPUT VS(VS_INPUT input, uint id : SV_InstanceID)
 
 	float3 particlePos = float3(0,0,0);
 
+	float random = rand_1_05(float(id + 1));
+
+	float3 randPoint = float3
+		(
+			sin(random * 538),
+			fmod(id, 2) == 0? 1.0 : -1.0 * random * 0.5,
+			cos(random * 798)
+			);
+	randPoint = normalize(randPoint);
+
 	float t = fmod(Time, 3) / 3;
 
-	particlePos.z = 2 * t * sin((float(id + 1) / 10));
-	particlePos.x = 2 * t * cos((float(id + 1) / 10));
+	float scale = t * 1.1 + abs(sin(Time)) * 0.5;
+	input.Pos.xy *= scale + random;
+
+	particlePos = randPoint * t;
+
+	//particlePos.z = 2 * t * sin((float(id + 1) / 10));
+	//particlePos.x = 2 * t * cos((float(id + 1) / 10));
 	//particlePos.y = 2 * t* sin(float(id + 1) / 10);
 
 	//particlePos.y = sin(id);

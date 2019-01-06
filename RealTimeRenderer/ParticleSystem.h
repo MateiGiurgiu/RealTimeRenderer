@@ -5,7 +5,7 @@
 class ParticleSystem : public SceneNode
 {
 public:
-	ParticleSystem(ID3D11Device1* device);
+	ParticleSystem(ID3D11Device1* device, int numOfParticles, std::shared_ptr<Shader> shader);
 	~ParticleSystem();
 
 	void Update(float deltaTime, float currentTime) override;
