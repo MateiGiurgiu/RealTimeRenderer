@@ -100,7 +100,7 @@ PS_INPUT VS(VS_INPUT input, uint id : SV_InstanceID)
 
 	particlePos.x = (fmod(id, 2) == 0.0 ? 0.5 : -0.5) * t * cos(300 * random * id);
 	particlePos.z = (fmod(id, 2) == 0.0 ? 0.5 : -0.5) * t * sin(300 * random * id);
-	particlePos.y = -t * 0.8;
+	particlePos.y = -t * 0.8 + 0.5f;
 
 	// MVP & bilboarding
 	output.Pos = mul(float4(particlePos.xyz, 1.0), World);

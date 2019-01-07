@@ -148,6 +148,7 @@ void Game::Render()
 		m_renderQuad->GetShader()->SetTexture("bufferNormal", m_Direct3D->m_gBufferNormals->GetShaderResourceView());
 		m_renderQuad->GetShader()->SetTexture("bufferPosition", m_Direct3D->m_gBufferPos->GetShaderResourceView());
 		m_renderQuad->GetShader()->SetTexture("shadowMap", m_Direct3D->m_shadowMap->GetShaderResourceView());
+		m_renderQuad->GetShader()->SetTexture("toonRamp", *ResourceManager::GetTexture(L"Textures/ToonRamp.png", device));
 		m_renderQuad->Draw(context, m_currentVisualizationType);
 	}
 	m_Direct3D->PIXEndEvent();
@@ -282,7 +283,7 @@ void Game::CreateWindowSizeDependentResources()
 	TwAddVarRW(infoBar, "Light Pos Y", TW_TYPE_FLOAT, &lightPosY, "");
 	TwAddVarRO(infoBar, "Meshes Loaded", TW_TYPE_INT32, &ResourceManager::MeshesLoaded, "");
 	TwAddVarRO(infoBar, "Shaders Loaded", TW_TYPE_INT32, &ResourceManager::ShadersLoaded, "");
-	TwAddVarRW(infoBar, "Density", TwDefineEnumFromString("Visualization", "Color,Specular,Normals,Position,ShadowMap,Light"), &m_currentVisualizationType, nullptr);
+	TwAddVarRW(infoBar, "Density", TwDefineEnumFromString("Visualization", "Color,Specular,Normals,Position,ShadowMap,Light,Toon Light"), &m_currentVisualizationType, nullptr);
 }
 
 void Game::OnDeviceLost()
@@ -312,12 +313,9 @@ void Game::CreateGameObjects()
 
 	m_directionalLight = std::make_shared<DirectionalLight>(55, 0, 0);
 	m_directionalLight->SetPosition(0, 3, -4);
-	m_directionalLight->SetLightColor(SimpleMath::Color(1, 1, 1, 1));
+	//m_directionalLight->SetLightColor(SimpleMath::Color(1, 1, 1, 1));
 	m_gameObjects.push_back(m_directionalLight);
 
-	
-
-	
 	auto terrain = std::make_shared<VoxelTerrain>(device);
 	terrain->RemoveAtWithRadius(0, 0, 0, 1.5);
 	m_gameObjects.push_back(terrain);

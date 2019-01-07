@@ -5,16 +5,19 @@
 using namespace DirectX::SimpleMath;
 
 DirectionalLight::DirectionalLight()
+	: m_lightColor(Color(1, 1, 1, 1)), m_lightIntensity(1.0f)
 {
 
 }
 
 DirectionalLight::DirectionalLight(Vector3 orientation)
+	: m_lightColor(Color(1, 1, 1, 1)), m_lightIntensity(1.0f)
 {
 	SetOrientation(orientation);
 }
 
 DirectionalLight::DirectionalLight(float x, float y, float z)
+	: m_lightColor(Color(1, 1, 1, 1)), m_lightIntensity(1.0f)
 {
 	SetOrientation(x, y, z);
 }
@@ -38,6 +41,11 @@ Vector3 DirectionalLight::GetLightDir() const
 	return forward;
 }
 
+Color DirectionalLight::GetLightColor() const
+{
+	return Color(m_lightColor.x, m_lightColor.y, m_lightColor.z, m_lightIntensity);
+}
+
 void DirectionalLight::Update(float deltaTime, float currentTime)
 {
 	float timeScale = 0.25f;
@@ -45,11 +53,17 @@ void DirectionalLight::Update(float deltaTime, float currentTime)
 
 	float signY = 1.0f;
 
+	m_lightIntensity = abs(angleY);
+	
+
 	if(angleY < 0)
 	{
 		angleY *= -1;
 		signY = -1.0f;
+		m_lightIntensity *= 0.2;
 	}
+	if (m_lightIntensity < 0.2f) m_lightIntensity = 0.2f;
+
 	float angleZ = std::cos(currentTime * timeScale) * signY;
 
 	SetPosition(0, angleY * 8, angleZ * 8);

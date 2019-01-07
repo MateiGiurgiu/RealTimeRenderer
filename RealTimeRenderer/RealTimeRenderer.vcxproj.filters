@@ -197,6 +197,9 @@
     <Image Include="Textures\Pole_S.png">
       <Filter>Assets</Filter>
     </Image>
+    <Image Include="Textures\ToonRamp.png">
+      <Filter>Assets</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="settings.manifest">

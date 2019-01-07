@@ -22,6 +22,9 @@ public:
 
 	void Update(float deltaTime, float currentTime) override;
 private:
+	const float LAUNCH_PITCH_MIN = 10.0;
+	const float LAUNCH_PITCH_MAX = 40.0;
+
 	std::shared_ptr<MeshRenderer> m_meshRenderer;
 	std::shared_ptr<Shader> m_shadowShader;
 	std::shared_ptr<Texture> m_diffuse;
@@ -33,6 +36,7 @@ private:
 
 	std::shared_ptr<Geometry> m_pole;
 
+	float m_launchPitch;
 	bool m_launched;
 	DirectX::SimpleMath::Vector3 m_velocity;
 };

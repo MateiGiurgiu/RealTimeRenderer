@@ -230,6 +230,7 @@
     <Image Include="Textures\Rocket_N.png" />
     <Image Include="Textures\Rocket_S.png" />
     <Image Include="Textures\stones_NM_height.DDS" />
+    <Image Include="Textures\ToonRamp.png" />
     <Image Include="Textures\VoxelTile.png" />
     <Image Include="Textures\Wood.dds" />
   </ItemGroup>
