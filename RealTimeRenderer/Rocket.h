@@ -18,11 +18,14 @@ public:
 	void SetNormalTexture(std::shared_ptr<Texture> texture) { m_normal = texture; }
 	void SetSpecularTexture(std::shared_ptr<Texture> texture) { m_specular = texture; }
 
+	void Update(float deltaTime, float currentTime) override;
 private:
 	std::shared_ptr<MeshRenderer> m_meshRenderer;
 	std::shared_ptr<Shader> m_shadowShader;
 	std::shared_ptr<Texture> m_diffuse;
 	std::shared_ptr<Texture> m_normal;
 	std::shared_ptr<Texture> m_specular;
+
+	DirectX::SimpleMath::Vector3 m_velocity;
 };
 

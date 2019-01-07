@@ -223,6 +223,9 @@
     <Image Include="Textures\env.dds" />
     <Image Include="Textures\FireParticle.png" />
     <Image Include="Textures\hytale.jpg" />
+    <Image Include="Textures\Pole_D.png" />
+    <Image Include="Textures\Pole_N.png" />
+    <Image Include="Textures\Pole_S.png" />
     <Image Include="Textures\Rocket_D.png" />
     <Image Include="Textures\Rocket_N.png" />
     <Image Include="Textures\Rocket_S.png" />
@@ -236,6 +239,7 @@
   <ItemGroup>
     <None Include="Models\Axis.sdkmesh" />
     <None Include="Models\Plane.sdkmesh" />
+    <None Include="Models\Pole.sdkmesh" />
     <None Include="Models\Rocket.sdkmesh" />
     <None Include="Models\Skybox.sdkmesh" />
     <None Include="Models\SpaceShip.sdkmesh" />

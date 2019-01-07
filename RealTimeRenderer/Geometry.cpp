@@ -30,21 +30,22 @@ void Geometry::RenderDeferred(ID3D11DeviceContext1* context, const Matrix view, 
 	{
 		m_meshRenderer->GetShader()->SetTexture("diffuseTex", *m_diffuse);
 	}
-	else
-	{
-		m_meshRenderer->GetShader()->SetTexture("diffuseTex", nullptr);
-	}
 
 	if (m_normal)
 	{
 		m_meshRenderer->GetShader()->SetTexture("normalTex", *m_normal);
 	}
-	else
+
+	if (m_specular)
 	{
-		m_meshRenderer->GetShader()->SetTexture("normalTex", nullptr);
+		m_meshRenderer->GetShader()->SetTexture("specularTex", *m_specular);
 	}
 
 	m_meshRenderer->Draw(context, GetWorldMatrix(), view, proj);
+
+	m_meshRenderer->GetShader()->SetTexture("specularTex", nullptr);
+	m_meshRenderer->GetShader()->SetTexture("normalTex", nullptr);
+	m_meshRenderer->GetShader()->SetTexture("diffuseTex", nullptr);
 }
 
 void Geometry::RenderShadow(ID3D11DeviceContext1* context, Matrix view, Matrix proj)

@@ -184,6 +184,15 @@
     <Image Include="Textures\Rocket_S.png">
       <Filter>Assets</Filter>
     </Image>
+    <Image Include="Textures\Pole_D.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\Pole_N.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\Pole_S.png">
+      <Filter>Assets</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="settings.manifest">
@@ -232,5 +241,6 @@
     <None Include="Shaders\Deferred.fx">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Models\Pole.sdkmesh" />
   </ItemGroup>
 </Project>

@@ -172,8 +172,8 @@ float4 PSLight(PS_INPUT input) : SV_Target
 	float3 diffuse = nDotL * DirectionalLightColor.rgb;
 
 	// specular
-	float specularPower = color.w * 100;
-	float3 specular = pow(nDotH, specularPower) * DirectionalLightColor;
+	float specularPower = color.w * 80;
+	float3 specular = specularPower > 0.01? pow(nDotH, specularPower) * DirectionalLightColor : float3(0,0,0);
 	
 	// shadow
 	float shadow = ShadowAttenuation(position, nDotL);

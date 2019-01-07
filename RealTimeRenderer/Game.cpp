@@ -317,26 +317,16 @@ void Game::CreateGameObjects()
 	m_skybox->SetSkyTexture(ResourceManager::GetTexture(L"Textures/env.dds", device));
 
 	m_gameObjects.reserve(10);
-	auto geom = std::make_shared<Geometry>(device, L"Models/Axis.sdkmesh", L"Shaders/SimpleShader2.fx");
 
-
-	//geom->SetDiffuseTexture(ResourceManager::GetTexture(L"Textures/hytale.jpg", device));
-	geom->SetNormalTexture(ResourceManager::GetTexture(L"Textures/stones_NM_height.DDS", device));
-	geom->SetPosition(0, 0.5, 0);
+	auto geom = std::make_shared<Geometry>(device, L"Models/Pole.sdkmesh", L"Shaders/Uber.fx");
+	geom->SetDiffuseTexture(ResourceManager::GetTexture(L"Textures/Pole_D.png", device));
+	geom->SetNormalTexture(ResourceManager::GetTexture(L"Textures/Pole_N.png", device));
+	geom->SetSpecularTexture(ResourceManager::GetTexture(L"Textures/Pole_S.png", device));
+	geom->SetPosition(3, 0, 0);
+	geom->SetScale(0.4, 0.4, 0.4);
 	m_gameObjects.push_back(geom);
 
-	geom = std::make_shared<Geometry>(device, L"Models/Axis.sdkmesh", L"Shaders/SimpleShader2.fx");
-	geom->SetPosition(0, 2.5, 0);
-	m_gameObjects.push_back(geom);
-
-	//geom = std::make_shared<Geometry>(device, L"Models/Axis.sdkmesh", L"Shaders/SimpleShader2.fx");
-	//geom->SetPosition(0, 3, -4);
-	//geom->SetScale(0.5,0.5,0.5);
-	//geom->SetOrientation(45, 0, 0);
-	//m_gameObjects.push_back(geom);
-
-	//geom = std::make_shared<Geometry>(device, L"Models/Plane.sdkmesh", L"Shaders/SimpleShader2.fx");
-	//geom->SetScale(10, 10, 10);
+	
 	auto ter = std::make_shared<VoxelTerrain>(device);
 	ter->RemoveAtWithRadius(0, 0, 0, 1.5);
 	m_gameObjects.push_back(ter);
