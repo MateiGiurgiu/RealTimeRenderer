@@ -6,11 +6,7 @@ using namespace DirectX::SimpleMath;
 MeshRenderer::MeshRenderer(std::shared_ptr<Mesh>& mesh, std::shared_ptr<Shader>& shader, ID3D11Device1* device)
 	: m_mesh(mesh), m_shader(shader)
 {
-	HRESULT result = m_shader->SetInputLayout(m_mesh->GetLayoutDesc(), m_mesh->GetLayoutDescCount(), device);
-	if (FAILED(result))
-	{
-		LOG_ERROR("Error when setting shader layout");
-	}
+	DX::ThrowIfFailed(m_shader->SetInputLayout(m_mesh->GetLayoutDesc(), m_mesh->GetLayoutDescCount(), device));
 
 	m_pWorldVariable = m_shader->GetEffect()->GetVariableByName("World")->AsMatrix();
 	m_pViewVariable = m_shader->GetEffect()->GetVariableByName("View")->AsMatrix();

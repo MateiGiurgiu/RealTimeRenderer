@@ -9,7 +9,7 @@ public:
 	bool CanUseWithShader() const { return m_useWithShader; }
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> GetRenderTargetView() const { return m_renderTargetView; }
 
-protected:
+private:
 	bool m_useWithShader;
 
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_renderTargetView;

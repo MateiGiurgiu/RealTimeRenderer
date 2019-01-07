@@ -5,7 +5,7 @@
 class Skybox : SceneNode
 {
 public:
-	Skybox(ID3D11Device1* device);
+	explicit Skybox(ID3D11Device1* device);
 	~Skybox();
 
 	void SetSkyTexture(std::shared_ptr<Texture> texture) { m_skyTexture = texture; }

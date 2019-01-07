@@ -33,16 +33,34 @@ Mesh::Mesh(const wchar_t* filename, ID3D11Device1* device) :
 
 Mesh::~Mesh()
 {
-	LOG("Destructor called");
 	if (m_indexBuffer)
 	{
-		m_indexBuffer.Reset();
+		try
+		{
+			m_indexBuffer.Reset();
+		}
+		catch (...)
+		{
+
+		}
 	}
 
 	// Release the vertex buffer.
 	if (m_vertexBuffer)
 	{
-		m_vertexBuffer.Reset();
+		try
+		{
+			m_vertexBuffer.Reset();
+		}
+		catch (...)
+		{
+
+		}
+	}
+
+	if (m_layoutDesc)
+	{
+		delete[] m_layoutDesc;
 	}
 }
 

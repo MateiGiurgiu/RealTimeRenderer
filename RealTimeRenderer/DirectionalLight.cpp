@@ -36,7 +36,7 @@ DirectX::SimpleMath::Matrix DirectionalLight::GetProjectionMatrix() const
 
 Vector3 DirectionalLight::GetLightDir() const
 {
-	Vector3 forward = Vector3::Transform(Vector3(0, 0, 1), m_orientation);
+	Vector3 forward = Vector3::Transform(Vector3(0, 0, 1), GetOrientation());
 	forward.Normalize();
 	return forward;
 }

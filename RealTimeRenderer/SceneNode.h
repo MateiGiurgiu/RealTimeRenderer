@@ -2,9 +2,6 @@
 class SceneNode
 {
 public:
-	const float DEG2RAD = 0.01745329f;
-	const float RAD2DEG = 57.2957795f;
-
 	SceneNode();
 	virtual ~SceneNode() = default;
 
@@ -41,7 +38,9 @@ public:
 
 	DirectX::SimpleMath::Matrix GetWorldMatrix() const;
 
-protected:
+private:
+	const float DEG2RAD = 0.01745329f;
+	const float RAD2DEG = 57.2957795f;
 	// Transform components
 	DirectX::SimpleMath::Vector3 m_position;
 	DirectX::SimpleMath::Vector3 m_eulerAngles;

@@ -7,7 +7,7 @@
 
 namespace Log
 {
-	#define LOG(x)			Log::Stream->str("");(*Log::Stream)<<x;Log::Print(*Log::Stream);Log::Stream->str("")
+	#define LOG(x)			try{Log::Stream->str("");(*Log::Stream)<<x;Log::Print(*Log::Stream);Log::Stream->str("");}catch(std::exception e){}
 	#define LOG_WARNING(x)	Log::Stream->str("");(*Log::Stream)<<x;Log::PrintWarning(*Log::Stream);Log::Stream->str("")
 	#define LOG_ERROR(x)	Log::Stream->str("");(*Log::Stream)<<x;Log::PrintError(*Log::Stream);Log::Stream->str("")
 

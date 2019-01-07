@@ -7,12 +7,17 @@ public:
 	Mesh(const wchar_t* filename, ID3D11Device1* device);
 	~Mesh();
 
+	Mesh(const Mesh& other) = default;
+	Mesh& operator=(const Mesh& other) = default;
+
+
+
 	void PrepareForDraw(ID3D11DeviceContext1* context);
 
 	// Accessors
 	unsigned int GetIndexCount() const { return m_indexCount; };
 	unsigned int GetLayoutDescCount() const { return m_layoutDescCount; }
-	D3D11_INPUT_ELEMENT_DESC* GetLayoutDesc() const { return m_layoutDesc; }
+	const D3D11_INPUT_ELEMENT_DESC* GetLayoutDesc() { return m_layoutDesc; }
 
 private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;

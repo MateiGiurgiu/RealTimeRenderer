@@ -14,6 +14,8 @@ namespace DX
     {
         virtual void OnDeviceLost() = 0;
         virtual void OnDeviceRestored() = 0;
+
+		virtual ~IDeviceNotify() = default;
     };
 
     // Controls all the DirectX device resources.
@@ -24,7 +26,7 @@ namespace DX
         static const unsigned int c_AllowTearing    = 0x2;
         static const unsigned int c_EnableHDR       = 0x4;
 
-        Direct3D(DXGI_FORMAT backBufferFormat = DXGI_FORMAT_B8G8R8A8_UNORM,
+        explicit Direct3D(DXGI_FORMAT backBufferFormat = DXGI_FORMAT_B8G8R8A8_UNORM,
                         DXGI_FORMAT depthBufferFormat = DXGI_FORMAT_D32_FLOAT,
                         UINT backBufferCount = 2,
                         D3D_FEATURE_LEVEL minFeatureLevel = D3D_FEATURE_LEVEL_10_0,
@@ -39,7 +41,7 @@ namespace DX
 		void SetGBufferAsRenderTarget();
 		void ClearGBuffers();
 		void SetBackBufferAsRenderTarget();
-		void ClearBackBuffer(const FLOAT color[4] = DirectX::Colors::CornflowerBlue);
+		void ClearBackBuffer();
 		void ClearDepthStencil();
 		void SetShadowMapAsRenderTarget();
 		void ClearShadowMap();
@@ -82,10 +84,10 @@ namespace DX
             m_d3dAnnotation->SetMarker(name);
         }
 
-		std::shared_ptr<RenderTexture>						m_gBufferColor;
-		std::shared_ptr<RenderTexture>						m_gBufferNormals;
-		std::shared_ptr<RenderTexture>						m_gBufferPos;
-		std::shared_ptr<RenderTexture>						m_shadowMap;
+		std::shared_ptr<RenderTexture> GetColorBuffer() const { return m_gBufferColor; }
+		std::shared_ptr<RenderTexture> GetNormalBuffer() const { return m_gBufferNormals; }
+		std::shared_ptr<RenderTexture> GetPositionBuffer() const { return m_gBufferPos; }
+		std::shared_ptr<RenderTexture> GetShadowMap() const { return m_shadowMap; }
 
     private:
         void CreateFactory();
@@ -100,16 +102,16 @@ namespace DX
         Microsoft::WRL::ComPtr<ID3DUserDefinedAnnotation>   m_d3dAnnotation;
 
         // Direct3D rendering objects. Required for 3D.
+		std::shared_ptr<RenderTexture>						m_gBufferColor;
+		std::shared_ptr<RenderTexture>						m_gBufferNormals;
+		std::shared_ptr<RenderTexture>						m_gBufferPos;
+		std::shared_ptr<RenderTexture>						m_shadowMap;
 		Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_depthStencilRenderTarget;
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilView>		m_depthStencilRenderTargetView;
 
         Microsoft::WRL::ComPtr<ID3D11Texture2D>				m_backBufferRenderTarget;
         Microsoft::WRL::ComPtr<ID3D11RenderTargetView>		m_backBufferRenderTargetView;
         D3D11_VIEWPORT										m_screenViewport;
-
-		// rendering size
-		UINT												m_Width;
-		UINT												m_Height;
 
         // Direct3D properties.
         DXGI_FORMAT											m_backBufferFormat;
@@ -130,5 +132,9 @@ namespace DX
 
         // The IDeviceNotify can be held directly as it owns the Direct3D.
         IDeviceNotify*										m_deviceNotify;
+
+		// rendering size
+		UINT												m_Width;
+		UINT												m_Height;
     };
 }

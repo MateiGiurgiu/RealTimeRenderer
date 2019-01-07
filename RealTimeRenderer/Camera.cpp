@@ -6,8 +6,8 @@ using namespace DirectX;
 using namespace SimpleMath;
 
 
-Camera::Camera(DirectX::SimpleMath::Vector3 initialPos, float screenWidth, float screenHeight, float fov, float nearPlane, float farPlane)
-	: MovementSpeed(3.0f), RotationSpeed(3.0f), m_pos(initialPos), m_yaw(0.0f), m_pitch(0.0f)
+Camera::Camera(const DirectX::SimpleMath::Vector3& initialPos, const float screenWidth, const float screenHeight, const float fov, const float nearPlane, const float farPlane)
+	: m_pos(initialPos), m_yaw(0.0f), m_pitch(0.0f), m_movementSpeed(3.0f), m_rotationSpeed(3.0f)
 {
 	const float fovInRad = (XM_PI / 180.0f) * fov;
 	m_projection = Matrix::CreatePerspectiveFieldOfView(fovInRad, screenWidth / screenHeight, nearPlane, farPlane);
@@ -18,9 +18,9 @@ Camera::~Camera()
 {
 }
 
-void Camera::Update(float deltaTime)
+void Camera::Update(const float deltaTime)
 {
-	DirectX::Keyboard::State state = DirectX::Keyboard::Get().GetState();
+	const DirectX::Keyboard::State state = DirectX::Keyboard::Get().GetState();
 
 	// handle camera rotation
 	if (!state.LeftControl)
@@ -37,7 +37,7 @@ void Camera::Update(float deltaTime)
 			rotation.x -= 1.0f;
 
 		rotation.Normalize();
-		rotation *= RotationSpeed;
+		rotation *= m_rotationSpeed;
 
 		// limit pitch to avoid gimbal lock
 		m_pitch += rotation.y * deltaTime;
@@ -78,10 +78,10 @@ void Camera::Update(float deltaTime)
 
 		movement.Normalize();
 
-		Quaternion q = Quaternion::CreateFromYawPitchRoll(m_yaw, -m_pitch, 0.0f);
+		const Quaternion q = Quaternion::CreateFromYawPitchRoll(m_yaw, -m_pitch, 0.0f);
 	
 		movement = Vector3::Transform(movement, q);
-		movement *= deltaTime * MovementSpeed;
+		movement *= deltaTime * m_movementSpeed;
 
 		m_pos += movement;
 	}
@@ -89,27 +89,27 @@ void Camera::Update(float deltaTime)
 
 Matrix Camera::GetViewMatrix() const
 {
-	float y = sinf(m_pitch);
-	float r = cosf(m_pitch);
-	float z = r * cosf(m_yaw);
-	float x = r * sinf(m_yaw);
+	const float y = sinf(m_pitch);
+	const float r = cosf(m_pitch);
+	const float z = r * cosf(m_yaw);
+	const float x = r * sinf(m_yaw);
 
-	Vector3 lookAt = m_pos + Vector3(x, y, z);
+	const Vector3 lookAt = m_pos + Vector3(x, y, z);
 
 	return Matrix::CreateLookAt(m_pos, lookAt, Vector3::UnitY);
 }
 
-Matrix Camera::GetProjectionMatrix() const
+const Matrix& Camera::GetProjectionMatrix() const
 {
 	return m_projection;
 }
 
 Vector3 Camera::GetViewDirection() const
 {
-	float y = sinf(m_pitch);
-	float r = cosf(m_pitch);
-	float z = r * cosf(m_yaw);
-	float x = r * sinf(m_yaw);
+	const float y = sinf(m_pitch);
+	const float r = cosf(m_pitch);
+	const float z = r * cosf(m_yaw);
+	const float x = r * sinf(m_yaw);
 
 	Vector3 forward = Vector3(x, y, z);
 	forward.Normalize();

@@ -15,6 +15,7 @@ using Microsoft::WRL::ComPtr;
 
 
 Game::Game() noexcept(false)
+	: instanceData(nullptr)
 {
     m_Direct3D = std::make_unique<DX::Direct3D>();
     m_Direct3D->RegisterDeviceNotify(this);
@@ -144,10 +145,10 @@ void Game::Render()
 		m_renderQuad->GetShader()->SetMatrix("DirectionalLightView", m_directionalLight->GetViewMatrix());
 		m_renderQuad->GetShader()->SetMatrix("DirectionalLightProj", m_directionalLight->GetProjectionMatrix());
 
-		m_renderQuad->GetShader()->SetTexture("bufferColor", m_Direct3D->m_gBufferColor->GetShaderResourceView());
-		m_renderQuad->GetShader()->SetTexture("bufferNormal", m_Direct3D->m_gBufferNormals->GetShaderResourceView());
-		m_renderQuad->GetShader()->SetTexture("bufferPosition", m_Direct3D->m_gBufferPos->GetShaderResourceView());
-		m_renderQuad->GetShader()->SetTexture("shadowMap", m_Direct3D->m_shadowMap->GetShaderResourceView());
+		m_renderQuad->GetShader()->SetTexture("bufferColor", m_Direct3D->GetColorBuffer()->GetShaderResourceView());
+		m_renderQuad->GetShader()->SetTexture("bufferNormal", m_Direct3D->GetNormalBuffer()->GetShaderResourceView());
+		m_renderQuad->GetShader()->SetTexture("bufferPosition", m_Direct3D->GetPositionBuffer()->GetShaderResourceView());
+		m_renderQuad->GetShader()->SetTexture("shadowMap", m_Direct3D->GetShadowMap()->GetShaderResourceView());
 		m_renderQuad->GetShader()->SetTexture("toonRamp", *ResourceManager::GetTexture(L"Textures/ToonRamp.png", device));
 		m_renderQuad->Draw(context, m_currentVisualizationType);
 	}
@@ -277,12 +278,12 @@ void Game::CreateWindowSizeDependentResources()
 	infoBar = TwNewBar("NameOfMyTweakBar");
 
 	// Add GUI widgets
-	TwAddVarRW(infoBar, "Camera Movement Speed", TW_TYPE_FLOAT, &m_camera.MovementSpeed, "");
-	TwAddVarRW(infoBar, "Camera Rotation Speed", TW_TYPE_FLOAT, &m_camera.RotationSpeed, "");
+	//TwAddVarRW(infoBar, "Camera Movement Speed", TW_TYPE_FLOAT, &m_camera.MovementSpeed, "");
+	//TwAddVarRW(infoBar, "Camera Rotation Speed", TW_TYPE_FLOAT, &m_camera.RotationSpeed, "");
 	TwAddVarRW(infoBar, "Light Pos X", TW_TYPE_FLOAT, &lightPosX, "");
 	TwAddVarRW(infoBar, "Light Pos Y", TW_TYPE_FLOAT, &lightPosY, "");
-	TwAddVarRO(infoBar, "Meshes Loaded", TW_TYPE_INT32, &ResourceManager::MeshesLoaded, "");
-	TwAddVarRO(infoBar, "Shaders Loaded", TW_TYPE_INT32, &ResourceManager::ShadersLoaded, "");
+	//TwAddVarRO(infoBar, "Meshes Loaded", TW_TYPE_INT32, &ResourceManager::MeshesLoaded, "");
+	//TwAddVarRO(infoBar, "Shaders Loaded", TW_TYPE_INT32, &ResourceManager::ShadersLoaded, "");
 	TwAddVarRW(infoBar, "Density", TwDefineEnumFromString("Visualization", "Color,Specular,Normals,Position,ShadowMap,Light,Toon Light"), &m_currentVisualizationType, nullptr);
 }
 

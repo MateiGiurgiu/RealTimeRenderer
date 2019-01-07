@@ -8,6 +8,9 @@ public:
 	ParticleSystem(ID3D11Device1* device, int numOfParticles, std::shared_ptr<Shader> shader);
 	~ParticleSystem();
 
+	ParticleSystem(const ParticleSystem& other) = default;
+	ParticleSystem& operator=(const ParticleSystem& other) = default;
+
 	void Update(float deltaTime, float currentTime) override;
 	void RenderForward(ID3D11DeviceContext1* context, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj) override;
 

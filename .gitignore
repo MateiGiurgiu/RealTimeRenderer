@@ -259,3 +259,7 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+/.parasoft.dat/.solutions/RealTimeRenderer
+/.cpptest
+/08975 rule set 2017.properties
+/rule_downgrades 2017.xml

@@ -8,7 +8,7 @@ public:
 	Shader(const wchar_t* filename, ID3D11Device1* device);
 	~Shader();
 
-	HRESULT SetInputLayout(D3D11_INPUT_ELEMENT_DESC* inputDesc, UINT inputDescCount, ID3D11Device1* device);
+	HRESULT SetInputLayout(const D3D11_INPUT_ELEMENT_DESC* inputDesc, UINT inputDescCount, ID3D11Device1* device);
 	void PrepareForDraw(ID3D11DeviceContext1* context, const int passIndex = 0);
 	bool IsValid() const { return (m_effect != nullptr && m_effect->IsValid()); }
 	ID3DX11EffectPass* GetPass(int passIndex) const;

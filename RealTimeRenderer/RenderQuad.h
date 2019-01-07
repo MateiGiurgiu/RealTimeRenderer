@@ -4,8 +4,8 @@
 class RenderQuad
 {
 public:
-	RenderQuad(ID3D11Device1* device);
-	RenderQuad(ID3D11Device1* device, std::shared_ptr<Shader> shader);
+	explicit RenderQuad(ID3D11Device1* device);
+	explicit RenderQuad(ID3D11Device1* device, std::shared_ptr<Shader> shader);
 	~RenderQuad() = default;
 
 	void PrepareForDraw(ID3D11DeviceContext1* context);

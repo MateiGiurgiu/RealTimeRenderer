@@ -4,7 +4,7 @@ class DirectionalLight : public SceneNode
 {
 public:
 	DirectionalLight();
-	DirectionalLight(DirectX::SimpleMath::Vector3 orientation);
+	explicit DirectionalLight(DirectX::SimpleMath::Vector3 orientation);
 	DirectionalLight(float x, float y, float z);
 	~DirectionalLight() = default;
 

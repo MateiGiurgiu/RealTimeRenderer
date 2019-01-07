@@ -92,7 +92,7 @@ void Rocket::Update(float deltaTime, float currentTime)
 	if(DirectX::Keyboard::Get().GetState().F11 && !m_launched)
 	{
 		m_launched = true;
-		Vector3 localUp = Vector3::Transform(Vector3(0, 1, 0), m_orientation);
+		Vector3 localUp = Vector3::Transform(Vector3(0, 1, 0), GetOrientation());
 		localUp.Normalize();
 		m_velocity = localUp * 12;
 		m_enginePS->SetEmit(true);

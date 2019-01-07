@@ -18,7 +18,7 @@ namespace
     // Check for SDK Layer support.
     inline bool SdkLayersAvailable()
     {
-        HRESULT hr = D3D11CreateDevice(
+        const HRESULT hr = D3D11CreateDevice(
             nullptr,
             D3D_DRIVER_TYPE_NULL,       // There is no need to create a real hardware device.
             0,
@@ -35,7 +35,7 @@ namespace
     }
 #endif
 
-    inline DXGI_FORMAT NoSRGB(DXGI_FORMAT fmt)
+    inline DXGI_FORMAT NoSRGB(const DXGI_FORMAT fmt)
     {
         switch (fmt)
         {
@@ -48,7 +48,7 @@ namespace
 };
 
 // Constructor for Direct3D.
-Direct3D::Direct3D(DXGI_FORMAT backBufferFormat, DXGI_FORMAT depthBufferFormat, UINT backBufferCount, D3D_FEATURE_LEVEL minFeatureLevel, unsigned int flags) 
+Direct3D::Direct3D(const DXGI_FORMAT backBufferFormat, const DXGI_FORMAT depthBufferFormat, const UINT backBufferCount, const D3D_FEATURE_LEVEL minFeatureLevel, const unsigned int flags) 
 	noexcept :
         m_screenViewport{},
         m_backBufferFormat(backBufferFormat),
@@ -60,7 +60,9 @@ Direct3D::Direct3D(DXGI_FORMAT backBufferFormat, DXGI_FORMAT depthBufferFormat, 
         m_outputSize{0, 0, 1, 1},
         m_colorSpace(DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709),
         m_options(flags | c_FlipPresent),
-        m_deviceNotify(nullptr)
+        m_deviceNotify(nullptr),
+		m_Width(0),
+		m_Height(0)
 {
 	 // empty
 }
@@ -162,7 +164,8 @@ void Direct3D::CreateDeviceResources()
     ComPtr<ID3D11Device> device;
     ComPtr<ID3D11DeviceContext> context;
 
-    HRESULT hr = E_FAIL;
+	//E_FAIL
+	HRESULT hr = 0x80004005L;
     if (adapter)
     {
         hr = D3D11CreateDevice(
@@ -293,9 +296,10 @@ void Direct3D::CreateWindowSizeDependentResources()
     m_d3dContext->Flush();
 
     // Determine the render target size in pixels.
-    UINT backBufferWidth = std::max<UINT>(m_outputSize.right - m_outputSize.left, 1);
-    UINT backBufferHeight = std::max<UINT>(m_outputSize.bottom - m_outputSize.top, 1);
-    DXGI_FORMAT backBufferFormat = (m_options & (c_FlipPresent | c_AllowTearing | c_EnableHDR)) ? NoSRGB(m_backBufferFormat) : m_backBufferFormat;
+    const UINT backBufferWidth = std::max<UINT>(m_outputSize.right - m_outputSize.left, 1);
+    const UINT backBufferHeight = std::max<UINT>(m_outputSize.bottom - m_outputSize.top, 1);
+	const bool flags = (m_options & (c_FlipPresent | c_AllowTearing | c_EnableHDR));
+    const DXGI_FORMAT backBufferFormat = flags ? NoSRGB(m_backBufferFormat) : m_backBufferFormat;
 
 	m_Width = backBufferWidth;
 	m_Height = backBufferHeight;
@@ -303,19 +307,21 @@ void Direct3D::CreateWindowSizeDependentResources()
     if (m_swapChain)
     {
         // If the swap chain already exists, resize it.
+		const bool flags = (m_options & c_AllowTearing);
         HRESULT hr = m_swapChain->ResizeBuffers(
             m_backBufferCount,
             backBufferWidth,
             backBufferHeight,
             backBufferFormat,
-            (m_options & c_AllowTearing) ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0
+			flags ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0
             );
 
-        if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
+		// DXGI_ERROR_DEVICE_REMOVED || DXGI_ERROR_DEVICE_RESET
+        if (hr == 0x887A0005L || hr == 0x887A0007L)
         {
 #ifdef _DEBUG
             char buff[64] = {};
-            sprintf_s(buff, "Device Lost on ResizeBuffers: Reason code 0x%08X\n", (hr == DXGI_ERROR_DEVICE_REMOVED) ? m_d3dDevice->GetDeviceRemovedReason() : hr);
+            sprintf_s(buff, "Device Lost on ResizeBuffers: Reason code 0x%08X\n", (hr == 0x887A0005L) ? m_d3dDevice->GetDeviceRemovedReason() : hr);
             OutputDebugStringA(buff);
 #endif
             // If the device was removed for any reason, a new device and swap chain will need to be created.
@@ -332,6 +338,7 @@ void Direct3D::CreateWindowSizeDependentResources()
     }
     else
     {
+		const bool flags = (m_options & (c_FlipPresent | c_AllowTearing | c_EnableHDR));
         // Create a descriptor for the swap chain.
         DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
         swapChainDesc.Width = backBufferWidth;
@@ -342,9 +349,9 @@ void Direct3D::CreateWindowSizeDependentResources()
         swapChainDesc.SampleDesc.Count = 1;
         swapChainDesc.SampleDesc.Quality = 0;
         swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
-        swapChainDesc.SwapEffect = (m_options & (c_FlipPresent | c_AllowTearing | c_EnableHDR)) ? DXGI_SWAP_EFFECT_FLIP_DISCARD : DXGI_SWAP_EFFECT_DISCARD;
+        swapChainDesc.SwapEffect = flags ? DXGI_SWAP_EFFECT_FLIP_DISCARD : DXGI_SWAP_EFFECT_DISCARD;
         swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
-        swapChainDesc.Flags = (m_options & c_AllowTearing) ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
+        swapChainDesc.Flags = flags ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
 
         DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsSwapChainDesc = {};
         fsSwapChainDesc.Windowed = TRUE;
@@ -368,7 +375,7 @@ void Direct3D::CreateWindowSizeDependentResources()
 	// Create a render target view of the swap chain back buffer.
 	ThrowIfFailed(m_swapChain->GetBuffer(0, IID_PPV_ARGS(m_backBufferRenderTarget.ReleaseAndGetAddressOf())));
 
-	CD3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc(D3D11_RTV_DIMENSION_TEXTURE2D, m_backBufferFormat);
+	const CD3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc(D3D11_RTV_DIMENSION_TEXTURE2D, m_backBufferFormat);
 	ThrowIfFailed(m_d3dDevice->CreateRenderTargetView(
 		m_backBufferRenderTarget.Get(),
 		&renderTargetViewDesc,
@@ -380,7 +387,7 @@ void Direct3D::CreateWindowSizeDependentResources()
     if (m_depthBufferFormat != DXGI_FORMAT_UNKNOWN)
     {
         // Create a depth stencil view for use with 3D rendering if needed.
-        CD3D11_TEXTURE2D_DESC depthStencilDesc(
+        const CD3D11_TEXTURE2D_DESC depthStencilDesc(
             m_depthBufferFormat,
             backBufferWidth,
             backBufferHeight,
@@ -395,7 +402,7 @@ void Direct3D::CreateWindowSizeDependentResources()
 			m_depthStencilRenderTarget.ReleaseAndGetAddressOf()
             ));
 
-        CD3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc(D3D11_DSV_DIMENSION_TEXTURE2D);
+        const CD3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc(D3D11_DSV_DIMENSION_TEXTURE2D);
         ThrowIfFailed(m_d3dDevice->CreateDepthStencilView(
 			m_depthStencilRenderTarget.Get(),
             &depthStencilViewDesc,
@@ -437,9 +444,9 @@ void Direct3D::SetBackBufferAsRenderTarget()
 	m_d3dContext->OMSetRenderTargets(1, m_backBufferRenderTargetView.GetAddressOf(), m_depthStencilRenderTargetView.Get());
 }
 
-void Direct3D::ClearBackBuffer(const FLOAT color[4])
+void Direct3D::ClearBackBuffer()
 {
-	m_d3dContext->ClearRenderTargetView(m_backBufferRenderTargetView.Get(), Colors::Black);
+	m_d3dContext->ClearRenderTargetView(m_backBufferRenderTargetView.Get(), Colors::CornflowerBlue);
 }
 
 void Direct3D::ClearDepthStencil()
@@ -458,7 +465,7 @@ void Direct3D::ClearShadowMap()
 }
 
 // This method is called when the Win32 window is created (or re-created).
-void Direct3D::SetWindow(HWND window, int width, int height)
+void Direct3D::SetWindow(const HWND window, const int width, const int height)
 {
     m_window = window;
 
@@ -468,7 +475,7 @@ void Direct3D::SetWindow(HWND window, int width, int height)
 }
 
 // This method is called when the Win32 window changes size
-bool Direct3D::WindowSizeChanged(int width, int height)
+bool Direct3D::WindowSizeChanged(const int width, const int height)
 {
     RECT newRc;
     newRc.left = newRc.top = 0;
@@ -555,11 +562,12 @@ void Direct3D::Present()
 
     // If the device was removed either by a disconnection or a driver upgrade, we 
     // must recreate all device resources.
-    if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
+	//	DXGI_ERROR_DEVICE_REMOVED || DXGI_ERROR_DEVICE_RESET
+    if (hr == 0x887A0005L || hr == 0x887A0007L)
     {
 #ifdef _DEBUG
         char buff[64] = {};
-        sprintf_s(buff, "Device Lost on Present: Reason code 0x%08X\n", (hr == DXGI_ERROR_DEVICE_REMOVED) ? m_d3dDevice->GetDeviceRemovedReason() : hr);
+        sprintf_s(buff, "Device Lost on Present: Reason code 0x%08X\n", (hr == 0x887A0005L) ? m_d3dDevice->GetDeviceRemovedReason() : hr);
         OutputDebugStringA(buff);
 #endif
         HandleDeviceLost();
@@ -609,7 +617,7 @@ void Direct3D::GetHardwareAdapter(IDXGIAdapter1** ppAdapter)
 
 #if defined(__dxgi1_6_h__) && defined(NTDDI_WIN10_RS4)
     ComPtr<IDXGIFactory6> factory6;
-    HRESULT hr = m_dxgiFactory.As(&factory6);
+    const HRESULT hr = m_dxgiFactory.As(&factory6);
     if (SUCCEEDED(hr))
     {
         for (UINT adapterIndex = 0; DXGI_ERROR_NOT_FOUND != factory6->EnumAdapterByGpuPreference(adapterIndex, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(adapter.ReleaseAndGetAddressOf())); adapterIndex++)
@@ -634,7 +642,7 @@ void Direct3D::GetHardwareAdapter(IDXGIAdapter1** ppAdapter)
     }
     else
 #endif
-    for (UINT adapterIndex = 0; DXGI_ERROR_NOT_FOUND != m_dxgiFactory->EnumAdapters1(adapterIndex, adapter.ReleaseAndGetAddressOf()); adapterIndex++)
+    for (UINT adapterIndex = 0; 0x887A0002L != m_dxgiFactory->EnumAdapters1(adapterIndex, adapter.ReleaseAndGetAddressOf()); adapterIndex++)
     {
         DXGI_ADAPTER_DESC1 desc;
         adapter->GetDesc1(&desc);
