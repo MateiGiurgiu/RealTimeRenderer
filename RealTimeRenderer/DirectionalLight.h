@@ -11,5 +11,11 @@ public:
 	DirectX::SimpleMath::Matrix GetViewMatrix() const;
 	DirectX::SimpleMath::Matrix GetProjectionMatrix() const;
 	DirectX::SimpleMath::Vector3 GetLightDir() const;
+
+	DirectX::SimpleMath::Color GetLightColor() const { return m_lightColor; }
+	void SetLightColor(DirectX::SimpleMath::Color color) { m_lightColor = color; }
+
+private:
+	DirectX::SimpleMath::Color m_lightColor;
 };
 

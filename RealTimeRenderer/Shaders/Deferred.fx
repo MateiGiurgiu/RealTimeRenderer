@@ -5,9 +5,15 @@ Texture2D bufferPosition;
 Texture2D shadowMap;
 
 // Light Information
-float3 LightDir1;
-float4x4 Light1View;
-float4x4 Light1Proj;
+float3 ViewDir;
+float3 AmbientColor;
+
+
+float4x4 DirectionalLightView;
+float4x4 DirectionalLightProj;
+float3 DirectionalLightPos;
+float3 DirectionalLightDir;
+float4 DirectionalLightColor;
 
 //--------------------------------------------------------------------------------------
 // Simple Input
@@ -90,9 +96,18 @@ float4 PS0(PS_INPUT input) : SV_Target
 }
 
 //--------------------------------------------------------------------------------------
-// Pixel Shader - Visualize Normals
+// Pixel Shader - Visualize Specular
 //--------------------------------------------------------------------------------------
 float4 PS1(PS_INPUT input) : SV_Target
+{
+	float specular = bufferColor.Sample(sampleLinear, input.TexCoord).w;
+	return float4(specular, specular, specular, 1.0f);
+}
+
+//--------------------------------------------------------------------------------------
+// Pixel Shader - Visualize Normals
+//--------------------------------------------------------------------------------------
+float4 PS2(PS_INPUT input) : SV_Target
 {
 	float3 normal = bufferNormal.Sample(sampleLinear, input.TexCoord).rgb;
 	return float4(normal * 0.5 + 0.5, 1);
@@ -101,7 +116,7 @@ float4 PS1(PS_INPUT input) : SV_Target
 //--------------------------------------------------------------------------------------
 // Pixel Shader - Visualize Position
 //--------------------------------------------------------------------------------------
-float4 PS2(PS_INPUT input) : SV_Target
+float4 PS3(PS_INPUT input) : SV_Target
 {
 	float4 texColor = bufferPosition.Sample(sampleLinear, input.TexCoord);
 	return texColor;
@@ -110,7 +125,7 @@ float4 PS2(PS_INPUT input) : SV_Target
 //--------------------------------------------------------------------------------------
 // Pixel Shader - Visualize ShadowMap
 //--------------------------------------------------------------------------------------
-float4 PS3(PS_INPUT input) : SV_Target
+float4 PS4(PS_INPUT input) : SV_Target
 {
 	float4 texColor = shadowMap.Sample(sampleLinear, input.TexCoord);
 	return texColor;
@@ -121,19 +136,18 @@ float4 PS3(PS_INPUT input) : SV_Target
 //--------------------------------------------------------------------------------------
 inline float ShadowAttenuation(float3 pos, float nDotL)
 {
+	// transfrom in light's space
 	float4 lightViewPosition = float4(pos, 1.0);
-	lightViewPosition = mul(lightViewPosition, Light1View);
-	lightViewPosition = mul(lightViewPosition, Light1Proj);
+	lightViewPosition = mul(lightViewPosition, DirectionalLightView);
+	lightViewPosition = mul(lightViewPosition, DirectionalLightProj);
 
 	float2 projCoords;
 	projCoords.x = lightViewPosition.x / lightViewPosition.w * 0.5 + 0.5f;
 	projCoords.y = -lightViewPosition.y / lightViewPosition.w * 0.5 + 0.5f;
 
-	//projCoords.z = -lightViewPosition.y / lightViewPosition.w * 0.5 + 0.5f;
 	float sampledDepth = shadowMap.Sample(sampleShadow, projCoords).r;
 	float currentDepth = lightViewPosition.z / lightViewPosition.w;
 
-	//float bias = max(0.05 * (1.0 - nDotL), 0.005);
 	float bias = 0.001;
 	float shadow = currentDepth - bias > sampledDepth ? 1.0 : 0.0;
 	if (currentDepth > 1)
@@ -143,17 +157,31 @@ inline float ShadowAttenuation(float3 pos, float nDotL)
 
 float4 PSLight(PS_INPUT input) : SV_Target
 {
-	float3 color = bufferColor.Sample(sampleLinear, input.TexCoord).rgb;
+	float4 color = bufferColor.Sample(sampleLinear, input.TexCoord);
 	float3 normal = bufferNormal.Sample(sampleLinear, input.TexCoord).xyz;
 	float3 position = bufferPosition.Sample(sampleLinear, input.TexCoord).xyz;
 	
-	// the infamous n * l
-	float nDotL = max(0.0, dot(normal, -LightDir1));
+	// the infamous n dot l
+	float nDotL = max(0.0, dot(normal, -DirectionalLightDir));
+	float nDotH = max(0.0, dot(normal, -normalize(DirectionalLightDir + ViewDir)));
 
+	// ambient
+	float3 ambient = 0.15 * AmbientColor.rgb;
+
+	// difuse
+	float3 diffuse = nDotL * DirectionalLightColor.rgb;
+
+	// specular
+	float specularPower = color.w * 100;
+	float3 specular = pow(nDotH, specularPower) * DirectionalLightColor;
+	
+	// shadow
 	float shadow = ShadowAttenuation(position, nDotL);
 
+	// final lighting
+	float3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color.rgb;
 
-	return float4((1.0 - shadow) * nDotL * color, 1);
+	return float4(lighting, 1.0f);
 }
 
 
@@ -201,12 +229,23 @@ technique11 Render
 		SetGeometryShader(NULL);
 		SetPixelShader(CompileShader(ps_4_0, PS3()));
 
-		SetDepthStencilState(EnableDepth, 0);
+		SetDepthStencilState(DisableDepth, 0);
 		SetRasterizerState(rasterizerState);
 		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
 	}
 
 	pass P4
+	{
+		SetVertexShader(CompileShader(vs_4_0, VS()));
+		SetGeometryShader(NULL);
+		SetPixelShader(CompileShader(ps_4_0, PS4()));
+
+		SetDepthStencilState(EnableDepth, 0);
+		SetRasterizerState(rasterizerState);
+		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
+	}
+
+	pass P5
 	{
 		SetVertexShader(CompileShader(vs_4_0, VS()));
 		SetGeometryShader(NULL);

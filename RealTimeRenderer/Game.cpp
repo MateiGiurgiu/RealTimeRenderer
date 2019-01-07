@@ -5,6 +5,7 @@
 #include "Texture.h"
 #include "VoxelTerrain.h"
 #include "ParticleSystem.h"
+#include "Rocket.h"
 
 extern void ExitGame();
 
@@ -137,9 +138,14 @@ void Game::Render()
 	{
 		m_Direct3D->SetBackBufferAsRenderTarget();
 
-		m_renderQuad->GetShader()->SetVector("LightDir1", m_directionalLight->GetLightDir());
-		m_renderQuad->GetShader()->SetMatrix("Light1View", m_directionalLight->GetViewMatrix());
-		m_renderQuad->GetShader()->SetMatrix("Light1Proj", m_directionalLight->GetProjectionMatrix());
+		m_renderQuad->GetShader()->SetVector("ViewDir", m_camera.GetViewDirection());
+		m_renderQuad->GetShader()->SetColor("AmbientColor", SimpleMath::Color(0.039f, 0.815f, 1.0f, 1.0f));
+
+		m_renderQuad->GetShader()->SetVector("DirectionalLightPos", m_directionalLight->GetPosition());
+		m_renderQuad->GetShader()->SetVector("DirectionalLightDir", m_directionalLight->GetLightDir());
+		m_renderQuad->GetShader()->SetColor("DirectionalLightColor", m_directionalLight->GetLightColor());
+		m_renderQuad->GetShader()->SetMatrix("DirectionalLightView", m_directionalLight->GetViewMatrix());
+		m_renderQuad->GetShader()->SetMatrix("DirectionalLightProj", m_directionalLight->GetProjectionMatrix());
 
 		m_renderQuad->GetShader()->SetTexture("bufferColor", m_Direct3D->m_gBufferColor->GetShaderResourceView());
 		m_renderQuad->GetShader()->SetTexture("bufferNormal", m_Direct3D->m_gBufferNormals->GetShaderResourceView());
@@ -265,8 +271,7 @@ void Game::CreateWindowSizeDependentResources()
 	ID3D11Device1* device = m_Direct3D->GetD3DDevice();
 
 	// Render quad, very important for post processing
-	std::shared_ptr<Shader> postProcessingShader = ResourceManager::GetShader(L"Shaders/PP_Test.fx", device);
-	m_renderQuad = std::make_unique<RenderQuad>(device, postProcessingShader);;
+	m_renderQuad = std::make_unique<RenderQuad>(device, ResourceManager::GetShader(L"Shaders/Deferred.fx", device));;
 
 	m_camera = Camera(SimpleMath::Vector3(0.f, 0.0f, -4.f), m_Direct3D->GetScreenViewport().Width, m_Direct3D->GetScreenViewport().Height, 55.0f);
 
@@ -284,7 +289,7 @@ void Game::CreateWindowSizeDependentResources()
 	TwAddVarRW(infoBar, "Light Pos Y", TW_TYPE_FLOAT, &lightPosY, "");
 	TwAddVarRO(infoBar, "Meshes Loaded", TW_TYPE_INT32, &ResourceManager::MeshesLoaded, "");
 	TwAddVarRO(infoBar, "Shaders Loaded", TW_TYPE_INT32, &ResourceManager::ShadersLoaded, "");
-	TwAddVarRW(infoBar, "Density", TwDefineEnumFromString("Visualization", "Color,Normals,Position,ShadowMap,Light"), &m_currentVisualizationType, nullptr);
+	TwAddVarRW(infoBar, "Density", TwDefineEnumFromString("Visualization", "Color,Specular,Normals,Position,ShadowMap,Light"), &m_currentVisualizationType, nullptr);
 }
 
 void Game::OnDeviceLost()
@@ -306,6 +311,7 @@ void Game::CreateGameObjects()
 
 	m_directionalLight = std::make_unique<DirectionalLight>(55, 0, 0);
 	m_directionalLight->SetPosition(0, 3, -4);
+	m_directionalLight->SetLightColor(SimpleMath::Color(1, 1, 1, 1));
 
 	m_skybox = std::make_unique<Skybox>(device);
 	m_skybox->SetSkyTexture(ResourceManager::GetTexture(L"Textures/env.dds", device));
@@ -339,4 +345,9 @@ void Game::CreateGameObjects()
 	ps->SetPosition(5, 1, -1);
 	ps->SetTexture(ResourceManager::GetTexture(L"Textures/FireParticle.png", device));
 	m_gameObjects.push_back(ps);
+
+	auto rocket = std::make_shared<Rocket>(device);
+	rocket->SetPosition(4, 0, 0);
+	rocket->SetScale(0.4, 0.4, 0.4);
+	m_gameObjects.push_back(rocket);
 }

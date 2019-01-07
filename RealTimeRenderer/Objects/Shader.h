@@ -22,6 +22,7 @@ public:
 	void SetVector(LPCSTR varName, DirectX::SimpleMath::Vector2& vector);
 	void SetVector(LPCSTR varName, DirectX::SimpleMath::Vector3& vector);
 	void SetVector(LPCSTR varName, DirectX::SimpleMath::Vector4& vector);
+	void SetColor(LPCSTR varName, DirectX::SimpleMath::Color& color);
 	void SetMatrix(LPCSTR varName, DirectX::SimpleMath::Matrix& matrix);
 
 private:

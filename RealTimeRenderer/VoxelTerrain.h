@@ -5,9 +5,9 @@
 class VoxelTerrain : public SceneNode
 {
 public:
-	const int X_MAX = 40;
+	const int X_MAX = 25;
 	const int Y_MAX = 10;
-	const int Z_MAX = 10;
+	const int Z_MAX = 15;
 
 	VoxelTerrain(ID3D11Device1* device);
 	~VoxelTerrain();

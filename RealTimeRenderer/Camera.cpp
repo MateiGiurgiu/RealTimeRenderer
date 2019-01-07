@@ -103,3 +103,15 @@ Matrix Camera::GetProjectionMatrix() const
 {
 	return m_projection;
 }
+
+Vector3 Camera::GetViewDirection() const
+{
+	float y = sinf(m_pitch);
+	float r = cosf(m_pitch);
+	float z = r * cosf(m_yaw);
+	float x = r * sinf(m_yaw);
+
+	Vector3 forward = Vector3(x, y, z);
+	forward.Normalize();
+	return forward;
+}

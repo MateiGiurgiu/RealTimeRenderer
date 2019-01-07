@@ -124,6 +124,18 @@ void Shader::SetVector(LPCSTR varName, DirectX::SimpleMath::Vector4& vector)
 	}
 }
 
+void Shader::SetColor(LPCSTR varName, DirectX::SimpleMath::Color& color)
+{
+	if (IsValid())
+	{
+		auto var = m_effect->GetVariableByName(varName)->AsVector();
+		if (var->IsValid())
+		{
+			var->SetFloatVector(reinterpret_cast<float*>(&color));
+		}
+	}
+}
+
 void Shader::SetMatrix(LPCSTR varName, DirectX::SimpleMath::Matrix& matrix)
 {
 	if (IsValid())

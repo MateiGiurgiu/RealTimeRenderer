@@ -11,6 +11,7 @@ public:
 
 	DirectX::SimpleMath::Matrix GetViewMatrix() const;
 	DirectX::SimpleMath::Matrix GetProjectionMatrix() const;
+	DirectX::SimpleMath::Vector3 GetViewDirection() const;
 
 	float MovementSpeed;
 	float RotationSpeed;

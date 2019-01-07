@@ -176,6 +176,7 @@
     <ClInclude Include="Objects\Shader.h" />
     <ClInclude Include="RenderQuad.h" />
     <ClInclude Include="RenderTexture.h" />
+    <ClInclude Include="Rocket.h" />
     <ClInclude Include="SceneNode.h" />
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="StepTimer.h" />
@@ -208,6 +209,7 @@
     <ClCompile Include="Objects\Shader.cpp" />
     <ClCompile Include="RenderQuad.cpp" />
     <ClCompile Include="RenderTexture.cpp" />
+    <ClCompile Include="Rocket.cpp" />
     <ClCompile Include="SceneNode.cpp" />
     <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="Texture.cpp" />
@@ -221,6 +223,9 @@
     <Image Include="Textures\env.dds" />
     <Image Include="Textures\FireParticle.png" />
     <Image Include="Textures\hytale.jpg" />
+    <Image Include="Textures\Rocket_D.png" />
+    <Image Include="Textures\Rocket_N.png" />
+    <Image Include="Textures\Rocket_S.png" />
     <Image Include="Textures\stones_NM_height.DDS" />
     <Image Include="Textures\VoxelTile.png" />
     <Image Include="Textures\Wood.dds" />
@@ -231,6 +236,7 @@
   <ItemGroup>
     <None Include="Models\Axis.sdkmesh" />
     <None Include="Models\Plane.sdkmesh" />
+    <None Include="Models\Rocket.sdkmesh" />
     <None Include="Models\Skybox.sdkmesh" />
     <None Include="Models\SpaceShip.sdkmesh" />
     <None Include="Models\Voxel.sdkmesh" />
@@ -254,7 +260,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\PP_Test.fx">
+    <None Include="Shaders\Deferred.fx">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Geometry</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Geometry</ShaderType>
@@ -290,6 +296,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\Particle.fx">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\Uber.fx">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

@@ -89,5 +89,5 @@ private:
 
 	// GUI
 	TwBar* infoBar = nullptr;
-	int m_currentVisualizationType = 4;
+	int m_currentVisualizationType = 5;
 };

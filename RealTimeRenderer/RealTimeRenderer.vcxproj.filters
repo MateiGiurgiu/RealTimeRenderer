@@ -89,7 +89,10 @@
     <ClInclude Include="VoxelTerrain.h">
       <Filter>GameObjects</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSystem.h" />
+    <ClInclude Include="ParticleSystem.h">
+      <Filter>GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="Rocket.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
@@ -142,7 +145,10 @@
     <ClCompile Include="VoxelTerrain.cpp">
       <Filter>GameObjects</Filter>
     </ClCompile>
-    <ClCompile Include="ParticleSystem.cpp" />
+    <ClCompile Include="ParticleSystem.cpp">
+      <Filter>GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="Rocket.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -169,6 +175,15 @@
     <Image Include="Textures\FireParticle.png">
       <Filter>Assets</Filter>
     </Image>
+    <Image Include="Textures\Rocket_D.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\Rocket_N.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Textures\Rocket_S.png">
+      <Filter>Assets</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="settings.manifest">
@@ -182,9 +197,6 @@
     </None>
     <None Include="Models\Axis.sdkmesh">
       <Filter>Models</Filter>
-    </None>
-    <None Include="Shaders\PP_Test.fx">
-      <Filter>Shaders</Filter>
     </None>
     <None Include="Shaders\Skybox.fx">
       <Filter>Shaders</Filter>
@@ -207,8 +219,17 @@
     <None Include="Shaders\VoxelTerrain.fx">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Shaders\VoxelTerrainShadow.fx" />
     <None Include="Shaders\Particle.fx">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Models\Rocket.sdkmesh">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="Shaders\VoxelTerrainShadow.fx">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\Uber.fx" />
+    <None Include="Shaders\Deferred.fx">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
