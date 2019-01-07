@@ -1,13 +1,13 @@
 // Textures
 Texture2D diffuseTex;
-Texture2D normalTex;
 
 // MVP
 matrix World;
 matrix View;
 matrix Projection;
 
-float4 InstanceData[512];
+float Time;
+float LifeTime;
 
 //--------------------------------------------------------------------------------------
 struct VS_INPUT
@@ -15,29 +15,14 @@ struct VS_INPUT
 	float4 Pos : SV_Position;
 	float2 TexCoord : TEXCOORD;
 	float3 Normal : NORMAL;
-	float3 Binormal : BINORMAL;
-	float3 Tangent : TANGENT;
-	float4 Color : COLOR;
 };
 
 struct PS_INPUT
 {
 	float4 Pos : SV_POSITION;
 	float2 TexCoord : TEXCOORD0;
-	float3 wPos : TEXCOORD1;
-	float3 Normal : TEXCOORD2;
-	float3 Binormal : TEXCOORD3;
-	float3 Tangent : TEXCOORD4;
-	float4 Color : TEXCOORD5;
+	float3 Normal : TEXCOORD1;
 };
-
-struct PS_OUTPUT
-{
-	float4 color : SV_Target0;
-	float4 normal : SV_Target1;
-	float4 position : SV_Target2;
-};
-
 
 //--------------------------------------------------------------------------------------
 // DepthStates
@@ -45,20 +30,26 @@ struct PS_OUTPUT
 DepthStencilState EnableDepth
 {
 	DepthEnable = TRUE;
-	DepthWriteMask = ALL;
+	DepthWriteMask = ZERO;
 	DepthFunc = LESS_EQUAL;
 };
 
-BlendState NoBlending
+BlendState AlphaBlending
 {
-	AlphaToCoverageEnable = FALSE;
-	BlendEnable[0] = FALSE;
+	BlendEnable[0] = TRUE;
+	SrcBlend = SRC_ALPHA;
+	DestBlend = ONE;     
+	BlendOp = ADD;     
+	SrcBlendAlpha = ZERO;     
+	DestBlendAlpha = ZERO;     
+	BlendOpAlpha = ADD;     
+	RenderTargetWriteMask[0] = 0x0F;
 };
 
 RasterizerState rasterizerState
 {
 	FillMode = SOLID;
-	CullMode = BACK;
+	CullMode = NONE;
 };
 
 SamplerState sampleLinear
@@ -82,29 +73,46 @@ inline float3 ObjectToWorldDir(in float3 normal) {
 	);
 }
 
+float rand_1_05(in float2 uv)
+{
+	float2 noise = (frac(sin(dot(uv, float2(12.9898, 78.233)*2.0)) * 43758.5453));
+	return abs(noise.x + noise.y) * 0.5;
+}
+
 
 //--------------------------------------------------------------------------------------
 // Vertex Shader
 //--------------------------------------------------------------------------------------
-PS_INPUT VS(VS_INPUT input)
+PS_INPUT VS(VS_INPUT input, uint id : SV_InstanceID)
 {
 	PS_INPUT output = (PS_INPUT)0;
 
-	output.Pos = mul(input.Pos, World);
-	//output.Pos += InstanceData[id];
-	output.wPos = output.Pos.xyz;
+	float3 particlePos = float3(0,0,0);
+
+	float random = rand_1_05(float(id + 1));
+
+	float t = fmod(Time * id, 1.2) / 1.2;
+	t = clamp(t, 0, 1);
+
+	float scale = t * 0.3 + abs(sin(Time)) * 0.5;
+
+	input.Pos.xy *= scale + random;
+
+	particlePos.x = (fmod(id, 2) == 0.0 ? 0.5 : -0.5) * t * cos(300 * random * id);
+	particlePos.z = (fmod(id, 2) == 0.0 ? 0.5 : -0.5) * t * sin(300 * random * id);
+	particlePos.y = -t * 0.8;
+
+	// MVP & bilboarding
+	output.Pos = mul(float4(particlePos.xyz, 1.0), World);
 	output.Pos = mul(output.Pos, View);
+	output.Pos -= float4(input.Pos.x, -input.Pos.y, 0.0, 0.0);
 	output.Pos = mul(output.Pos, Projection);
 
 	// UVs
 	output.TexCoord = input.TexCoord;
 
-	// normal, binormal, tangent in WS
+	// normal in WS
 	output.Normal = ObjectToWorldDir(input.Normal);
-	output.Binormal = -ObjectToWorldDir(input.Binormal);
-	output.Tangent = ObjectToWorldDir(input.Tangent);
-
-	output.Color = input.Color;
 
 	return output;
 }
@@ -112,41 +120,12 @@ PS_INPUT VS(VS_INPUT input)
 //--------------------------------------------------------------------------------------
 // Pixel Shader
 //--------------------------------------------------------------------------------------
-PS_OUTPUT PS(PS_INPUT input) : SV_Target
+float4 PS(PS_INPUT input) : SV_Target
 {
-	PS_OUTPUT output = (PS_OUTPUT)0;
-
 	// texture lookups
 	float4 texColor = diffuseTex.Sample(sampleLinear, input.TexCoord);
-	float4 stoneNormal = normalTex.Sample(sampleLinear, input.TexCoord * 3);
-	float3 finalNormal;
-	if (length(stoneNormal.rgb) > 0.05)
-	{
-		float3 N = normalize(2.0 * stoneNormal.xyz - 1.0);
 
-		finalNormal = normalize(
-			N.x * input.Tangent +
-			N.y * input.Binormal +
-			N.z * input.Normal
-		);
-	}
-	else
-	{
-		finalNormal = input.Normal;
-	}
-	
-
-	if (length(texColor) > 0.01)
-	{
-		output.color = texColor;
-	}
-	else
-	{
-		output.color = input.Color;
-	}
-	output.normal = float4(finalNormal, 1);
-	output.position = float4(input.wPos, 1);
-	return output;
+	return texColor;
 }
 
 
@@ -163,6 +142,6 @@ technique11 Render
 
 		SetDepthStencilState(EnableDepth, 0);
 		SetRasterizerState(rasterizerState);
-		SetBlendState(NoBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
+		SetBlendState(AlphaBlending, float4(0.0f, 0.0f, 0.0f, 0.0f), 0xFFFFFFFF);
 	}
 }

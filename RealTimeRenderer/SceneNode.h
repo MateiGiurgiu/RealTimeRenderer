@@ -3,6 +3,7 @@ class SceneNode
 {
 public:
 	const float DEG2RAD = 0.01745329f;
+	const float RAD2DEG = 57.2957795f;
 
 	SceneNode();
 	virtual ~SceneNode() = default;
@@ -23,6 +24,11 @@ public:
 	{
 		m_orientation = DirectX::SimpleMath::Quaternion::CreateFromYawPitchRoll(y * DEG2RAD, x * DEG2RAD, z * DEG2RAD);
 		m_eulerAngles = DirectX::SimpleMath::Vector3(x, y, z);
+	}
+	void SetOrientationRadians(const float x, const float y, const float z)
+	{
+		m_orientation = DirectX::SimpleMath::Quaternion::CreateFromYawPitchRoll(y, x, z);
+		m_eulerAngles = DirectX::SimpleMath::Vector3(x * RAD2DEG, y * RAD2DEG, z * RAD2DEG);
 	}
 	void SetScale(const DirectX::SimpleMath::Vector3 scale) { m_scale = scale; }
 	void SetScale(float x, float y, float z) { m_scale = DirectX::SimpleMath::Vector3(x, y, z); }

@@ -74,12 +74,9 @@ void Game::Update(DX::StepTimer const& timer)
 	{
 		m_gameObjects[i]->Update(deltaTime, currentTime);
 	}
-	if (rotate)
-	{
-		m_gameObjects[0]->SetOrientation(0, currentTime *5, 0);
-	}
 
-	//m_directionalLight->SetPosition(0, lightPosY, lightPosX);
+	m_gameObjects[0]->SetPosition(m_directionalLight->GetPosition());
+	m_gameObjects[0]->SetOrientation(m_directionalLight->GetEulerAngles());
 }
 #pragma endregion
 
@@ -173,10 +170,6 @@ void Game::Render()
 		}
 	}
 	m_Direct3D->PIXEndEvent();
-
-
-
-
 
 	//--------------------------------------------------------------------------------------
 	// GUI
@@ -309,35 +302,40 @@ void Game::CreateGameObjects()
 {
 	ID3D11Device1* device = m_Direct3D->GetD3DDevice();
 
-	m_directionalLight = std::make_unique<DirectionalLight>(55, 0, 0);
-	m_directionalLight->SetPosition(0, 3, -4);
-	m_directionalLight->SetLightColor(SimpleMath::Color(1, 1, 1, 1));
-
 	m_skybox = std::make_unique<Skybox>(device);
 	m_skybox->SetSkyTexture(ResourceManager::GetTexture(L"Textures/env.dds", device));
 
 	m_gameObjects.reserve(10);
 
-	auto geom = std::make_shared<Geometry>(device, L"Models/Pole.sdkmesh", L"Shaders/Uber.fx");
-	geom->SetDiffuseTexture(ResourceManager::GetTexture(L"Textures/Pole_D.png", device));
-	geom->SetNormalTexture(ResourceManager::GetTexture(L"Textures/Pole_N.png", device));
-	geom->SetSpecularTexture(ResourceManager::GetTexture(L"Textures/Pole_S.png", device));
-	geom->SetPosition(3, 0, 0);
-	geom->SetScale(0.4, 0.4, 0.4);
+	auto geom = std::make_shared<Geometry>(device, L"Models/Axis.sdkmesh", L"Shaders/Uber.fx");
 	m_gameObjects.push_back(geom);
 
+	m_directionalLight = std::make_shared<DirectionalLight>(55, 0, 0);
+	m_directionalLight->SetPosition(0, 3, -4);
+	m_directionalLight->SetLightColor(SimpleMath::Color(1, 1, 1, 1));
+	m_gameObjects.push_back(m_directionalLight);
+
 	
-	auto ter = std::make_shared<VoxelTerrain>(device);
-	ter->RemoveAtWithRadius(0, 0, 0, 1.5);
-	m_gameObjects.push_back(ter);
 
-	auto ps = std::make_shared<ParticleSystem>(device, 1000, ResourceManager::GetShader(L"Shaders/Particle.fx", device));
-	ps->SetPosition(5, 1, -1);
-	ps->SetTexture(ResourceManager::GetTexture(L"Textures/FireParticle.png", device));
-	m_gameObjects.push_back(ps);
+	
+	auto terrain = std::make_shared<VoxelTerrain>(device);
+	terrain->RemoveAtWithRadius(0, 0, 0, 1.5);
+	m_gameObjects.push_back(terrain);
 
-	auto rocket = std::make_shared<Rocket>(device);
-	rocket->SetPosition(4, 0, 0);
-	rocket->SetScale(0.4, 0.4, 0.4);
+	auto enginePS = std::make_shared<ParticleSystem>(device, 1000, ResourceManager::GetShader(L"Shaders/ParticleEngine.fx", device));
+	enginePS->SetTexture(ResourceManager::GetTexture(L"Textures/FireParticle.png", device));
+	m_gameObjects.push_back(enginePS);
+
+	auto explosionPS = std::make_shared<ParticleSystem>(device, 1000, ResourceManager::GetShader(L"Shaders/ParticleExplosion.fx", device));
+	explosionPS->SetTexture(ResourceManager::GetTexture(L"Textures/FireParticle.png", device));
+	m_gameObjects.push_back(explosionPS);
+
+	auto pole = std::make_shared<Geometry>(device, L"Models/Pole.sdkmesh", L"Shaders/Uber.fx");
+	pole->SetDiffuseTexture(ResourceManager::GetTexture(L"Textures/Pole_D.png", device));
+	pole->SetNormalTexture(ResourceManager::GetTexture(L"Textures/Pole_N.png", device));
+	pole->SetSpecularTexture(ResourceManager::GetTexture(L"Textures/Pole_S.png", device));
+	m_gameObjects.push_back(pole);
+
+	auto rocket = std::make_shared<Rocket>(device, enginePS, explosionPS, pole);
 	m_gameObjects.push_back(rocket);
 }

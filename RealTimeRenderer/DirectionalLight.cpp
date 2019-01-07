@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "DirectionalLight.h"
+#include <complex>
 
 using namespace DirectX::SimpleMath;
 
@@ -35,4 +36,22 @@ Vector3 DirectionalLight::GetLightDir() const
 	Vector3 forward = Vector3::Transform(Vector3(0, 0, 1), m_orientation);
 	forward.Normalize();
 	return forward;
+}
+
+void DirectionalLight::Update(float deltaTime, float currentTime)
+{
+	float timeScale = 0.25f;
+	float angleY = std::sin(currentTime * timeScale);
+
+	float signY = 1.0f;
+
+	if(angleY < 0)
+	{
+		angleY *= -1;
+		signY = -1.0f;
+	}
+	float angleZ = std::cos(currentTime * timeScale) * signY;
+
+	SetPosition(0, angleY * 8, angleZ * 8);
+	SetOrientationRadians(angleZ + DirectX::XM_PI / 2, 0, 0);
 }

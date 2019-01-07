@@ -13,6 +13,8 @@ public:
 
 	void PrepareForDraw(ID3D11DeviceContext1* context);
 	void SetTexture(std::shared_ptr<Texture> texture) { m_texture = texture; }
+	void SetEmit(bool value) { m_doEmit = value; };
+	bool IsEmitting() const { return m_doEmit; }
 
 private:
 	void CreateGeometryData(ID3D11Device1* device);
@@ -40,7 +42,8 @@ private:
 	DirectX::SimpleMath::Vector4* m_particleData;
 
 	float m_currentTime;
-
+	float m_lifeSpan;
+	bool m_doEmit;
 
 	std::shared_ptr<Texture> m_texture;
 };

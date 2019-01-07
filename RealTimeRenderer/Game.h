@@ -75,7 +75,7 @@ private:
 	std::vector<std::shared_ptr<SceneNode>> m_gameObjects;
 
 	// Lights
-	std::unique_ptr<DirectionalLight> m_directionalLight;
+	std::shared_ptr<DirectionalLight> m_directionalLight;
 
 	float lightPosX = -4;
 	float lightPosY = 3;

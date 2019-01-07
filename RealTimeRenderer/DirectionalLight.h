@@ -15,6 +15,7 @@ public:
 	DirectX::SimpleMath::Color GetLightColor() const { return m_lightColor; }
 	void SetLightColor(DirectX::SimpleMath::Color color) { m_lightColor = color; }
 
+	void Update(float deltaTime, float currentTime) override;
 private:
 	DirectX::SimpleMath::Color m_lightColor;
 };

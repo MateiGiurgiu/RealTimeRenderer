@@ -166,7 +166,7 @@ float4 PSLight(PS_INPUT input) : SV_Target
 	float nDotH = max(0.0, dot(normal, -normalize(DirectionalLightDir + ViewDir)));
 
 	// ambient
-	float3 ambient = 0.15 * AmbientColor.rgb;
+	float3 ambient = 0.35 * AmbientColor.rgb;
 
 	// difuse
 	float3 diffuse = nDotL * DirectionalLightColor.rgb;

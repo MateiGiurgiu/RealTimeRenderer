@@ -6,7 +6,7 @@ using namespace DirectX;
 using namespace SimpleMath;
 
 ParticleSystem::ParticleSystem(ID3D11Device1* device, int numOfParticles, std::shared_ptr<Shader> shader)
-	: m_numOfParticles(numOfParticles), m_shader(shader), m_particleData(nullptr), m_currentTime(0.0f)
+	: m_numOfParticles(numOfParticles), m_shader(shader), m_particleData(nullptr), m_currentTime(0.0f), m_lifeSpan(3.0f), m_doEmit(false)
 {
 	CreateGeometryData(device);
 	m_shader->SetInputLayout(m_layoutDesc, m_layoutDescCount, device);
@@ -29,13 +29,11 @@ void ParticleSystem::Update(float deltaTime, float currentTime)
 
 void ParticleSystem::RenderForward(ID3D11DeviceContext1* context, Matrix view, Matrix proj)
 {
+	if (!m_doEmit) return;
+
 	if (m_texture)
 	{
 		m_shader->SetTexture("diffuseTex", *m_texture);
-	}
-	else
-	{
-		m_shader->SetTexture("diffuseTex", nullptr);
 	}
 
 	m_shader->GetEffect()->GetVariableByName("World")->AsMatrix()->SetMatrix(reinterpret_cast<float*>(&GetWorldMatrix()));
@@ -47,6 +45,8 @@ void ParticleSystem::RenderForward(ID3D11DeviceContext1* context, Matrix view, M
 	PrepareForDraw(context);
 	m_shader->PrepareForDraw(context);
 	context->DrawIndexedInstanced(m_indexCount, m_numOfParticles, 0, 0, 0);
+
+	m_shader->SetTexture("diffuseTex", nullptr);
 }
 
 void ParticleSystem::PrepareForDraw(ID3D11DeviceContext1* context)

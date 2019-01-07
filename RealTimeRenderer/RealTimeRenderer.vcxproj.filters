@@ -92,7 +92,9 @@
     <ClInclude Include="ParticleSystem.h">
       <Filter>GameObjects</Filter>
     </ClInclude>
-    <ClInclude Include="Rocket.h" />
+    <ClInclude Include="Rocket.h">
+      <Filter>GameObjects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
@@ -148,7 +150,9 @@
     <ClCompile Include="ParticleSystem.cpp">
       <Filter>GameObjects</Filter>
     </ClCompile>
-    <ClCompile Include="Rocket.cpp" />
+    <ClCompile Include="Rocket.cpp">
+      <Filter>GameObjects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -201,9 +205,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Shaders\SimpleShader2.fx">
-      <Filter>Shaders</Filter>
-    </None>
     <None Include="Models\Axis.sdkmesh">
       <Filter>Models</Filter>
     </None>
@@ -228,19 +229,26 @@
     <None Include="Shaders\VoxelTerrain.fx">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Shaders\Particle.fx">
-      <Filter>Shaders</Filter>
-    </None>
     <None Include="Models\Rocket.sdkmesh">
       <Filter>Models</Filter>
     </None>
     <None Include="Shaders\VoxelTerrainShadow.fx">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Shaders\Uber.fx" />
     <None Include="Shaders\Deferred.fx">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Models\Pole.sdkmesh" />
+    <None Include="Shaders\ParticleExplosion.fx">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\ParticleEngine.fx">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Models\Pole.sdkmesh">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="Shaders\Uber.fx">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

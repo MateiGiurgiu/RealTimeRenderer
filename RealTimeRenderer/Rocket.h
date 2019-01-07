@@ -3,11 +3,13 @@
 #include "Texture.h"
 #include "Shader.h"
 #include "MeshRenderer.h"
+#include "ParticleSystem.h"
+#include "Geometry.h"
 
 class Rocket : public SceneNode
 {
 public:
-	Rocket(ID3D11Device1* device);
+	Rocket(ID3D11Device1* device, std::shared_ptr<ParticleSystem> enginePS, std::shared_ptr<ParticleSystem> explosionPS, std::shared_ptr<Geometry> pole);
 	~Rocket();
 
 	// Interface implementation
@@ -26,6 +28,12 @@ private:
 	std::shared_ptr<Texture> m_normal;
 	std::shared_ptr<Texture> m_specular;
 
+	std::shared_ptr<ParticleSystem> m_enginePS;
+	std::shared_ptr<ParticleSystem> m_explosionPS;
+
+	std::shared_ptr<Geometry> m_pole;
+
+	bool m_launched;
 	DirectX::SimpleMath::Vector3 m_velocity;
 };
 
