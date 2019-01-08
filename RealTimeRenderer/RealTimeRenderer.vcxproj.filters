@@ -14,9 +14,6 @@
     <Filter Include="Managers">
       <UniqueIdentifier>{e4726564-8b8b-4f5b-91d8-8a8229979017}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Interfaces">
-      <UniqueIdentifier>{4ca9e825-d94c-4413-991b-b1c6eb51d9d0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Shaders">
       <UniqueIdentifier>{f5bd67c5-c4eb-4dd0-bd7d-29b8e575eb5e}</UniqueIdentifier>
     </Filter>
@@ -58,9 +55,6 @@
     </ClInclude>
     <ClInclude Include="Objects\Shader.h">
       <Filter>Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="Interfaces\IRenderable.h">
-      <Filter>Interfaces</Filter>
     </ClInclude>
     <ClInclude Include="Geometry.h">
       <Filter>GameObjects</Filter>

@@ -15,7 +15,6 @@ using Microsoft::WRL::ComPtr;
 
 
 Game::Game() noexcept(false)
-	: instanceData(nullptr)
 {
     m_Direct3D = std::make_unique<DX::Direct3D>();
     m_Direct3D->RegisterDeviceNotify(this);
@@ -31,8 +30,6 @@ void Game::Initialize(HWND window, int width, int height)
 
     m_Direct3D->CreateWindowSizeDependentResources();
     CreateWindowSizeDependentResources();
-
-	CreateGameObjects();
 
     // TODO: Change the timer settings if you want something other than the default variable timestep mode.
     // e.g. for 60 FPS fixed timestep update logic, call:
@@ -64,20 +61,49 @@ void Game::Update(DX::StepTimer const& timer)
 {
     float deltaTime = float(timer.GetElapsedSeconds());
 	float currentTime = float(timer.GetTotalSeconds());
+	m_fps = timer.GetFramesPerSecond();
+	m_meshesUsed = ResourceManager::GetMeshesLoaded();
+	m_shadersUsed = ResourceManager::GetShadersLoaded();
+	m_texturesUsed = ResourceManager::GetTexturesLoaded();
 
-	if (Keyboard::Get().GetState().T)
+	if (Keyboard::Get().GetState().R)
 	{
-		rotate = !rotate;
+		m_terrain->Reset();
+		m_rocket->Reset();
+		m_cameras[0]->Reset();
+		m_cameras[1]->Reset();
 	}
 
-	m_camera.Update(deltaTime);
+	if (Keyboard::Get().GetState().F1)
+	{
+		m_activeCamera = 0;
+	}
+	if (Keyboard::Get().GetState().F2)
+	{
+		m_activeCamera = 1;
+	}
+	if (Keyboard::Get().GetState().F3)
+	{
+		m_activeCamera = 2;
+	}
+	if (Keyboard::Get().GetState().F4)
+	{
+		m_activeCamera = 3;
+	}
+	if (Keyboard::Get().GetState().F5)
+	{
+		m_activeCamera = 4;
+	}
+
+	m_cameras[m_activeCamera]->Update(deltaTime);
+
 	for (unsigned int i = 0; i < m_gameObjects.size(); ++i)
 	{
 		m_gameObjects[i]->Update(deltaTime, currentTime);
 	}
 
-	m_gameObjects[0]->SetPosition(m_directionalLight->GetPosition());
-	m_gameObjects[0]->SetOrientation(m_directionalLight->GetEulerAngles());
+	//m_gameObjects[0]->SetPosition(m_directionalLight->GetPosition());
+	//m_gameObjects[0]->SetOrientation(m_directionalLight->GetEulerAngles());
 }
 #pragma endregion
 
@@ -123,7 +149,7 @@ void Game::Render()
 
 		for (unsigned int i = 0; i < m_gameObjects.size(); ++i)
 		{
-			m_gameObjects[i]->RenderDeferred(context, m_camera.GetViewMatrix(), m_camera.GetProjectionMatrix());
+			m_gameObjects[i]->RenderDeferred(context, m_cameras[m_activeCamera]->GetViewMatrix(), m_cameras[m_activeCamera]->GetProjectionMatrix());
 		}
 	}
     m_Direct3D->PIXEndEvent();
@@ -136,8 +162,11 @@ void Game::Render()
 	{
 		m_Direct3D->SetBackBufferAsRenderTarget();
 
-		m_renderQuad->GetShader()->SetVector("ViewDir", m_camera.GetViewDirection());
+		m_renderQuad->GetShader()->SetVector("ViewDir", m_cameras[m_activeCamera]->GetViewDirection());
 		m_renderQuad->GetShader()->SetColor("AmbientColor", SimpleMath::Color(0.039f, 0.815f, 1.0f, 1.0f));
+
+		m_renderQuad->GetShader()->SetVector("PointLightPosition", m_rocket->GetLightPosition());
+		m_renderQuad->GetShader()->SetColor("PointLightColor", m_rocket->GetLightColor());
 
 		m_renderQuad->GetShader()->SetVector("DirectionalLightPos", m_directionalLight->GetPosition());
 		m_renderQuad->GetShader()->SetVector("DirectionalLightDir", m_directionalLight->GetLightDir());
@@ -157,7 +186,7 @@ void Game::Render()
 	//--------------------------------------------------------------------------------------
 	// Skybox
 	//--------------------------------------------------------------------------------------
-	m_skybox->RenderForward(context, m_camera.GetViewMatrix(), m_camera.GetProjectionMatrix());
+	m_skybox->RenderForward(context, m_cameras[m_activeCamera]->GetViewMatrix(), m_cameras[m_activeCamera]->GetProjectionMatrix());
 
 	//--------------------------------------------------------------------------------------
 	// Forward Rendering
@@ -168,7 +197,7 @@ void Game::Render()
 
 		for (unsigned int i = 0; i < m_gameObjects.size(); ++i)
 		{
-			m_gameObjects[i]->RenderForward(context, m_camera.GetViewMatrix(), m_camera.GetProjectionMatrix());
+			m_gameObjects[i]->RenderForward(context, m_cameras[m_activeCamera]->GetViewMatrix(), m_cameras[m_activeCamera]->GetProjectionMatrix());
 		}
 	}
 	m_Direct3D->PIXEndEvent();
@@ -257,7 +286,7 @@ void Game::GetDefaultSize(int& width, int& height) const
 // These are the resources that depend on the device.
 void Game::CreateDeviceDependentResources()
 {
-	ID3D11Device1* device = m_Direct3D->GetD3DDevice();
+	CreateGameObjects();
 }
 
 // Allocate all memory resources that change on a window SizeChanged event.
@@ -266,24 +295,48 @@ void Game::CreateWindowSizeDependentResources()
 	ID3D11Device1* device = m_Direct3D->GetD3DDevice();
 
 	// Render quad, very important for post processing
-	m_renderQuad = std::make_unique<RenderQuad>(device, ResourceManager::GetShader(L"Shaders/Deferred.fx", device));;
+	m_renderQuad = std::make_unique<RenderQuad>(device, ResourceManager::GetShader(L"Shaders/Deferred.fx", device));
 
-	m_camera = Camera(SimpleMath::Vector3(0.f, 0.0f, -4.f), m_Direct3D->GetScreenViewport().Width, m_Direct3D->GetScreenViewport().Height, 55.0f);
+	m_cameras.reserve(5);
+	std::shared_ptr<Camera> camera;
+	camera = std::make_shared<Camera>(SimpleMath::Vector3(6, 1.0f, -4), m_Direct3D->GetScreenViewport().Width, m_Direct3D->GetScreenViewport().Height, 55.0f);
+	m_cameras.push_back(camera);
+
+	camera;
+	camera = std::make_shared<Camera>(SimpleMath::Vector3(0, 1.0f, -4), m_Direct3D->GetScreenViewport().Width, m_Direct3D->GetScreenViewport().Height, 55.0f);
+	m_cameras.push_back(camera);
+
+	camera;
+	camera = std::make_shared<Camera>(SimpleMath::Vector3(-6, 1.0f, -4.f), m_Direct3D->GetScreenViewport().Width, m_Direct3D->GetScreenViewport().Height, 55.0f);
+	camera->SetFollowTarget(m_rocket);
+	camera->SetDelta(1.8f);
+	m_cameras.push_back(camera);
+
+	camera;
+	camera = std::make_shared<Camera>(SimpleMath::Vector3(-6, 1.0f, -4.f), m_Direct3D->GetScreenViewport().Width, m_Direct3D->GetScreenViewport().Height, 55.0f);
+	camera->SetFollowTarget(m_rocket);
+	camera->SetDelta(2.2f);
+	m_cameras.push_back(camera);
+
+	camera;
+	camera = std::make_shared<Camera>(SimpleMath::Vector3(-6, 1.0f, -4.f), m_Direct3D->GetScreenViewport().Width, m_Direct3D->GetScreenViewport().Height, 55.0f);
+	camera->SetFollowTarget(m_rocket);
+	camera->SetDelta(0.5f);
+	m_cameras.push_back(camera);
+
 
 	// Initialize GUI
 	TwInit(TW_DIRECT3D11, device);
 	TwWindowSize(static_cast<int>(m_Direct3D->GetScreenViewport().Width), static_cast<int>(m_Direct3D->GetScreenViewport().Height));
 
 	// Make the widget bar
-	infoBar = TwNewBar("NameOfMyTweakBar");
+	infoBar = TwNewBar("Info");
 
 	// Add GUI widgets
-	//TwAddVarRW(infoBar, "Camera Movement Speed", TW_TYPE_FLOAT, &m_camera.MovementSpeed, "");
-	//TwAddVarRW(infoBar, "Camera Rotation Speed", TW_TYPE_FLOAT, &m_camera.RotationSpeed, "");
-	TwAddVarRW(infoBar, "Light Pos X", TW_TYPE_FLOAT, &lightPosX, "");
-	TwAddVarRW(infoBar, "Light Pos Y", TW_TYPE_FLOAT, &lightPosY, "");
-	//TwAddVarRO(infoBar, "Meshes Loaded", TW_TYPE_INT32, &ResourceManager::MeshesLoaded, "");
-	//TwAddVarRO(infoBar, "Shaders Loaded", TW_TYPE_INT32, &ResourceManager::ShadersLoaded, "");
+	TwAddVarRO(infoBar, "FPS", TW_TYPE_INT32, &m_fps, "");
+	TwAddVarRO(infoBar, "Meshes Loaded", TW_TYPE_INT32, &m_meshesUsed, "");
+	TwAddVarRO(infoBar, "Shaders Loaded", TW_TYPE_INT32, &m_shadersUsed, "");
+	TwAddVarRO(infoBar, "Textures Loaded", TW_TYPE_INT32, &m_texturesUsed, "");
 	TwAddVarRW(infoBar, "Density", TwDefineEnumFromString("Visualization", "Color,Specular,Normals,Position,ShadowMap,Light,Toon Light"), &m_currentVisualizationType, nullptr);
 }
 
@@ -309,17 +362,15 @@ void Game::CreateGameObjects()
 
 	m_gameObjects.reserve(10);
 
-	auto geom = std::make_shared<Geometry>(device, L"Models/Axis.sdkmesh", L"Shaders/Uber.fx");
-	m_gameObjects.push_back(geom);
+	//auto geom = std::make_shared<Geometry>(device, L"Models/Axis.sdkmesh", L"Shaders/Uber.fx");
+	//m_gameObjects.push_back(geom);
 
 	m_directionalLight = std::make_shared<DirectionalLight>(55, 0, 0);
-	m_directionalLight->SetPosition(0, 3, -4);
 	//m_directionalLight->SetLightColor(SimpleMath::Color(1, 1, 1, 1));
 	m_gameObjects.push_back(m_directionalLight);
 
-	auto terrain = std::make_shared<VoxelTerrain>(device);
-	terrain->RemoveAtWithRadius(0, 0, 0, 1.5);
-	m_gameObjects.push_back(terrain);
+	m_terrain = std::make_shared<VoxelTerrain>(device);
+	m_gameObjects.push_back(m_terrain);
 
 	auto enginePS = std::make_shared<ParticleSystem>(device, 1000, ResourceManager::GetShader(L"Shaders/ParticleEngine.fx", device));
 	enginePS->SetTexture(ResourceManager::GetTexture(L"Textures/FireParticle.png", device));
@@ -335,6 +386,6 @@ void Game::CreateGameObjects()
 	pole->SetSpecularTexture(ResourceManager::GetTexture(L"Textures/Pole_S.png", device));
 	m_gameObjects.push_back(pole);
 
-	auto rocket = std::make_shared<Rocket>(device, enginePS, explosionPS, pole);
-	m_gameObjects.push_back(rocket);
+	m_rocket = std::make_shared<Rocket>(device, enginePS, explosionPS, pole, m_terrain);
+	m_gameObjects.push_back(m_rocket);
 }

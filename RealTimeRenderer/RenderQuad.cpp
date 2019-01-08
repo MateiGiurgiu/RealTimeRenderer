@@ -3,21 +3,21 @@
 
 using namespace DirectX;
 
-RenderQuad::RenderQuad(ID3D11Device1* device)
+RenderQuad::RenderQuad(ID3D11Device1* const device)
 	: m_indexCount(0)
 {
 	CreateGeometryData(device);
 }
 
-RenderQuad::RenderQuad(ID3D11Device1* device, std::shared_ptr<Shader> shader)
-	: m_shader(shader), m_indexCount(0), m_layoutDescCount(2)
+RenderQuad::RenderQuad(ID3D11Device1* const device, std::shared_ptr<Shader> shader)
+	: m_shader(shader), m_layoutDescCount(2), m_indexCount(0)
 {
 	CreateGeometryData(device);
 
 	m_shader->SetInputLayout(m_layoutDesc, m_layoutDescCount, device);
 }
 
-void RenderQuad::CreateGeometryData(ID3D11Device1* device)
+void RenderQuad::CreateGeometryData(ID3D11Device1* const device)
 {
 	m_layoutDesc[0] = { "SV_Position",	0,	DXGI_FORMAT_R32G32B32A32_FLOAT, 0,	0,	D3D11_INPUT_PER_VERTEX_DATA, 0 };
 	m_layoutDesc[1] = { "TEXCOORD",		0,	DXGI_FORMAT_R32G32_FLOAT,		0,	16,	D3D11_INPUT_PER_VERTEX_DATA, 0 };
@@ -62,7 +62,7 @@ void RenderQuad::CreateGeometryData(ID3D11Device1* device)
 	DX::ThrowIfFailed(device->CreateBuffer(&bufferDesc, &initData, m_indexBuffer.ReleaseAndGetAddressOf()));
 }
 
-void RenderQuad::PrepareForDraw(ID3D11DeviceContext1* context)
+void RenderQuad::PrepareForDraw(ID3D11DeviceContext1* const context)
 {
 	// Set the vertex buffer to active in the input assembler so it can be rendered.
 	context->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &m_stride, &m_offset);
@@ -74,7 +74,7 @@ void RenderQuad::PrepareForDraw(ID3D11DeviceContext1* context)
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-void RenderQuad::Draw(ID3D11DeviceContext1* context, const int pass)
+void RenderQuad::Draw(ID3D11DeviceContext1* const context, const int pass)
 {
 	if(m_shader)
 	{
@@ -84,7 +84,7 @@ void RenderQuad::Draw(ID3D11DeviceContext1* context, const int pass)
 	}
 }
 
-void RenderQuad::DrawWithShader(ID3D11DeviceContext1* context, ID3D11Device1* device, Shader& shader, const int pass)
+void RenderQuad::DrawWithShader(ID3D11DeviceContext1* const context, ID3D11Device1* const device, Shader& shader, const int pass)
 {
 	PrepareForDraw(context);
 

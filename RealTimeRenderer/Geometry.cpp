@@ -9,7 +9,7 @@ Geometry::Geometry()
 {
 }
 
-Geometry::Geometry(ID3D11Device1* device, const wchar_t* meshName, const wchar_t* shaderName)
+Geometry::Geometry(ID3D11Device1* device, wchar_t const* const meshName, wchar_t const* const shaderName)
 {
 	std::shared_ptr<Mesh> mesh = ResourceManager::GetMesh(meshName, device);
 	std::shared_ptr<Shader> shader = ResourceManager::GetShader(shaderName, device);
@@ -24,7 +24,7 @@ Geometry::~Geometry()
 	
 }
 
-void Geometry::RenderDeferred(ID3D11DeviceContext1* context, const Matrix view, const Matrix proj)
+void Geometry::RenderDeferred(ID3D11DeviceContext1* const context, const Matrix& view, const Matrix& proj)
 {
 	if (m_diffuse)
 	{
@@ -48,7 +48,7 @@ void Geometry::RenderDeferred(ID3D11DeviceContext1* context, const Matrix view, 
 	m_meshRenderer->GetShader()->SetTexture("diffuseTex", nullptr);
 }
 
-void Geometry::RenderShadow(ID3D11DeviceContext1* context, Matrix view, Matrix proj)
+void Geometry::RenderShadow(ID3D11DeviceContext1* const context, const Matrix& view, const Matrix& proj)
 {
 	if (m_shadowShader)
 	{

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "RenderTexture.h"
 
-RenderTexture::RenderTexture(ID3D11Device1* device, DXGI_FORMAT format, UINT width, UINT height, bool useWithShader)
+RenderTexture::RenderTexture(ID3D11Device1* const device, DXGI_FORMAT const format, UINT  const width, UINT const height, bool const useWithShader)
 	: m_useWithShader(useWithShader)
 {
 	D3D11_TEXTURE2D_DESC textureDesc;
@@ -57,5 +57,10 @@ RenderTexture::RenderTexture(ID3D11Device1* device, DXGI_FORMAT format, UINT wid
 		DX::ThrowIfFailed(device->CreateShaderResourceView(texture2D.Get(), &shaderResourceViewDesc, shaderResourceView.ReleaseAndGetAddressOf()));
 		SetShaderResourceView(shaderResourceView);
 	}
+
+}
+
+RenderTexture::~RenderTexture()
+{
 
 }

@@ -12,11 +12,13 @@ public:
 	ParticleSystem& operator=(const ParticleSystem& other) = default;
 
 	void Update(float deltaTime, float currentTime) override;
-	void RenderForward(ID3D11DeviceContext1* context, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj) override;
+	void RenderForward(ID3D11DeviceContext1* context, const DirectX::SimpleMath::Matrix& view, const DirectX::SimpleMath::Matrix& proj) override;
 
 	void PrepareForDraw(ID3D11DeviceContext1* context);
-	void SetTexture(std::shared_ptr<Texture> texture) { m_texture = texture; }
-	void SetEmit(bool value) { m_doEmit = value; };
+	void SetTexture(std::shared_ptr<Texture> const texture) { m_texture = texture; }
+	void SetEmit(bool const value) { m_doEmit = value; }
+	void SetTime(float const time) { m_currentTime = time; }
+	void ResetTime() { m_currentTime = 0.0f; }
 	bool IsEmitting() const { return m_doEmit; }
 
 private:

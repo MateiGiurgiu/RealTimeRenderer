@@ -7,11 +7,7 @@
 
 namespace Log
 {
-	#define LOG(x)			try{Log::Stream->str("");(*Log::Stream)<<x;Log::Print(*Log::Stream);Log::Stream->str("");}catch(std::exception e){}
-	#define LOG_WARNING(x)	Log::Stream->str("");(*Log::Stream)<<x;Log::PrintWarning(*Log::Stream);Log::Stream->str("")
-	#define LOG_ERROR(x)	Log::Stream->str("");(*Log::Stream)<<x;Log::PrintError(*Log::Stream);Log::Stream->str("")
-
-	enum LogType : uint8_t
+	enum class LogType : uint8_t
 	{
 		L_INFO = 0,
 		L_WARNING,
@@ -19,7 +15,6 @@ namespace Log
 	};
 
 	extern int LogLineNumber;
-	extern std::ostringstream* Stream;
 
 	void Init();
 
@@ -29,17 +24,17 @@ namespace Log
 		SYSTEMTIME localTime;
 		GetLocalTime(&localTime);
 
-		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+		HANDLE hConsole = GetStdHandle(-11);
 
 		switch (logType)
 		{
-		case L_INFO:
+		case LogType::L_INFO:
 			SetConsoleTextAttribute(hConsole, 10);
 			break;
-		case L_WARNING:
+		case LogType::L_WARNING:
 			SetConsoleTextAttribute(hConsole, 14);
 			break;
-		case L_ERROR:
+		case LogType::L_ERROR:
 			SetConsoleTextAttribute(hConsole, 12);
 			break;
 		};
@@ -62,15 +57,15 @@ namespace Log
 	// Print Info
 	void Print(const std::ostringstream& stream);
 	void Print(const std::string& msg);
-	void Print(const char** msg);
+	void Print(const char* const* msg);
 
 	// Print Warning
 	void PrintWarning(const std::ostringstream& stream);
 	void PrintWarning(const std::string& msg);
-	void PrintWarning(const char** msg);
+	void PrintWarning(const char* const* msg);
 
 	// Print Error
 	void PrintError(const std::ostringstream& stream);
 	void PrintError(const std::string& msg);
-	void PrintError(const char** msg);
+	void PrintError(const char* const* msg);
 }

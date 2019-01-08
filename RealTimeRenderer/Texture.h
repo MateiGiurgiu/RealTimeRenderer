@@ -5,12 +5,12 @@ public:
 	Texture() = default;
 	// Constructor for creating non render target texture from a file
 	Texture(ID3D11Device1* device, const std::wstring& filename);
-	virtual ~Texture() = default;
+	virtual ~Texture();
 
 	UINT GetWidth() const { return  m_textureDesc.Width; };
 	UINT GetHeight() const { return m_textureDesc.Height; };
 
-	D3D11_TEXTURE2D_DESC GetTextureDesc() const { return m_textureDesc; }
+	const D3D11_TEXTURE2D_DESC& GetTextureDesc() const { return m_textureDesc; }
 	void SetTextureDesc(const D3D11_TEXTURE2D_DESC& textureDesc) { m_textureDesc = textureDesc; }
 
 	ID3D11Texture2D* GetTexture2D() const { return m_texture2D.Get(); }
@@ -24,7 +24,7 @@ public:
 
 	
 
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> ShaderResourceView() const { return m_shaderResourceView; }
+	const Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& ShaderResourceView() const { return m_shaderResourceView; }
 	
 
 private:

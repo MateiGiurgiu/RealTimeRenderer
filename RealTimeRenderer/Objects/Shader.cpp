@@ -6,10 +6,10 @@
 #include <sstream>
 #include <d3dcompiler.h>
 
-Shader::Shader(const wchar_t* filename, ID3D11Device1* device)
+Shader::Shader(const wchar_t* const filename, ID3D11Device1* const device)
 {
 	ID3DBlob* error;
-	HRESULT result = D3DX11CompileEffectFromFile(filename, nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, D3DCOMPILE_ENABLE_STRICTNESS, 0, device, &m_effect, &error);
+	const HRESULT result = D3DX11CompileEffectFromFile(filename, nullptr, reinterpret_cast<ID3DInclude*>(static_cast<UINT_PTR>(1)), static_cast<UINT>(D3DCOMPILE_ENABLE_STRICTNESS), 0, device, &m_effect, &error);
 	if (FAILED(result))
 	{
 		if (error)
@@ -49,7 +49,7 @@ Shader::~Shader()
 	}
 }
 
-HRESULT Shader::SetInputLayout(const D3D11_INPUT_ELEMENT_DESC* inputDesc, UINT inputDescCount, ID3D11Device1* device)
+HRESULT Shader::SetInputLayout(const D3D11_INPUT_ELEMENT_DESC* const inputDesc, UINT const inputDescCount, ID3D11Device1* const device)
 {
 	D3DX11_PASS_DESC PassDesc;
 	HRESULT result = m_technique->GetPassByIndex(0)->GetDesc(&PassDesc);
@@ -68,14 +68,14 @@ HRESULT Shader::SetInputLayout(const D3D11_INPUT_ELEMENT_DESC* inputDesc, UINT i
 	return result;
 }
 
-void Shader::PrepareForDraw(ID3D11DeviceContext1* context, const int passIndex)
+void Shader::PrepareForDraw(ID3D11DeviceContext1* const context, const int passIndex)
 {
 	context->IASetInputLayout(m_vertexInputLayout);
 	
 	DX::ThrowIfFailed(m_technique->GetPassByIndex(passIndex)->Apply(0, context));
 }
 
-ID3DX11EffectPass* Shader::GetPass(int passIndex) const
+ID3DX11EffectPass* Shader::GetPass(int const passIndex) const
 {
 	if(IsValid())
 	{
@@ -87,11 +87,11 @@ ID3DX11EffectPass* Shader::GetPass(int passIndex) const
 	}
 }
 
-void Shader::SetTexture(LPCSTR varName, const Texture& texture)
+void Shader::SetTexture(LPCSTR const varName, const Texture& texture)
 {
 	if (IsValid())
 	{
-		auto var = m_effect->GetVariableByName(varName)->AsShaderResource();
+		const auto var = m_effect->GetVariableByName(varName)->AsShaderResource();
 		if (var->IsValid())
 		{
 			var->SetResource(texture.GetShaderResourceView());
@@ -99,11 +99,11 @@ void Shader::SetTexture(LPCSTR varName, const Texture& texture)
 	}
 }
 
-void Shader::SetTexture(LPCSTR varName, ID3D11ShaderResourceView* texture)
+void Shader::SetTexture(LPCSTR const varName, ID3D11ShaderResourceView* const texture)
 {
 	if (IsValid())
 	{
-		auto var = m_effect->GetVariableByName(varName)->AsShaderResource();
+		const auto var = m_effect->GetVariableByName(varName)->AsShaderResource();
 		if (var->IsValid())
 		{
 			var->SetResource(texture);
@@ -111,54 +111,54 @@ void Shader::SetTexture(LPCSTR varName, ID3D11ShaderResourceView* texture)
 	}
 }
 
-void Shader::SetVector(LPCSTR varName, DirectX::SimpleMath::Vector2& vector)
+void Shader::SetVector(LPCSTR const varName, DirectX::SimpleMath::Vector2 const & const vector)
 {
 	if (IsValid())
 	{
-		m_effect->GetVariableByName(varName)->AsVector()->SetFloatVector(reinterpret_cast<float*>(&vector));
+		m_effect->GetVariableByName(varName)->AsVector()->SetFloatVector(reinterpret_cast<const float*>(&vector));
 	}
 }
 
-void Shader::SetVector(LPCSTR varName, DirectX::SimpleMath::Vector3& vector)
+void Shader::SetVector(LPCSTR const varName, DirectX::SimpleMath::Vector3 const & const vector)
 {
 	if (IsValid())
 	{
-		m_effect->GetVariableByName(varName)->AsVector()->SetFloatVector(reinterpret_cast<float*>(&vector));
+		m_effect->GetVariableByName(varName)->AsVector()->SetFloatVector(reinterpret_cast<const float*>(&vector));
 	}
 }
 
-void Shader::SetVector(LPCSTR varName, DirectX::SimpleMath::Vector4& vector)
+void Shader::SetVector(LPCSTR const varName, DirectX::SimpleMath::Vector4 const & const vector)
 {
 	if (IsValid())
 	{
-		auto var = m_effect->GetVariableByName(varName)->AsVector();
+		const auto var = m_effect->GetVariableByName(varName)->AsVector();
 		if(var->IsValid())
 		{
-			var->SetFloatVector(reinterpret_cast<float*>(&vector));
+			var->SetFloatVector(reinterpret_cast<const float*>(&vector));
 		}
 	}
 }
 
-void Shader::SetColor(LPCSTR varName, DirectX::SimpleMath::Color& color)
+void Shader::SetColor(LPCSTR const varName, DirectX::SimpleMath::Color const & const color)
 {
 	if (IsValid())
 	{
-		auto var = m_effect->GetVariableByName(varName)->AsVector();
+		const auto var = m_effect->GetVariableByName(varName)->AsVector();
 		if (var->IsValid())
 		{
-			var->SetFloatVector(reinterpret_cast<float*>(&color));
+			var->SetFloatVector(reinterpret_cast<const float*>(&color));
 		}
 	}
 }
 
-void Shader::SetMatrix(LPCSTR varName, DirectX::SimpleMath::Matrix& matrix)
+void Shader::SetMatrix(LPCSTR const varName, DirectX::SimpleMath::Matrix const & const matrix)
 {
 	if (IsValid())
 	{
-		auto var = m_effect->GetVariableByName(varName)->AsMatrix();
+		const auto var = m_effect->GetVariableByName(varName)->AsMatrix();
 		if(var->IsValid())
 		{
-			var->SetMatrix(reinterpret_cast<float*>(&matrix));
+			var->SetMatrix(reinterpret_cast<const float*>(&matrix));
 		}
 	}
 }

@@ -52,11 +52,11 @@ VoxelTerrain::~VoxelTerrain()
 	}
 }
 
-void VoxelTerrain::Update(float deltaTime, float currentTime)
+void VoxelTerrain::Update(float const deltaTime, float const currentTime)
 {
 }
 
-void VoxelTerrain::RenderDeferred(ID3D11DeviceContext1* context, Matrix view, Matrix proj)
+void VoxelTerrain::RenderDeferred(ID3D11DeviceContext1* const context, const DirectX::SimpleMath::Matrix& view, const DirectX::SimpleMath::Matrix& proj)
 {
 	if (m_diffuse)
 	{
@@ -71,20 +71,20 @@ void VoxelTerrain::RenderDeferred(ID3D11DeviceContext1* context, Matrix view, Ma
 	m_meshRenderer->DrawInstanced(context, GetWorldMatrix(), view, proj, m_numOfVoxels);
 }
 
-void VoxelTerrain::RenderShadow(ID3D11DeviceContext1* context, Matrix view, Matrix proj)
+void VoxelTerrain::RenderShadow(ID3D11DeviceContext1* const context, const DirectX::SimpleMath::Matrix& view, const DirectX::SimpleMath::Matrix& proj)
 {
 	m_meshRenderer->SetInstanceData(m_terrainData, sizeof(Vector4), m_numOfVoxels);
 	m_meshRenderer->DrawShadowInstanced(context, GetWorldMatrix(), view, proj, m_numOfVoxels);
 }
 
-void VoxelTerrain::RemoveAt(int x, int y, int z)
+void VoxelTerrain::RemoveAt(int const x, int const y, int const z)
 {
 	m_terrainData[x + y * X_MAX + z * (X_MAX * Y_MAX)].w = 0;
 }
 
-void VoxelTerrain::RemoveAtWithRadius(int x, int y, int z, float radius)
+void VoxelTerrain::RemoveAtWithRadius(int const x, int const y, int const z, float const radius)
 {
-	Vector3 centre = Vector3(x, y, z);
+	const Vector3 centre = Vector3(x, y, z);
 	for(int i = 0; i< m_numOfVoxels; i++)
 	{
 		Vector3 voxelPos = Vector3(m_terrainData[i].x, m_terrainData[i].y, m_terrainData[i].z);
@@ -94,4 +94,69 @@ void VoxelTerrain::RemoveAtWithRadius(int x, int y, int z, float radius)
 			m_terrainData[i].w = 0.0f;
 		}
 	}
+}
+
+bool VoxelTerrain::SpaceshipHit(Vector3 position)
+{
+	if (position.y < 0.0f)
+	{
+		Vector3 relativePos = Vector3(
+			(position.x + static_cast<float>(X_MAX) * 0.25f) * 2,
+			(-position.y + 0.5f) * 2,
+			(position.z + static_cast<float>(Z_MAX) * 0.25) * 2
+		);
+		unsigned int x = Clamp(static_cast<unsigned int>(relativePos.x), 0, X_MAX);
+		unsigned int y = Clamp(static_cast<unsigned int>(relativePos.y), 0, Y_MAX);
+		unsigned int z = Clamp(static_cast<unsigned int>(relativePos.z), 0, Z_MAX);
+
+		if (InsideBounds(relativePos))
+		{
+			if (m_terrainData[x + y * X_MAX + z * (X_MAX * Y_MAX)].w < 0.1)
+			{
+				return false;
+			}
+			else
+			{
+				//RemoveAtWithRadius(position.x, position.y, position.z, 0.9f);
+				m_terrainData[x + y * X_MAX + z * (X_MAX * Y_MAX)].w = 0.0f;
+				return true;
+			}
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void VoxelTerrain::Reset()
+{
+	for (unsigned int i = 0; i < m_numOfVoxels; i++)
+	{
+		m_terrainData[i].w = 1;
+	}
+}
+
+unsigned int VoxelTerrain::Clamp(unsigned int value, unsigned int min, unsigned int max)
+{
+	if (value > max) value = max;
+	if (value < min) value = min;
+	return value;
+}
+
+bool VoxelTerrain::InsideBounds(DirectX::SimpleMath::Vector3 position)
+{
+	unsigned int x = static_cast<unsigned int>(position.x);
+	unsigned int y = static_cast<unsigned int>(position.y);
+	unsigned int z = static_cast<unsigned int>(position.z);
+
+	bool bX = (x >= 0 && x < X_MAX);
+	bool bY = (y >= 0 && y < Y_MAX);
+	bool bZ = (z >= 0 && z < Z_MAX);
+
+	return bX && bY && bZ;
 }

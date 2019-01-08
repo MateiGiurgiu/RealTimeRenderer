@@ -3,12 +3,12 @@
 #include "Effects.h"
 #include "Model.h"
 
-Mesh::Mesh(const wchar_t* filename, ID3D11Device1* device) :
+Mesh::Mesh(const wchar_t* const filename, ID3D11Device1* device) :
 	m_vertexBuffer(nullptr), 
 	m_indexBuffer(nullptr)
 {
-	auto fx = std::make_unique<DirectX::EffectFactory>(device);
-	auto model = DirectX::Model::CreateFromSDKMESH(device, filename, *fx);
+	std::unique_ptr<DirectX::EffectFactory> fx = std::make_unique<DirectX::EffectFactory>(device);
+	const std::unique_ptr<DirectX::Model> model = DirectX::Model::CreateFromSDKMESH(device, filename, *fx);
 
 	model->meshes[0]->meshParts[0]->vertexBuffer.Swap(m_vertexBuffer);
 	model->meshes[0]->meshParts[0]->indexBuffer.Swap(m_indexBuffer);
@@ -20,7 +20,7 @@ Mesh::Mesh(const wchar_t* filename, ID3D11Device1* device) :
 	m_vertexOffset = model->meshes[0]->meshParts[0]->vertexOffset;
 	m_vertexStride = model->meshes[0]->meshParts[0]->vertexStride;
 
-	std::vector<D3D11_INPUT_ELEMENT_DESC>* layoutDesc = model->meshes[0]->meshParts[0]->vbDecl.get();
+	std::vector<D3D11_INPUT_ELEMENT_DESC>* const layoutDesc = model->meshes[0]->meshParts[0]->vbDecl.get();
 
 	m_layoutDescCount = layoutDesc->size();
 	m_layoutDesc = new D3D11_INPUT_ELEMENT_DESC[m_layoutDescCount];
@@ -64,7 +64,7 @@ Mesh::~Mesh()
 	}
 }
 
-void Mesh::PrepareForDraw(ID3D11DeviceContext1* context)
+void Mesh::PrepareForDraw(ID3D11DeviceContext1* const context)
 {
 	// Set the vertex buffer to active in the input assembler so it can be rendered.
 	context->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &m_vertexStride, &m_vertexOffset);

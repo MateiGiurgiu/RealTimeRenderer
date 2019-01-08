@@ -13,7 +13,17 @@ public:
 	static std::shared_ptr<Shader> GetShader(const wchar_t* filename, ID3D11Device1* device);
 	static std::shared_ptr<Texture> GetTexture(const std::wstring& filename, ID3D11Device1* device);
 
+	static int GetMeshesLoaded() {
+		return MeshesLoaded;
+	}
 
+	static int GetShadersLoaded() {
+		return ShadersLoaded;
+	}
+
+	static int GetTexturesLoaded() {
+		return TexturesLoaded;
+	}
 
 private:
 	static std::map<wchar_t*, std::shared_ptr<Mesh>> m_meshes;
@@ -22,5 +32,6 @@ private:
 
 	static int MeshesLoaded;
 	static int ShadersLoaded;
+	static int TexturesLoaded;
 };
 

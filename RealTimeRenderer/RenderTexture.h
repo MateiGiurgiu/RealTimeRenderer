@@ -4,10 +4,10 @@ class RenderTexture : public Texture
 {
 public:
 	RenderTexture(ID3D11Device1* device, DXGI_FORMAT format, UINT width, UINT height, bool useWithShader = true);
-	~RenderTexture() override = default;
+	~RenderTexture() override;
 
 	bool CanUseWithShader() const { return m_useWithShader; }
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> GetRenderTargetView() const { return m_renderTargetView; }
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> const& GetRenderTargetView() const { return m_renderTargetView; }
 
 private:
 	bool m_useWithShader;

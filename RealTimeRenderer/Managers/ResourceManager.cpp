@@ -10,6 +10,7 @@ std::map<std::wstring, std::shared_ptr<Texture>> ResourceManager::m_textures = {
 
 int ResourceManager::MeshesLoaded = { 0 };
 int ResourceManager::ShadersLoaded = { 0 };
+int ResourceManager::TexturesLoaded = { 0 };
 
 std::shared_ptr<Mesh> ResourceManager::GetMesh(const wchar_t* filename, ID3D11Device1* device)
 {
@@ -51,6 +52,7 @@ std::shared_ptr<Texture> ResourceManager::GetTexture(const std::wstring& filenam
 	else
 	{
 		m_textures[filename] = std::make_shared<Texture>(device, filename);
+		TexturesLoaded++;
 		return m_textures[filename];
 	}
 }

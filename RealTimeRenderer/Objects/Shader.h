@@ -8,6 +8,9 @@ public:
 	Shader(const wchar_t* filename, ID3D11Device1* device);
 	~Shader();
 
+	Shader(const Shader& other) = default;
+	Shader& operator=(const Shader& other) = default;
+
 	HRESULT SetInputLayout(const D3D11_INPUT_ELEMENT_DESC* inputDesc, UINT inputDescCount, ID3D11Device1* device);
 	void PrepareForDraw(ID3D11DeviceContext1* context, const int passIndex = 0);
 	bool IsValid() const { return (m_effect != nullptr && m_effect->IsValid()); }
@@ -19,11 +22,11 @@ public:
 	// Utilities
 	void SetTexture(LPCSTR varName, const Texture& texture);
 	void SetTexture(LPCSTR varName, ID3D11ShaderResourceView* texture);
-	void SetVector(LPCSTR varName, DirectX::SimpleMath::Vector2& vector);
-	void SetVector(LPCSTR varName, DirectX::SimpleMath::Vector3& vector);
-	void SetVector(LPCSTR varName, DirectX::SimpleMath::Vector4& vector);
-	void SetColor(LPCSTR varName, DirectX::SimpleMath::Color& color);
-	void SetMatrix(LPCSTR varName, DirectX::SimpleMath::Matrix& matrix);
+	void SetVector(LPCSTR varName, DirectX::SimpleMath::Vector2 const & vector);
+	void SetVector(LPCSTR varName, DirectX::SimpleMath::Vector3 const & vector);
+	void SetVector(LPCSTR varName, DirectX::SimpleMath::Vector4 const & vector);
+	void SetColor(LPCSTR varName, DirectX::SimpleMath::Color const & color);
+	void SetMatrix(LPCSTR varName, DirectX::SimpleMath::Matrix const & matrix);
 
 private:
 	ID3D11InputLayout* m_vertexInputLayout = nullptr;

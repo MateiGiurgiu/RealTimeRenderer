@@ -5,8 +5,8 @@
 using namespace DirectX;
 using namespace SimpleMath;
 
-ParticleSystem::ParticleSystem(ID3D11Device1* device, int numOfParticles, std::shared_ptr<Shader> shader)
-	: m_numOfParticles(numOfParticles), m_shader(shader), m_particleData(nullptr), m_currentTime(0.0f), m_lifeSpan(3.0f), m_doEmit(false)
+ParticleSystem::ParticleSystem(ID3D11Device1* const device, const int numOfParticles, std::shared_ptr<Shader> shader)
+	: m_shader(shader), m_numOfParticles(numOfParticles),  m_particleData(nullptr), m_currentTime(0.0f), m_lifeSpan(3.0f), m_doEmit(false)
 {
 	CreateGeometryData(device);
 	m_shader->SetInputLayout(m_layoutDesc, m_layoutDescCount, device);
@@ -22,12 +22,12 @@ ParticleSystem::~ParticleSystem()
 	}
 }
 
-void ParticleSystem::Update(float deltaTime, float currentTime)
+void ParticleSystem::Update(float const deltaTime, float const currentTime)
 {
-	m_currentTime = currentTime;
+	m_currentTime += deltaTime;
 }
 
-void ParticleSystem::RenderForward(ID3D11DeviceContext1* context, Matrix view, Matrix proj)
+void ParticleSystem::RenderForward(ID3D11DeviceContext1* const context, const DirectX::SimpleMath::Matrix& view, const DirectX::SimpleMath::Matrix& proj)
 {
 	if (!m_doEmit) return;
 
@@ -36,9 +36,9 @@ void ParticleSystem::RenderForward(ID3D11DeviceContext1* context, Matrix view, M
 		m_shader->SetTexture("diffuseTex", *m_texture);
 	}
 
-	m_shader->GetEffect()->GetVariableByName("World")->AsMatrix()->SetMatrix(reinterpret_cast<float*>(&GetWorldMatrix()));
-	m_shader->GetEffect()->GetVariableByName("View")->AsMatrix()->SetMatrix(reinterpret_cast<float*>(&view));
-	m_shader->GetEffect()->GetVariableByName("Projection")->AsMatrix()->SetMatrix(reinterpret_cast<float*>(&proj));
+	m_shader->GetEffect()->GetVariableByName("World")->AsMatrix()->SetMatrix(reinterpret_cast<const float*>(&GetWorldMatrix()));
+	m_shader->GetEffect()->GetVariableByName("View")->AsMatrix()->SetMatrix(reinterpret_cast<const float*>(&view));
+	m_shader->GetEffect()->GetVariableByName("Projection")->AsMatrix()->SetMatrix(reinterpret_cast<const float*>(&proj));
 
 	m_shader->GetEffect()->GetVariableByName("Time")->AsScalar()->SetFloat(m_currentTime);
 
@@ -49,7 +49,7 @@ void ParticleSystem::RenderForward(ID3D11DeviceContext1* context, Matrix view, M
 	m_shader->SetTexture("diffuseTex", nullptr);
 }
 
-void ParticleSystem::PrepareForDraw(ID3D11DeviceContext1* context)
+void ParticleSystem::PrepareForDraw(ID3D11DeviceContext1* const context)
 {
 	// Set the vertex buffer to active in the input assembler so it can be rendered.
 	context->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &m_stride, &m_offset);
@@ -61,7 +61,7 @@ void ParticleSystem::PrepareForDraw(ID3D11DeviceContext1* context)
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-void ParticleSystem::CreateGeometryData(ID3D11Device1* device)
+void ParticleSystem::CreateGeometryData(ID3D11Device1* const device)
 {
 	m_layoutDesc[0] = { "SV_Position",	0,	DXGI_FORMAT_R32G32B32A32_FLOAT, 0,	0,	D3D11_INPUT_PER_VERTEX_DATA, 0 };
 	m_layoutDesc[1] = { "NORMAL",		0,	DXGI_FORMAT_R32G32B32_FLOAT,	0,	16,	D3D11_INPUT_PER_VERTEX_DATA, 0 };

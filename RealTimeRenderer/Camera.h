@@ -1,4 +1,6 @@
 #pragma once
+#include "SceneNode.h"
+#include "Rocket.h"
 
 class Camera
 {
@@ -19,8 +21,13 @@ public:
 	void SetMovementSpeed(const float newSpeed) { m_movementSpeed = newSpeed; }
 	void SetRotationSpeed(const float newSpeed) { m_rotationSpeed = newSpeed; }
 
+	void SetFollowTarget(std::shared_ptr<Rocket> & const target) { m_followTarget = target; }
+	void SetDelta(float delta) { m_delta = delta; }
+	void Reset();
+
 private:
 	DirectX::SimpleMath::Vector3 m_pos;
+	DirectX::SimpleMath::Vector3 m_initialPos;
 	float m_yaw;
 	float m_pitch;
 
@@ -29,5 +36,8 @@ private:
 
 	float m_movementSpeed;
 	float m_rotationSpeed;
+
+	std::shared_ptr<Rocket> m_followTarget;
+	float m_delta;
 };
 

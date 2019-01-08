@@ -102,7 +102,7 @@ PS_INPUT VS(VS_INPUT input, uint id : SV_InstanceID)
 			);
 	randPoint = normalize(randPoint);
 
-	float t = fmod(Time, 3) / 3;
+	float t = fmod(Time, 2) / 2;
 
 	float scale = t * 1.1 + abs(sin(Time)) * 0.5;
 	input.Pos.xy *= scale + random;

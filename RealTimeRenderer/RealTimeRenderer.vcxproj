@@ -165,7 +165,6 @@
     <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Geometry.h" />
-    <ClInclude Include="Interfaces\IRenderable.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="Objects\Mesh.h" />
     <ClInclude Include="Objects\MeshRenderer.h" />

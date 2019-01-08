@@ -12,11 +12,11 @@
 #include "Camera.h"
 #include <AntTweakBar.h>
 #include <vector>
-#include "IRenderable.h"
 #include "RenderQuad.h"
 #include "SceneNode.h"
 #include "Skybox.h"
 #include "DirectionalLight.h"
+#include "Rocket.h"; 
 
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
@@ -70,24 +70,29 @@ private:
 
 	// RenderQuad for doing post processing
 	std::unique_ptr<RenderQuad> m_renderQuad;
+	int m_currentVisualizationType = 5;
+
+	// Camera
+	std::vector<std::shared_ptr<Camera>> m_cameras;
+	int m_activeCamera = 0;
 
 	// Game Objects list
 	std::vector<std::shared_ptr<SceneNode>> m_gameObjects;
+	std::shared_ptr<VoxelTerrain> m_terrain;
+	std::shared_ptr<Rocket> m_rocket;
 
 	// Lights
 	std::shared_ptr<DirectionalLight> m_directionalLight;
 
-	float lightPosX = -4;
-	float lightPosY = 3;
-
 	// Skybox
 	std::unique_ptr<Skybox> m_skybox;
 
-	bool rotate = true;
-	Camera m_camera;
-	DirectX::SimpleMath::Vector4* instanceData;
-
 	// GUI
 	TwBar* infoBar = nullptr;
-	int m_currentVisualizationType = 5;
+
+	int m_fps;
+	int m_guiVisType = 0;
+	int m_meshesUsed = 0;
+	int m_shadersUsed = 0;
+	int m_texturesUsed = 0;
 };

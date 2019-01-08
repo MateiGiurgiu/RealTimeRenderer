@@ -19,7 +19,7 @@ extern "C"
 }
 
 // Entry point
-int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
+int WINAPI wWinMain(_In_ HINSTANCE const hInstance, _In_opt_ HINSTANCE const hPrevInstance, _In_ LPWSTR const lpCmdLine, _In_ int const nCmdShow)
 {
 	// let's attach the console and redirect the output stream to it
 	AllocConsole();
@@ -37,7 +37,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     if (!XMVerifyCPUSupport())
         return 1;
 
-    HRESULT hr = CoInitializeEx(nullptr, COINITBASE_MULTITHREADED);
+    const HRESULT hr = CoInitializeEx(nullptr, COINITBASE_MULTITHREADED);
     if (FAILED(hr))
         return 1;
 
@@ -53,7 +53,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
         wcex.hInstance = hInstance;
         wcex.hIcon = LoadIcon(hInstance, L"IDI_ICON");
         wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
-        wcex.hbrBackground = (HBRUSH) (COLOR_WINDOW + 1);
+        wcex.hbrBackground = reinterpret_cast<HBRUSH> (COLOR_WINDOW + 1);
         wcex.lpszClassName = L"RealTimeRendererWindowClass";
         wcex.hIconSm = LoadIcon(wcex.hInstance, L"IDI_ICON");
         if (!RegisterClassEx(&wcex))
@@ -67,8 +67,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
         AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
 
-        HWND hwnd = CreateWindowEx(0, L"RealTimeRendererWindowClass", L"RealTimeRenderer", WS_OVERLAPPEDWINDOW,
-            CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance,
+        const HWND hwnd = CreateWindowExW(0x00040000L, L"RealTimeRendererWindowClass", L"RealTimeRenderer", WS_OVERLAPPEDWINDOW,
+			0x80000000L, 0x80000000L, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance,
             nullptr);
         // TODO: Change to CreateWindowEx(WS_EX_TOPMOST, L"RealTimeRendererWindowClass", L"RealTimeRenderer", WS_POPUP,
         // to default to fullscreen.
@@ -105,11 +105,11 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
     CoUninitialize();
 
-    return (int) msg.wParam;
+	return static_cast<int>(msg.wParam);
 }
 
 // Windows procedure
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK WndProc(HWND const hWnd, UINT const message, WPARAM const wParam, LPARAM const lParam)
 {
 	if (TwEventWin(hWnd, message, wParam, lParam)) // send event message to AntTweakBar
 		return 0; // event has been handled by AntTweakBar
@@ -187,7 +187,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     case WM_GETMINMAXINFO:
         {
-            auto info = reinterpret_cast<MINMAXINFO*>(lParam);
+            const auto info = reinterpret_cast<MINMAXINFO*>(lParam);
             info->ptMinTrackSize.x = 320;
             info->ptMinTrackSize.y = 200;
         }
@@ -255,7 +255,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
                 ShowWindow(hWnd, SW_SHOWNORMAL);
 
-                SetWindowPos(hWnd, HWND_TOP, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
+                SetWindowPos(hWnd, static_cast<HWND>(0), 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
             }
             else
             {

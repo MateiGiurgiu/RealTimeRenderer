@@ -609,7 +609,7 @@ void Direct3D::CreateFactory()
 
 // This method acquires the first available hardware adapter.
 // If no such adapter can be found, *ppAdapter will be set to nullptr.
-void Direct3D::GetHardwareAdapter(IDXGIAdapter1** ppAdapter)
+void Direct3D::GetHardwareAdapter(IDXGIAdapter1** const ppAdapter)
 {
     *ppAdapter = nullptr;
 

@@ -19,7 +19,7 @@ Skybox::~Skybox()
 {
 }
 
-void Skybox::RenderForward(ID3D11DeviceContext1* context, DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj)
+void Skybox::RenderForward(ID3D11DeviceContext1* const context, const DirectX::SimpleMath::Matrix& view, const DirectX::SimpleMath::Matrix& proj)
 {
 	if (m_skyTexture)
 	{

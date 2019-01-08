@@ -32,12 +32,15 @@ namespace DX
                         D3D_FEATURE_LEVEL minFeatureLevel = D3D_FEATURE_LEVEL_10_0,
                         unsigned int flags = c_FlipPresent) noexcept;
 
+		Direct3D(const Direct3D& other) = default;
+		Direct3D& operator=(const Direct3D& other) = default;
+
         void CreateDeviceResources();
         void CreateWindowSizeDependentResources();
         void SetWindow(HWND window, int width, int height);
         bool WindowSizeChanged(int width, int height);
         void HandleDeviceLost();
-        void RegisterDeviceNotify(IDeviceNotify* deviceNotify) { m_deviceNotify = deviceNotify; }
+        void RegisterDeviceNotify(IDeviceNotify* const deviceNotify) { m_deviceNotify = deviceNotify; }
 		void SetGBufferAsRenderTarget();
 		void ClearGBuffers();
 		void SetBackBufferAsRenderTarget();
@@ -48,7 +51,7 @@ namespace DX
         void Present();
 
         // Device Accessors.
-        RECT GetOutputSize() const { return m_outputSize; }
+        const RECT& GetOutputSize() const { return m_outputSize; }
 
         // Direct3D Accessors.
         ID3D11Device1*          GetD3DDevice() const                    { return m_d3dDevice.Get(); }
@@ -61,7 +64,7 @@ namespace DX
         ID3D11DepthStencilView* GetDepthStencilView() const             { return m_depthStencilRenderTargetView.Get(); }
         DXGI_FORMAT             GetBackBufferFormat() const             { return m_backBufferFormat; }
         DXGI_FORMAT             GetDepthBufferFormat() const            { return m_depthBufferFormat; }
-        D3D11_VIEWPORT          GetScreenViewport() const               { return m_screenViewport; }
+        const D3D11_VIEWPORT&   GetScreenViewport() const               { return m_screenViewport; }
         UINT                    GetBackBufferCount() const              { return m_backBufferCount; }
         DXGI_COLOR_SPACE_TYPE   GetColorSpace() const                   { return m_colorSpace; }
         unsigned int            GetDeviceOptions() const                { return m_options; }
@@ -69,7 +72,7 @@ namespace DX
 		UINT					GetScreenHeight() const					{ return m_Height; }
 
         // Performance events
-        void PIXBeginEvent(_In_z_ const wchar_t* name)
+        void PIXBeginEvent(_In_z_ const wchar_t* const name)
         {
             m_d3dAnnotation->BeginEvent(name);
         }
@@ -79,7 +82,7 @@ namespace DX
             m_d3dAnnotation->EndEvent();
         }
 
-        void PIXSetMarker(_In_z_ const wchar_t* name)
+        void PIXSetMarker(_In_z_ const wchar_t* const name)
         {
             m_d3dAnnotation->SetMarker(name);
         }

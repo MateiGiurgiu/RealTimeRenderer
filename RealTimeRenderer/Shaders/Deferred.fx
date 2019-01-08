@@ -11,6 +11,8 @@ Texture2D toonRamp;
 float3 ViewDir;
 float3 AmbientColor;
 
+float3 PointLightPosition;
+float4 PointLightColor;
 
 float4x4 DirectionalLightView;
 float4x4 DirectionalLightProj;
@@ -174,6 +176,9 @@ float4 PSLight(PS_INPUT input) : SV_Target
 	// difuse
 	float3 diffuse = nDotL * DirectionalLightColor.rgb * DirectionalLightColor.a;
 
+	// diffuse from point light
+	float3 diffuse2 = max(0.0, dot(normal, normalize(PointLightPosition - position))) * PointLightColor.rgb * 0.5;
+
 	// specular
 	float specularPower = color.w * 80;
 	float3 specular = (specularPower > 0.01 ? pow(nDotH, specularPower) * DirectionalLightColor.rgb : float3(0,0,0)) * DirectionalLightColor.a;
@@ -182,7 +187,7 @@ float4 PSLight(PS_INPUT input) : SV_Target
 	float shadow = ShadowAttenuation(position, nDotL);
 
 	// final lighting
-	float3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color.rgb;
+	float3 lighting = (ambient + (1.0 - shadow) * (diffuse + diffuse2 + specular)) * color.rgb;
 
 	return float4(lighting, 1.0f);
 }
@@ -209,6 +214,9 @@ float4 PSToonLight(PS_INPUT input) : SV_Target
 	// difuse
 	float3 diffuse = nDotL * DirectionalLightColor.rgb * DirectionalLightColor.a;
 
+	// diffuse from point light
+	float3 diffuse2 = max(0.0, dot(normal, normalize(PointLightPosition - position))) * PointLightColor.rgb * 0.5;
+
 	// specular
 	float specularPower = color.w * 80;
 	float3 specular = (specularPower > 0.01 ? pow(nDotH, specularPower) * DirectionalLightColor.rgb : float3(0,0,0)) * DirectionalLightColor.a;
@@ -217,7 +225,7 @@ float4 PSToonLight(PS_INPUT input) : SV_Target
 	float shadow = ShadowAttenuation(position, nDotL);
 
 	// final lighting
-	float3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color.rgb;
+	float3 lighting = (ambient + (1.0 - shadow) * (diffuse + diffuse2  + specular)) * color.rgb;
 
 	return float4(lighting, 1.0f);
 }

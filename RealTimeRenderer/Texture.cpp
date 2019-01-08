@@ -4,7 +4,7 @@
 #include <WICTextureLoader.h>
 #include <minwinbase.h>
 
-Texture::Texture(ID3D11Device1* device, const std::wstring& filename)
+Texture::Texture(ID3D11Device1* const device, const std::wstring& filename)
 {
 	ZeroMemory(&m_textureDesc, sizeof(m_textureDesc));
 
@@ -32,5 +32,10 @@ Texture::Texture(ID3D11Device1* device, const std::wstring& filename)
 
 		m_texture2D->GetDesc(&m_textureDesc);
 	}
+}
+
+Texture::~Texture()
+{
+
 }
 
