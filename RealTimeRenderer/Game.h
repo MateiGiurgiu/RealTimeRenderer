@@ -26,6 +26,9 @@ public:
 
     Game() noexcept(false);
 
+	Game(const Game& other) = default;
+	Game& operator=(const Game& other) = default;
+
     // Initialization and management
     void Initialize(HWND window, int width, int height);
 
@@ -37,9 +40,9 @@ public:
     virtual void OnDeviceRestored() override;
 
     // Messages
-    void OnActivated();
-    void OnDeactivated();
-    void OnSuspending();
+    void OnActivated() const;
+    void OnDeactivated() const;
+    void OnSuspending() const;
     void OnResuming();
     void OnWindowMoved();
     void OnWindowSizeChanged(int width, int height);
@@ -90,7 +93,7 @@ private:
 	// GUI
 	TwBar* infoBar = nullptr;
 
-	int m_fps;
+	int m_fps = 0;
 	int m_guiVisType = 0;
 	int m_meshesUsed = 0;
 	int m_shadersUsed = 0;

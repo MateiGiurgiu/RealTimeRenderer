@@ -21,7 +21,7 @@ Game::Game() noexcept(false)
 }
 
 // Initialize the Direct3D resources required to run.
-void Game::Initialize(HWND window, int width, int height)
+void Game::Initialize(HWND const window, int const width, int const height)
 {
     m_Direct3D->SetWindow(window, width, height);
 
@@ -59,8 +59,8 @@ void Game::Tick()
 // Updates the world.
 void Game::Update(DX::StepTimer const& timer)
 {
-    float deltaTime = float(timer.GetElapsedSeconds());
-	float currentTime = float(timer.GetTotalSeconds());
+    const float deltaTime = static_cast<float>(timer.GetElapsedSeconds());
+	const float currentTime = static_cast<float>(timer.GetTotalSeconds());
 	m_fps = timer.GetFramesPerSecond();
 	m_meshesUsed = ResourceManager::GetMeshesLoaded();
 	m_shadersUsed = ResourceManager::GetShadersLoaded();
@@ -117,8 +117,8 @@ void Game::Render()
         return;
     }
 
-	ID3D11DeviceContext1* context = m_Direct3D->GetD3DDeviceContext();
-	ID3D11Device1* device = m_Direct3D->GetD3DDevice();
+	ID3D11DeviceContext1* const context = m_Direct3D->GetD3DDeviceContext();
+	ID3D11Device1* const device = m_Direct3D->GetD3DDevice();
 
 	//--------------------------------------------------------------------------------------
 	// Clear ALL buffers
@@ -217,7 +217,7 @@ void Game::Clear()
     m_Direct3D->PIXBeginEvent(L"Clear");
 	
 	// Clear the views.
-	auto context = m_Direct3D->GetD3DDeviceContext();
+	const auto context = m_Direct3D->GetD3DDeviceContext();
 
 	m_Direct3D->ClearShadowMap();
 	m_Direct3D->ClearGBuffers();
@@ -225,7 +225,7 @@ void Game::Clear()
 	m_Direct3D->ClearDepthStencil();
 
 	// Set the viewport.
-	auto viewport = m_Direct3D->GetScreenViewport();
+	const auto viewport = m_Direct3D->GetScreenViewport();
 	context->RSSetViewports(1, &viewport);
 	
     m_Direct3D->PIXEndEvent();
@@ -235,17 +235,17 @@ void Game::Clear()
 
 #pragma region Message Handlers
 // Message handlers
-void Game::OnActivated()
+void Game::OnActivated() const
 {
     // TODO: Game is becoming active window.
 }
 
-void Game::OnDeactivated()
+void Game::OnDeactivated() const
 {
     // TODO: Game is becoming background window.
 }
 
-void Game::OnSuspending()
+void Game::OnSuspending() const
 {
     // TODO: Game is being power-suspended (or minimized).
 }
@@ -259,11 +259,11 @@ void Game::OnResuming()
 
 void Game::OnWindowMoved()
 {
-    auto r = m_Direct3D->GetOutputSize();
+    const auto r = m_Direct3D->GetOutputSize();
     m_Direct3D->WindowSizeChanged(r.right, r.bottom);
 }
 
-void Game::OnWindowSizeChanged(int width, int height)
+void Game::OnWindowSizeChanged(int const width, int const height)
 {
     if (!m_Direct3D->WindowSizeChanged(width, height))
         return;

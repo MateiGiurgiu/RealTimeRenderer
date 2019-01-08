@@ -21,8 +21,8 @@ public:
 	void SetMovementSpeed(const float newSpeed) { m_movementSpeed = newSpeed; }
 	void SetRotationSpeed(const float newSpeed) { m_rotationSpeed = newSpeed; }
 
-	void SetFollowTarget(std::shared_ptr<Rocket> & const target) { m_followTarget = target; }
-	void SetDelta(float delta) { m_delta = delta; }
+	void SetFollowTarget(const std::shared_ptr<Rocket> & const target) { m_followTarget = target; }
+	void SetDelta(float const delta) { m_delta = delta; }
 	void Reset();
 
 private:

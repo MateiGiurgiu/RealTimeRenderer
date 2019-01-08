@@ -6,8 +6,8 @@
 using namespace DirectX::SimpleMath;
 
 Rocket::Rocket(ID3D11Device1* device, std::shared_ptr<ParticleSystem> enginePS, std::shared_ptr<ParticleSystem> explosionPS, std::shared_ptr<Geometry> pole, std::shared_ptr<VoxelTerrain> voxelTerrain)
-	: m_velocity(Vector3(0.0f, 0.0f, 0.0f)), m_enginePS(enginePS), m_explosionPS(explosionPS), m_pole(pole), m_voxelTerrain(voxelTerrain), m_lightColor(Color(0, 0, 0, 0)), m_lightPosition(Vector3(0, 0, 0)),
-	m_launched(false), m_launchPitch(LAUNCH_PITCH_MIN)
+	: m_enginePS(enginePS), m_explosionPS(explosionPS), m_pole(pole), m_voxelTerrain(voxelTerrain), m_velocity(Vector3(0.0f, 0.0f, 0.0f)),
+	m_lightColor(Color(0, 0, 0, 0)), m_lightPosition(Vector3(0, 0, 0))
 {
 	std::shared_ptr<Mesh> mesh = ResourceManager::GetMesh(L"Models/Rocket.sdkmesh", device);
 	std::shared_ptr<Shader> shader = ResourceManager::GetShader(L"Shaders/Uber.fx", device);
@@ -37,7 +37,7 @@ Rocket::~Rocket()
 {
 }
 
-void Rocket::RenderDeferred(ID3D11DeviceContext1* context, const DirectX::SimpleMath::Matrix& view, const DirectX::SimpleMath::Matrix& proj)
+void Rocket::RenderDeferred(ID3D11DeviceContext1* const context, const DirectX::SimpleMath::Matrix& view, const DirectX::SimpleMath::Matrix& proj)
 {
 	if (m_diffuse)
 	{
@@ -62,7 +62,7 @@ void Rocket::RenderDeferred(ID3D11DeviceContext1* context, const DirectX::Simple
 
 }
 
-void Rocket::RenderShadow(ID3D11DeviceContext1* context, const DirectX::SimpleMath::Matrix& view, const DirectX::SimpleMath::Matrix& proj)
+void Rocket::RenderShadow(ID3D11DeviceContext1* const context, const DirectX::SimpleMath::Matrix& view, const DirectX::SimpleMath::Matrix& proj)
 {
 	if (m_shadowShader)
 	{
@@ -70,7 +70,7 @@ void Rocket::RenderShadow(ID3D11DeviceContext1* context, const DirectX::SimpleMa
 	}
 }
 
-void Rocket::Update(float deltaTime, float currentTime)
+void Rocket::Update(float const deltaTime, float const currentTime)
 {
 	if (DirectX::Keyboard::Get().GetState().IsKeyDown(DirectX::Keyboard::OemPeriod) && !m_launched)
 	{
@@ -114,7 +114,7 @@ void Rocket::Update(float deltaTime, float currentTime)
 		if (vel > 1.0) vel = 1.0f;
 		if (vel < -1.0) vel = -1.0f;
 		
-		float angle = (vel - 1.0f) * -DirectX::XM_PI / 2;
+		const float angle = (vel - 1.0f) * -DirectX::XM_PI / 2;
 		if (angle * 57.2957795f > m_launchPitch)
 		{
 			SetOrientationRadians(0, 0, angle);
@@ -122,7 +122,7 @@ void Rocket::Update(float deltaTime, float currentTime)
 
 		Vector3 localUp = Vector3::Transform(Vector3(0, 1, 0), GetOrientation());
 		localUp.Normalize();
-		Vector3 tip = GetPosition() + localUp * 1.6f;
+		const Vector3 tip = GetPosition() + localUp * 1.6f;
 		if (m_voxelTerrain->SpaceshipHit(tip))
 		{
 			m_voxelTerrain->RemoveAtWithRadius(tip.x, tip.y, tip.z, 1.2f);

@@ -13,19 +13,22 @@ public:
 	Rocket(ID3D11Device1* device, std::shared_ptr<ParticleSystem> enginePS, std::shared_ptr<ParticleSystem> explosionPS, std::shared_ptr<Geometry> pole, std::shared_ptr<VoxelTerrain> voxelTerrain);
 	~Rocket();
 
+	Rocket(const Rocket& other) = default;
+	Rocket& operator=(const Rocket& other) = default;
+
 	// Interface implementation
 	void RenderDeferred(ID3D11DeviceContext1* context, const DirectX::SimpleMath::Matrix& view, const DirectX::SimpleMath::Matrix& proj) override;
 	void RenderShadow(ID3D11DeviceContext1* context, const DirectX::SimpleMath::Matrix& view, const DirectX::SimpleMath::Matrix& proj) override;
 
-	void SetDiffuseTexture(std::shared_ptr<Texture> texture) { m_diffuse = texture; }
-	void SetNormalTexture(std::shared_ptr<Texture> texture) { m_normal = texture; }
-	void SetSpecularTexture(std::shared_ptr<Texture> texture) { m_specular = texture; }
+	void SetDiffuseTexture(std::shared_ptr<Texture> const texture) { m_diffuse = texture; }
+	void SetNormalTexture(std::shared_ptr<Texture> const texture) { m_normal = texture; }
+	void SetSpecularTexture(std::shared_ptr<Texture> const texture) { m_specular = texture; }
 
 	void Update(float deltaTime, float currentTime) override;
 	void Reset();
 
-	DirectX::SimpleMath::Color GetLightColor() { return m_lightColor; }
-	DirectX::SimpleMath::Vector3 GetLightPosition() { return m_lightPosition; }
+	DirectX::SimpleMath::Color const &  GetLightColor() const { return m_lightColor; }
+	DirectX::SimpleMath::Vector3 const & GetLightPosition() const { return m_lightPosition; }
 
 private:
 	const float LAUNCH_PITCH_MIN = 10.0;
@@ -44,9 +47,9 @@ private:
 
 	std::shared_ptr<VoxelTerrain> m_voxelTerrain;
 
-	float m_deactivatedTime;
-	float m_launchPitch;
-	bool m_launched;
+	float m_deactivatedTime = 0;
+	float m_launchPitch = LAUNCH_PITCH_MIN;
+	bool m_launched = false;
 
 	DirectX::SimpleMath::Vector3 m_velocity;
 

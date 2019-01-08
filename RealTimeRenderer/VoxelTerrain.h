@@ -17,7 +17,7 @@ public:
 
 	void RemoveAt(int x, int y, int z);
 	void RemoveAtWithRadius(int x, int y, int z, float radius);
-	bool SpaceshipHit(DirectX::SimpleMath::Vector3 position);
+	bool SpaceshipHit(DirectX::SimpleMath::Vector3 const & position);
 
 	void Reset();
 
@@ -26,8 +26,8 @@ private:
 	const int Y_MAX = 10;
 	const int Z_MAX = 12;
 
-	unsigned int Clamp(unsigned int value, unsigned int min, unsigned int max);
-	bool InsideBounds(DirectX::SimpleMath::Vector3 position);
+	unsigned int Clamp(unsigned int value, unsigned int min, unsigned int max) const;
+	bool InsideBounds(DirectX::SimpleMath::Vector3 const & position) const;
 
 	std::unique_ptr<MeshRenderer> m_meshRenderer;
 	std::shared_ptr<Texture> m_diffuse;
