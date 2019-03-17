@@ -277,8 +277,8 @@ void Game::OnWindowSizeChanged(int const width, int const height)
 void Game::GetDefaultSize(int& width, int& height) const
 {
     // TODO: Change to desired default window size (note minimum size is 320x200).
-    width = 1000;
-    height = 800;
+    width = 1920;
+    height = 1080;
 }
 #pragma endregion
 

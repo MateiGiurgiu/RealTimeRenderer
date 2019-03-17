@@ -118,6 +118,7 @@ void Rocket::Update(float const deltaTime, float const currentTime)
 		if (angle * 57.2957795f > m_launchPitch)
 		{
 			SetOrientationRadians(0, 0, angle);
+			m_enginePS->SetOrientationRadians(0, 0, angle);
 		}
 
 		Vector3 localUp = Vector3::Transform(Vector3(0, 1, 0), GetOrientation());
