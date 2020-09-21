@@ -108,6 +108,7 @@ void Rocket::Update(float const deltaTime, float const currentTime)
 	}
 
 	m_lightPosition = m_explosionPS->GetPosition();
+	m_enginePS->SetOrientation(GetEulerAngles());
 	if(m_launched)
 	{
 		float vel = m_velocity.y / 10;
